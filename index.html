@@ -787,8 +787,8 @@
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pelo seu distrito.')">Meu distrito</div>
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pela sua igreja.')">Minha igreja</div>
               </div>
-              <input type="file" id="feedFileInput" accept="image/*,video/*" multiple style="display:none;" onchange="handleFeedFile(event)">
-              <button class="btn btn-solid" style="margin-bottom:14px;" onclick="document.getElementById('feedFileInput').click()">＋ Nova publicação</button>
+              <input type="file" id="feedFileInput" accept="image/*,video/*" multiple style="display:none;">
+              <button class="btn btn-solid" style="margin-bottom:14px;" onclick="toast('Abrindo seletor de fotos...'); document.getElementById('feedFileInput').click()">＋ Nova publicação</button>
               <div id="feedPosts">
                 <div class="post">
                   <div class="post-head"><div class="post-av">A</div><div style="flex:1;"><b>Líder de Central Teresina</b><span>há 2 horas</span></div><span class="post-tag">Estudo Bíblico</span></div>
@@ -1164,7 +1164,7 @@
           <div class="profile-card">
             <div class="newpost-section-title">🖼️ Fotos <span class="count" id="newPostPhotoCount">0/3</span></div>
             <div class="newpost-thumbs" id="newPostThumbs"></div>
-            <button class="btn btn-solid" onclick="document.getElementById('feedFileInput').click()">📷 Tirar ou escolher fotos</button>
+            <button class="btn btn-solid" onclick="toast('Abrindo seletor de fotos...'); document.getElementById('feedFileInput').click()">📷 Tirar ou escolher fotos</button>
           </div>
           <div class="profile-card">
             <div class="newpost-section-title">💬 Texto <span class="count" id="newPostCharCount">500</span></div>
@@ -1678,24 +1678,36 @@ function createFeedPostCarousel(urls, legenda, tag){
 var pendingPostMedia = [];
 var pendingPostTag = 'Testemunho';
 function handleFeedFile(event){
-  var files = event.target.files;
-  if(!files || !files.length) return;
-  event.target.value = '';
-  var slotsLeft = 3 - pendingPostMedia.length;
-  if(slotsLeft <= 0){ toast('Você já selecionou o máximo de 3 fotos.'); openNewPostScreen(); return; }
-  var fileList = Array.prototype.slice.call(files).slice(0, slotsLeft);
-  fileList.forEach(function(f){
-    var type = f.type.indexOf('video')===0 ? 'video' : 'image';
-    var reader = new FileReader();
-    reader.onload = function(e){
-      pendingPostMedia.push({ type:type, url:e.target.result });
-      openNewPostScreen();
-    };
-    reader.onerror = function(){
-      toast('Não foi possível carregar uma das fotos. Tente novamente.');
-    };
-    reader.readAsDataURL(f);
-  });
+  try{
+    toast('① Arquivo recebido pelo app...');
+    var files = event.target.files;
+    if(!files || !files.length){ toast('⚠️ Nenhum arquivo veio do seletor.'); return; }
+    event.target.value = '';
+    var slotsLeft = 3 - pendingPostMedia.length;
+    if(slotsLeft <= 0){ toast('Você já selecionou o máximo de 3 fotos.'); openNewPostScreen(); return; }
+    var fileList = Array.prototype.slice.call(files).slice(0, slotsLeft);
+    toast('② '+fileList.length+' arquivo(s) na fila...');
+    fileList.forEach(function(f){
+      var type = f.type.indexOf('video')===0 ? 'video' : 'image';
+      var reader = new FileReader();
+      reader.onload = function(e){
+        try{
+          toast('③ Foto lida com sucesso, abrindo tela...');
+          pendingPostMedia.push({ type:type, url:e.target.result });
+          openNewPostScreen();
+          toast('④ Tela de publicação deveria estar aberta agora.');
+        }catch(errInner){
+          toast('❌ Erro depois de ler a foto: '+errInner.message);
+        }
+      };
+      reader.onerror = function(){
+        toast('❌ Erro ao ler o arquivo (FileReader falhou).');
+      };
+      reader.readAsDataURL(f);
+    });
+  }catch(errOuter){
+    toast('❌ Erro logo no início: '+errOuter.message);
+  }
 }
 function openNewPostScreen(){
   renderNewPostThumbs();
@@ -3699,6 +3711,14 @@ function updateCadIgrejaOptions(){
 // init
 populateCadastroSelects();
 switchRole('lider');
+(function bindFeedFileInputBackup(){
+  var input = document.getElementById('feedFileInput');
+  if(!input) return;
+  input.addEventListener('change', function(e){
+    toast('⑤ Evento "change" do seletor disparou.');
+    handleFeedFile(e);
+  });
+})();
 </script>
 </body>
 </html>
