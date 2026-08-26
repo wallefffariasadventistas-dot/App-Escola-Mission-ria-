@@ -88,6 +88,11 @@
     font-size:14px; color:var(--ink); outline:none;
   }
   .field input:focus, .field select:focus{ border-color:var(--primary); }
+  .field label .lock-ic{ margin-left:4px; opacity:.6; text-transform:none; letter-spacing:0; }
+  .field input[readonly], .field select[disabled]{ background:#F3F5F7; color:var(--muted); cursor:not-allowed; }
+  .profile-card{ background:#fff; border:1px solid #EEF2F6; border-radius:16px; padding:16px; margin-bottom:14px;}
+  .profile-card-title{ display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:800; color:var(--navy); margin-bottom:14px;}
+  .profile-card-sub{ font-size:12px; color:var(--muted); margin:-8px 0 14px; line-height:1.5;}
   .radio-row{ display:flex; gap:10px; }
   .radio-chip{ flex:1; padding:11px; border:1.5px solid var(--line); border-radius:12px; text-align:center; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; background:#fff;}
   .radio-chip.active{ border-color:var(--primary); color:var(--primary); background:var(--primary-light); }
@@ -191,14 +196,26 @@
   /* Feed */
   .post{ background:#fff; border-radius:0; border-bottom:1px solid #EEF2F6; margin-bottom:14px; overflow:hidden;}
   .post-head{ display:flex; align-items:center; gap:10px; padding:10px 14px;}
+  .post-tag{ font-size:9.5px; font-weight:800; color:var(--primary); background:var(--primary-light); padding:5px 10px; border-radius:20px; flex:none; white-space:nowrap;}
   .post-av{ width:34px; height:34px; border-radius:50%; background:var(--purple); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:12px; overflow:hidden; flex:none;}
   .post-av img{ width:100%; height:100%; object-fit:cover; }
   .post-head b{ font-size:13px; display:block; }
   .post-head span{ font-size:11px; color:var(--muted); }
-  .post-media{ width:100%; aspect-ratio:1/1; background:linear-gradient(135deg,#cfe0ee,#9db8d1); display:flex; align-items:center; justify-content:center; color:#4c6a85; font-size:12px; font-weight:600; overflow:hidden; padding:0;}
+  .post-media{ width:100%; aspect-ratio:1/1; background:linear-gradient(135deg,#cfe0ee,#9db8d1); display:flex; align-items:center; justify-content:center; color:#4c6a85; font-size:12px; font-weight:600; overflow:hidden; padding:0; position:relative;}
+  .post-media.carousel{ display:block; }
+  .carousel-track{ display:flex; width:100%; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; -ms-overflow-style:none; scrollbar-width:none; }
+  .carousel-track::-webkit-scrollbar{ display:none; }
+  .carousel-track img, .carousel-track > div{ flex:none; width:100%; height:100%; object-fit:cover; scroll-snap-align:start; }
+  .carousel-counter{ position:absolute; top:10px; right:10px; background:rgba(0,0,0,.55); color:#fff; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; }
+  .carousel-dots{ display:flex; justify-content:center; gap:5px; padding:9px 0 2px; }
+  .carousel-dots .dot{ width:6px; height:6px; border-radius:50%; background:var(--line); }
+  .carousel-dots .dot.active{ background:var(--primary); }
+  .comment-emoji-row{ display:flex; gap:12px; padding:2px 2px 12px; overflow-x:auto; font-size:20px; -ms-overflow-style:none; scrollbar-width:none; }
+  .comment-emoji-row::-webkit-scrollbar{ display:none; }
+  .comment-emoji-row span{ cursor:pointer; flex:none; }
   .post-media img, .post-media video{ width:100%; height:100%; object-fit:cover; display:block; }
   .post-text{ padding:10px 14px 4px; font-size:13px; color:var(--ink); line-height:1.5;}
-  .post-actions{ display:flex; gap:18px; padding:10px 14px 14px; font-size:19px; color:var(--ink); font-weight:400;}
+  .post-actions{ display:flex; gap:14px; padding:10px 14px 14px; font-size:19px; color:var(--ink); font-weight:400;}
   .post-actions span{ cursor:pointer; display:flex; align-items:center; gap:5px; font-size:13px; font-weight:700; color:var(--muted);}
   .post-actions span.liked{ color:var(--red); }
   .post-comments{ padding:0 14px 14px; }
@@ -235,6 +252,9 @@
   .cube-face{ position:absolute; inset:0; backface-visibility:hidden; }
   .cube-face img{ width:100%; height:100%; object-fit:cover; display:block; }
   .story-viewer-top{ position:absolute; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; padding:calc(18px + env(safe-area-inset-top, 0px)) 12px 14px; background:linear-gradient(180deg,rgba(0,0,0,.55),transparent); color:#fff; font-size:12.5px; font-weight:700; z-index:3;}
+  .story-viewer-who{ display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .story-viewer-avatar{ width:26px; height:26px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; color:#fff; flex:none;}
+  .story-viewer-avatar img{ width:100%; height:100%; object-fit:cover; }
   .story-viewer-top .close{ cursor:pointer; font-size:20px; padding:2px 8px;}
   .story-progress{ position:absolute; top:6px; left:8px; right:8px; display:flex; gap:4px; z-index:3;}
   .story-progress .seg{ flex:1; height:2.5px; background:rgba(255,255,255,.35); border-radius:2px; overflow:hidden;}
@@ -262,6 +282,28 @@
   }
   .editor-send-btn:active{ filter:brightness(.9); }
   .editor-send-btn .arrow{ font-size:15px; }
+
+  /* ---------- Novo Post (Fotos / Texto / Categoria) ---------- */
+  .newpost-modal{ position:fixed; inset:0; background:var(--bg); display:none; flex-direction:column; z-index:216; }
+  .newpost-modal.show{ display:flex; }
+  .newpost-topbar{ flex:none; display:flex; align-items:center; justify-content:space-between; padding:calc(16px + env(safe-area-inset-top,0px)) 16px 14px; background:linear-gradient(135deg,var(--navy),var(--primary)); color:#fff; }
+  .newpost-topbar b{ font-size:15px; }
+  .newpost-topbar .cancel-btn{ width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:18px; cursor:pointer; border-radius:50%; background:rgba(255,255,255,.15); flex:none;}
+  .newpost-topbar .spacer{ width:32px; flex:none; }
+  .newpost-body{ flex:1; overflow-y:auto; padding:16px; }
+  .newpost-section-title{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color:var(--navy); margin-bottom:12px;}
+  .newpost-section-title .count{ margin-left:auto; font-weight:700; color:var(--muted); font-size:12px;}
+  .newpost-thumbs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .newpost-thumb{ position:relative; width:74px; height:74px; border-radius:10px; overflow:hidden; background:#EEF2F6; }
+  .newpost-thumb img, .newpost-thumb video{ width:100%; height:100%; object-fit:cover; }
+  .newpost-thumb .rm{ position:absolute; top:3px; right:3px; width:18px; height:18px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  #newPostText{ width:100%; padding:12px 14px; border-radius:12px; border:1.5px solid var(--line); font-size:13.5px; color:var(--ink); font-family:inherit; resize:vertical; outline:none; background:#fff;}
+  #newPostText:focus{ border-color:var(--primary); }
+  .tag-chip{ display:inline-block; padding:8px 14px; border-radius:20px; background:#fff; border:1.5px solid var(--line); font-size:12px; font-weight:700; color:var(--muted); cursor:pointer; margin:0 6px 6px 0; }
+  .tag-chip.active{ background:var(--primary); border-color:var(--primary); color:#fff; }
+  .newpost-bottombar{ flex:none; padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px)); background:#fff; border-top:1px solid var(--line); }
+  .newpost-publish-btn{ width:100%; border:none; background:var(--primary); color:#fff; font-size:15px; font-weight:800; padding:14px; border-radius:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .newpost-publish-btn:active{ filter:brightness(.92); }
 
   /* ---------- Profile picture ---------- */
   .profile-avatar-wrap{ display:flex; flex-direction:column; align-items:center; gap:10px; padding:12px 0 22px; }
@@ -292,6 +334,30 @@
   .indic-search-row b{ font-size:12.5px; display:block; }
   .indic-search-row span{ font-size:10.5px; color:var(--muted); }
   .indic-search-row .tag{ font-size:9.5px; font-weight:700; color:var(--muted); background:var(--bg); padding:3px 8px; border-radius:20px; flex:none;}
+
+  .suggestions-row{ display:flex; gap:10px; overflow-x:auto; padding:2px 2px 16px; -ms-overflow-style:none; scrollbar-width:none; }
+  .suggestions-row::-webkit-scrollbar{ display:none; }
+  .suggestion-card{ flex:none; width:132px; background:#fff; border:1px solid #EEF2F6; border-radius:14px; padding:14px 10px; text-align:center; }
+  .suggestion-card .av{ width:56px; height:56px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:16px; cursor:pointer; }
+  .suggestion-card b{ font-size:12px; display:block; cursor:pointer; font-weight:700; color:var(--ink); }
+  .suggestion-card span{ font-size:10px; color:var(--muted); display:block; margin:2px 0 8px; }
+  .suggestion-card button{ width:100%; border:none; padding:7px; border-radius:9px; font-size:11px; font-weight:700; cursor:pointer; }
+
+  .person-modal{ position:fixed; inset:0; background:rgba(15,25,35,.55); display:none; align-items:center; justify-content:center; z-index:220; padding:24px; }
+  .person-modal.show{ display:flex; }
+  .person-modal-card{ background:#fff; border-radius:20px; padding:26px 22px; width:100%; max-width:320px; text-align:center; position:relative; max-height:86vh; overflow-y:auto; }
+  .person-modal-close{ position:absolute; top:12px; right:14px; font-size:18px; color:var(--muted); cursor:pointer; }
+  .person-modal-avatar{ width:76px; height:76px; border-radius:50%; margin:6px auto 12px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:24px; }
+  .person-modal-name{ font-size:15.5px; font-weight:800; color:var(--navy); }
+  .person-modal-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .person-modal-stats{ display:flex; justify-content:space-around; margin:18px 0; }
+  .person-modal-stats b{ display:block; font-size:15px; font-weight:800; color:var(--navy); }
+  .person-modal-stats span{ font-size:10px; color:var(--muted); }
+  .person-modal-actions{ display:flex; gap:8px; margin-bottom:18px; }
+  .person-modal-actions .btn{ flex:1; padding:10px; font-size:12.5px; }
+  .btn-ghost-dark{ background:var(--bg); color:var(--ink); border:1px solid var(--line); }
+  .person-modal-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
+  .person-modal-grid div{ aspect-ratio:1/1; border-radius:6px; }
   .indic-scope-row{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
   .desafios-church-picker{ margin-bottom:14px; }
   .desafios-church-picker label{ display:block; font-size:10.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:5px;}
@@ -542,7 +608,7 @@
           <div class="app-body">
             <div class="sidebar" id="sidebar">
               <div class="sidebar-brand"><div class="logo-badge-sm">EM</div><b>Escola Missionária</b></div>
-              <div class="sidebar-role-row">
+              <div class="sidebar-role-row hidden" id="sidebarRoleRow">
                 <label>Visualizar como</label>
                 <select class="role-select-sidebar" id="roleSelectSidebar" onchange="switchRole(this.value)">
                   <option value="membro">Membro</option>
@@ -707,6 +773,12 @@
             <!-- ---- FEED ---- -->
             <div class="tabpane hidden" data-pane="feed">
               <div class="section-title">Feed Missionário</div>
+              <div class="friend-search-wrap indic-search-wrap">
+                <div class="search-box">🔍 <input id="friendSearchInput" oninput="filterFriendSearch()" placeholder="Buscar amigos..."></div>
+                <div class="indic-search-results hidden" id="friendSearchResults"></div>
+              </div>
+              <div class="section-title" style="font-size:12.5px; margin-top:2px;">Pessoas que você talvez conheça</div>
+              <div class="suggestions-row" id="feedSuggestionsRow"></div>
               <div class="stories-row" id="storiesRow"></div>
               <input type="file" id="storyFileInput" accept="image/*" style="display:none;" onchange="handleStoryFile(event)">
               <div class="filter-row">
@@ -715,16 +787,32 @@
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pelo seu distrito.')">Meu distrito</div>
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pela sua igreja.')">Minha igreja</div>
               </div>
-              <input type="file" id="feedFileInput" accept="image/*,video/*" capture="environment" style="display:none;" onchange="handleFeedFile(event)">
+              <input type="file" id="feedFileInput" accept="image/*,video/*" capture="environment" multiple style="display:none;" onchange="handleFeedFile(event)">
               <button class="btn btn-solid" style="margin-bottom:14px;" onclick="document.getElementById('feedFileInput').click()">＋ Nova publicação</button>
               <div id="feedPosts">
                 <div class="post">
-                  <div class="post-head"><div class="post-av">A</div><div><b>Líder de Central Teresina</b><span>há 2 horas</span></div></div>
+                  <div class="post-head"><div class="post-av">A</div><div style="flex:1;"><b>Líder de Central Teresina</b><span>há 2 horas</span></div><span class="post-tag">Estudo Bíblico</span></div>
                   <div class="post-media">📷 foto do estudo bíblico</div>
                   <div class="post-text">Mais uma família recebendo o estudo da Bíblia hoje! Glória a Deus pela abertura de corações. 🙏</div>
-                  <div class="post-actions"><span class="liked" onclick="toggleLike(this)">❤ 24 curtidas</span><span class="comment-toggle" onclick="toggleComments(this)">💬 6 comentários</span></div>
+                  <div class="post-actions">
+                    <span class="liked" onclick="toggleLike(this)">❤ 24 curtidas</span>
+                    <span class="comment-toggle" onclick="toggleComments(this)">💬 6 comentários</span>
+                    <span onclick="toggleRepost(this)">🔁 0</span>
+                    <span onclick="toast('Publicação enviada!')">📤</span>
+                    <span onclick="toggleSave(this)" style="margin-left:auto;">🔖</span>
+                  </div>
                   <div class="post-comments hidden">
                     <div class="comments-list"></div>
+                    <div class="comment-emoji-row">
+                      <span onclick="insertCommentEmoji(this,'❤️')">❤️</span>
+                      <span onclick="insertCommentEmoji(this,'🙌')">🙌</span>
+                      <span onclick="insertCommentEmoji(this,'🔥')">🔥</span>
+                      <span onclick="insertCommentEmoji(this,'👏')">👏</span>
+                      <span onclick="insertCommentEmoji(this,'😢')">😢</span>
+                      <span onclick="insertCommentEmoji(this,'😍')">😍</span>
+                      <span onclick="insertCommentEmoji(this,'😮')">😮</span>
+                      <span onclick="insertCommentEmoji(this,'😂')">😂</span>
+                    </div>
                     <div class="comment-input-row">
                       <input type="text" placeholder="Adicionar comentário..." onkeypress="if(event.key==='Enter'){addComment(this); event.preventDefault();}">
                       <button onclick="addComment(this.previousElementSibling)">Enviar</button>
@@ -732,12 +820,36 @@
                   </div>
                 </div>
                 <div class="post">
-                  <div class="post-head"><div class="post-av" style="background:var(--primary);">J</div><div><b>Pastor Eduardo Chateaubriand · Central Teresina</b><span>ontem</span></div></div>
-                  <div class="post-media">🎥 vídeo do Sábado Missionário</div>
+                  <div class="post-head"><div class="post-av" style="background:var(--primary);">J</div><div style="flex:1;"><b>Pastor Eduardo Chateaubriand · Central Teresina</b><span>ontem</span></div><span class="post-tag">Sábado Missionário</span></div>
+                  <div class="post-media carousel">
+                    <div class="carousel-track" onscroll="updateCarouselUI(this)">
+                      <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#cfe0ee,#9db8d1); color:#4c6a85; font-size:12px; font-weight:600;">🎥 vídeo do Sábado Missionário</div>
+                      <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#a9c4dd,#6f93b6); color:#fff; font-size:12px; font-weight:600;">📷 igrejas reunidas</div>
+                      <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#2C5F8A,#1B3A57); color:#fff; font-size:12px; font-weight:600;">📷 encerramento</div>
+                    </div>
+                    <div class="carousel-counter">1/3</div>
+                  </div>
+                  <div class="carousel-dots"><span class="dot active"></span><span class="dot"></span><span class="dot"></span></div>
                   <div class="post-text">Tarde abençoada de ação missionária com as igrejas do distrito. Parabéns aos líderes envolvidos!</div>
-                  <div class="post-actions"><span onclick="toggleLike(this)">🤍 41 curtidas</span><span class="comment-toggle" onclick="toggleComments(this)">💬 9 comentários</span></div>
+                  <div class="post-actions">
+                    <span onclick="toggleLike(this)">🤍 41 curtidas</span>
+                    <span class="comment-toggle" onclick="toggleComments(this)">💬 9 comentários</span>
+                    <span onclick="toggleRepost(this)">🔁 0</span>
+                    <span onclick="toast('Publicação enviada!')">📤</span>
+                    <span onclick="toggleSave(this)" style="margin-left:auto;">🔖</span>
+                  </div>
                   <div class="post-comments hidden">
                     <div class="comments-list"></div>
+                    <div class="comment-emoji-row">
+                      <span onclick="insertCommentEmoji(this,'❤️')">❤️</span>
+                      <span onclick="insertCommentEmoji(this,'🙌')">🙌</span>
+                      <span onclick="insertCommentEmoji(this,'🔥')">🔥</span>
+                      <span onclick="insertCommentEmoji(this,'👏')">👏</span>
+                      <span onclick="insertCommentEmoji(this,'😢')">😢</span>
+                      <span onclick="insertCommentEmoji(this,'😍')">😍</span>
+                      <span onclick="insertCommentEmoji(this,'😮')">😮</span>
+                      <span onclick="insertCommentEmoji(this,'😂')">😂</span>
+                    </div>
                     <div class="comment-input-row">
                       <input type="text" placeholder="Adicionar comentário..." onkeypress="if(event.key==='Enter'){addComment(this); event.preventDefault();}">
                       <button onclick="addComment(this.previousElementSibling)">Enviar</button>
@@ -855,13 +967,62 @@
                 <div class="stat-block" onclick="openFollowList('following')"><b id="statFollowing">0</b><span>seguindo</span></div>
               </div>
 
-              <div class="field">
-                <label>Bio</label>
-                <textarea id="profileBio" rows="3" placeholder="Conte um pouco sobre você...">Servindo a Missão Piauiense com alegria! 🙏</textarea>
-                <button class="btn btn-solid" style="margin-top:8px; width:auto; padding:9px 18px;" onclick="saveBio()">Salvar bio</button>
+              <div class="profile-card">
+                <div class="profile-card-title">👤 Informações Básicas</div>
+                <div class="field"><label>Nome Completo</label><input id="pInfoNome" placeholder="Seu nome completo"></div>
+                <div class="field"><label>Como quer ser chamado</label><input id="pInfoApelido" placeholder="Ex: Ana"></div>
+                <div class="field" style="margin-bottom:0;">
+                  <label>Bio</label>
+                  <textarea id="profileBio" rows="3" placeholder="Conte um pouco sobre você...">Servindo a Missão Piauiense com alegria! 🙏</textarea>
+                </div>
               </div>
 
-              <div id="followListPanel" class="card hidden">
+              <div class="profile-card">
+                <div class="profile-card-title">📍 Localização</div>
+                <div class="two-col">
+                  <div class="field"><label>País</label><select id="pInfoPais"><option>Brasil</option></select></div>
+                  <div class="field"><label>Estado</label><select id="pInfoEstado"><option>Piauí</option></select></div>
+                </div>
+                <div class="field"><label>Cidade</label><select id="pInfoCidade"><option>Teresina</option></select></div>
+                <div class="field"><label>União</label><select id="pInfoUniao" disabled><option>União Nordeste Brasileira</option></select></div>
+                <div class="field" style="margin-bottom:0;"><label>Associação</label><select id="pInfoAssociacao" disabled><option>Missão Piauiense</option></select></div>
+              </div>
+
+              <div class="profile-card">
+                <div class="profile-card-title">ℹ️ Informações Avançadas</div>
+                <div class="field"><label>Data de Nascimento</label><input id="pInfoNascimento" type="date"></div>
+                <div class="field"><label>Gênero *</label><select id="pInfoGenero"><option value="">Selecione</option><option>Masculino</option><option>Feminino</option></select></div>
+                <div class="field"><label>Nacionalidade <span class="lock-ic">🔒</span></label><input id="pInfoNacionalidade" value="Brasil" readonly></div>
+                <div class="field"><label>E-mail <span class="lock-ic">🔒</span></label><input id="pInfoEmail" readonly placeholder="Definido no cadastro"></div>
+                <div class="field"><label>Celular <span class="lock-ic">🔒</span></label><input id="pInfoCelular" readonly placeholder="Definido no cadastro"></div>
+                <div class="field"><label>CPF</label><input id="pInfoCpf" placeholder="000.000.000-00"></div>
+                <div class="field" style="margin-bottom:0;"><label>Instagram</label><input id="pInfoInstagram" placeholder="@seuusuario"></div>
+              </div>
+
+              <div class="profile-card">
+                <div class="profile-card-title">🔒 Privacidade</div>
+                <div class="profile-card-sub">Defina quais informações são visíveis publicamente no seu perfil.</div>
+                <div class="toggle-row">
+                  <div><b style="font-size:12.5px;">Estado Civil</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Mostrar se você é solteiro(a), casado(a), etc.</div></div>
+                  <div class="switch on" id="privEstadoCivilToggle" onclick="this.classList.toggle('on'); document.getElementById('pInfoEstadoCivilWrap').classList.toggle('hidden', !this.classList.contains('on'));"><div class="knob"></div></div>
+                </div>
+                <div class="field" id="pInfoEstadoCivilWrap">
+                  <label>Seu Status</label>
+                  <select id="pInfoEstadoCivil"><option>Solteiro(a)</option><option>Casado(a)</option><option>Viúvo(a)</option><option>Divorciado(a)</option></select>
+                </div>
+                <div class="toggle-row">
+                  <div><b style="font-size:12.5px;">Idade</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Exibir sua idade no perfil público</div></div>
+                  <div class="switch" id="privIdadeToggle" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
+                </div>
+                <div class="toggle-row" style="margin-bottom:0;">
+                  <div><b style="font-size:12.5px;">Cidade</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Mostrar sua localização atual</div></div>
+                  <div class="switch on" id="privCidadeToggle" onclick="this.classList.toggle('on')"><div class="knob"></div></div>
+                </div>
+              </div>
+
+              <button class="btn btn-solid" onclick="saveProfileInfo()">💾 Salvar Alterações</button>
+
+              <div id="followListPanel" class="card hidden" style="margin-top:14px;">
                 <div class="detail-title" id="followListTitle" style="margin-bottom:8px;"></div>
                 <div id="followListBody"></div>
                 <div style="text-align:right; margin-top:8px;"><button class="btn-reject" style="border:none; padding:8px 14px; border-radius:9px; font-size:12px; font-weight:700; cursor:pointer;" onclick="closeFollowList()">Fechar</button></div>
@@ -919,8 +1080,8 @@
           <div class="more-sheet" id="moreSheet" onclick="if(event.target===this) closeMore()">
             <div class="sheet-panel">
               <div class="sheet-handle"></div>
-              <div class="sheet-title">Visualizar como</div>
-              <div class="sheet-role-row">
+              <div class="sheet-title hidden" id="sheetRoleTitle">Visualizar como</div>
+              <div class="sheet-role-row hidden" id="sheetRoleRow">
                 <select class="role-select-sheet" id="roleSelectSheet" onchange="switchRole(this.value)">
                   <option value="membro">Membro</option>
                   <option value="lider" selected>Líder</option>
@@ -953,7 +1114,10 @@
         <div class="story-viewer-frame" id="storyViewerFrame">
           <div class="story-progress" id="storyProgressWrap"></div>
           <div class="story-viewer-top">
-            <span id="storyViewerName">Nome</span>
+            <div class="story-viewer-who" onclick="goToStoryPersonProfile()">
+              <div class="story-viewer-avatar" id="storyViewerAvatar"></div>
+              <span id="storyViewerName">Nome</span>
+            </div>
             <span class="close" onclick="closeStoryViewer()">✕</span>
           </div>
           <div class="story-cube-wrap" id="storyCubeWrap">
@@ -965,7 +1129,64 @@
         </div>
       </div>
 
+      <!-- Perfil de outra pessoa (busca / sugestões / seguidores) -->
+      <div class="person-modal" id="personModal" onclick="if(event.target===this) closePersonProfile()">
+        <div class="person-modal-card">
+          <span class="person-modal-close" onclick="closePersonProfile()">✕</span>
+          <div class="person-modal-avatar" id="personModalAvatar"></div>
+          <div class="person-modal-name" id="personModalName"></div>
+          <div class="person-modal-sub" id="personModalSub"></div>
+          <div class="person-modal-stats">
+            <div><b id="personModalPosts">0</b><span>publicações</span></div>
+            <div><b id="personModalFollowers">0</b><span>seguidores</span></div>
+            <div><b id="personModalFollowing">0</b><span>seguindo</span></div>
+          </div>
+          <div class="person-modal-actions">
+            <button class="btn btn-solid" id="personModalFollowBtn" onclick="togglePersonFollow()">Seguir</button>
+            <button class="btn btn-ghost-dark" onclick="toast('Mensagens diretas ainda não estão disponíveis neste protótipo.')">Mensagem</button>
+          </div>
+          <div class="person-modal-grid" id="personModalGrid"></div>
+        </div>
+      </div>
+
       <!-- Photo editor (crop / move / zoom) -->
+      <!-- Novo Post: fotos, texto e categoria -->
+      <div class="newpost-modal" id="newPostModal">
+        <div class="newpost-topbar">
+          <span class="cancel-btn" onclick="cancelNewPost()">✕</span>
+          <div style="text-align:center;">
+            <b>Novo Post</b>
+            <div style="font-size:11px; opacity:.85;">Compartilhe com a comunidade</div>
+          </div>
+          <span class="spacer"></span>
+        </div>
+        <div class="newpost-body">
+          <div class="profile-card">
+            <div class="newpost-section-title">🖼️ Fotos <span class="count" id="newPostPhotoCount">0/3</span></div>
+            <div class="newpost-thumbs" id="newPostThumbs"></div>
+            <button class="btn btn-solid" onclick="document.getElementById('feedFileInput').click()">📷 Tirar ou escolher fotos</button>
+          </div>
+          <div class="profile-card">
+            <div class="newpost-section-title">💬 Texto <span class="count" id="newPostCharCount">500</span></div>
+            <textarea id="newPostText" rows="4" maxlength="500" placeholder="Compartilhe algo com a comunidade..." oninput="updateNewPostCharCount()"></textarea>
+          </div>
+          <div class="profile-card" style="margin-bottom:0;">
+            <div class="newpost-section-title">🏷️ Selecione a categoria do post</div>
+            <div id="newPostTags">
+              <span class="tag-chip active" onclick="selectPostTag(this)">Testemunho</span>
+              <span class="tag-chip" onclick="selectPostTag(this)">Estudo Bíblico</span>
+              <span class="tag-chip" onclick="selectPostTag(this)">Batismo</span>
+              <span class="tag-chip" onclick="selectPostTag(this)">Sábado Missionário</span>
+              <span class="tag-chip" onclick="selectPostTag(this)">Comunhão</span>
+              <span class="tag-chip" onclick="selectPostTag(this)">Outro</span>
+            </div>
+          </div>
+        </div>
+        <div class="newpost-bottombar">
+          <button type="button" class="newpost-publish-btn" onclick="publishNewPost()">➤ Publicar</button>
+        </div>
+      </div>
+
       <div class="editor-modal" id="editorModal">
         <div class="editor-topbar">
           <span class="cancel-btn" onclick="cancelEditor()">✕</span>
@@ -1027,13 +1248,17 @@ function go(pane){
   if(pane==='ranking' && typeof applyRankingRoleRestrictions==='function') applyRankingRoleRestrictions();
   if(pane==='desafios' && typeof applyDesafiosRoleRestrictions==='function') applyDesafiosRoleRestrictions();
   if(pane==='galeria' && typeof renderGallery==='function') renderGallery();
-  if(pane==='feed' && typeof renderStories==='function') renderStories();
+  if(pane==='feed'){
+    if(typeof renderStories==='function') renderStories();
+    if(typeof renderFeedSuggestions==='function') renderFeedSuggestions();
+  }
   if(pane==='indicadores' && typeof renderIndicadoresView==='function') renderIndicadoresView();
   if(pane==='perfil'){
     if(typeof updatePostCountUI==='function') updatePostCountUI();
     if(typeof updateFollowersCountUI==='function') updateFollowersCountUI();
     if(typeof updateFollowingCount==='function') updateFollowingCount();
     if(typeof renderFollowSuggestions==='function') renderFollowSuggestions();
+    if(typeof populateProfileForm==='function') populateProfileForm();
   }
 }
 function openMore(){ document.getElementById('moreSheet').classList.add('show'); }
@@ -1365,37 +1590,154 @@ function addComment(inputEl){
     commentSpan.innerHTML = '💬 '+c+' comentários';
   }
 }
-function createFeedPost(src, isVideo, legenda){
+function buildPostInteractionsHtml(likeSpanHtml, commentCount){
+  var emojiRow = ['❤️','🙌','🔥','👏','😢','😍','😮','😂'].map(function(e){
+    return '<span onclick="insertCommentEmoji(this,\''+e+'\')">'+e+'</span>';
+  }).join('');
+  return '<div class="post-actions">'
+    + likeSpanHtml
+    + '<span class="comment-toggle" onclick="toggleComments(this)">💬 '+commentCount+' comentários</span>'
+    + '<span onclick="toggleRepost(this)">🔁 0</span>'
+    + '<span onclick="toast(\'Publicação enviada!\')">📤</span>'
+    + '<span onclick="toggleSave(this)" style="margin-left:auto;">🔖</span>'
+    + '</div>'
+    + '<div class="post-comments hidden">'
+    + '<div class="comments-list"></div>'
+    + '<div class="comment-emoji-row">'+emojiRow+'</div>'
+    + '<div class="comment-input-row"><input type="text" placeholder="Adicionar comentário..." onkeypress="if(event.key===\'Enter\'){addComment(this); event.preventDefault();}"><button onclick="addComment(this.previousElementSibling)">Enviar</button></div>'
+    + '</div>';
+}
+function toggleRepost(el){
+  var match = el.textContent.match(/(\d+)/);
+  var count = match ? parseInt(match[1],10) : 0;
+  if(el.classList.contains('reposted')){
+    el.classList.remove('reposted');
+    count = Math.max(0, count-1);
+  } else {
+    el.classList.add('reposted');
+    count = count+1;
+    toast('Republicado no seu perfil!');
+  }
+  el.innerHTML = '🔁 '+count;
+}
+function toggleSave(el){
+  el.classList.toggle('saved');
+  el.textContent = el.classList.contains('saved') ? '📑' : '🔖';
+  toast(el.classList.contains('saved') ? 'Publicação salva.' : 'Removida dos salvos.');
+}
+function insertCommentEmoji(el, emoji){
+  var panel = el.closest('.post-comments');
+  var input = panel ? panel.querySelector('.comment-input-row input') : null;
+  if(input){ input.value += emoji; input.focus(); }
+}
+function updateCarouselUI(trackEl){
+  var post = trackEl.closest('.post');
+  if(!post) return;
+  var total = trackEl.children.length;
+  var idx = Math.round(trackEl.scrollLeft / trackEl.clientWidth);
+  idx = Math.max(0, Math.min(total-1, idx));
+  var counterEl = post.querySelector('.carousel-counter');
+  if(counterEl) counterEl.textContent = (idx+1)+'/'+total;
+  var dots = post.querySelectorAll('.carousel-dots .dot');
+  dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+}
+function createFeedPost(src, isVideo, legenda, tag){
   var mediaHtml = isVideo
     ? '<video src="'+src+'" controls></video>'
     : '<img src="'+src+'">';
   var avatarHtml = myProfilePic ? '<img src="'+myProfilePic+'">' : 'Eu';
   var post = document.createElement('div');
   post.className = 'post';
-  post.innerHTML = '<div class="post-head"><div class="post-av">'+avatarHtml+'</div><div><b>Você</b><span>agora mesmo</span></div></div>'
+  post.innerHTML = '<div class="post-head"><div class="post-av">'+avatarHtml+'</div><div style="flex:1;"><b>Você</b><span>agora mesmo</span></div>'
+    + (tag ? '<span class="post-tag">'+tag+'</span>' : '') + '</div>'
     + '<div class="post-media">'+mediaHtml+'</div>'
     + (legenda ? '<div class="post-text">'+legenda+'</div>' : '')
-    + '<div class="post-actions"><span onclick="toggleLike(this)">🤍 0 curtidas</span><span class="comment-toggle" onclick="toggleComments(this)">💬 0 comentários</span></div>'
-    + '<div class="post-comments hidden">'
-    + '<div class="comments-list"></div>'
-    + '<div class="comment-input-row"><input type="text" placeholder="Adicionar comentário..." onkeypress="if(event.key===\'Enter\'){addComment(this); event.preventDefault();}"><button onclick="addComment(this.previousElementSibling)">Enviar</button></div>'
-    + '</div>';
+    + buildPostInteractionsHtml('<span onclick="toggleLike(this)">🤍 0 curtidas</span>', 0);
   document.getElementById('feedPosts').prepend(post);
   myPostCount++;
   updatePostCountUI();
-  toast('Publicação adicionada ao Feed!');
+  toast('Post criado com sucesso!');
 }
+function createFeedPostCarousel(urls, legenda, tag){
+  var avatarHtml = myProfilePic ? '<img src="'+myProfilePic+'">' : 'Eu';
+  var imgsHtml = urls.map(function(u){ return '<img src="'+u+'">'; }).join('');
+  var dotsHtml = urls.map(function(_,i){ return '<span class="dot'+(i===0 ? ' active' : '')+'"></span>'; }).join('');
+  var post = document.createElement('div');
+  post.className = 'post';
+  post.innerHTML = '<div class="post-head"><div class="post-av">'+avatarHtml+'</div><div style="flex:1;"><b>Você</b><span>agora mesmo</span></div>'
+    + (tag ? '<span class="post-tag">'+tag+'</span>' : '') + '</div>'
+    + '<div class="post-media carousel"><div class="carousel-track" onscroll="updateCarouselUI(this)">'+imgsHtml+'</div><div class="carousel-counter">1/'+urls.length+'</div></div>'
+    + '<div class="carousel-dots">'+dotsHtml+'</div>'
+    + (legenda ? '<div class="post-text">'+legenda+'</div>' : '')
+    + buildPostInteractionsHtml('<span onclick="toggleLike(this)">🤍 0 curtidas</span>', 0);
+  document.getElementById('feedPosts').prepend(post);
+  myPostCount++;
+  updatePostCountUI();
+  toast('Post criado com sucesso!');
+}
+var pendingPostMedia = [];
+var pendingPostTag = 'Testemunho';
 function handleFeedFile(event){
-  var file = event.target.files && event.target.files[0];
-  if(!file) return;
+  var files = event.target.files;
+  if(!files || !files.length) return;
   event.target.value = '';
-  if(file.type.indexOf('video')===0){
-    var url = URL.createObjectURL(file);
-    var legenda = prompt('Escreva uma legenda para a publicação:', '') || '';
-    createFeedPost(url, true, legenda);
-    return;
+  Array.prototype.slice.call(files).forEach(function(f){
+    if(pendingPostMedia.length >= 3) return;
+    var type = f.type.indexOf('video')===0 ? 'video' : 'image';
+    pendingPostMedia.push({ type:type, url:URL.createObjectURL(f) });
+  });
+  if(!pendingPostMedia.length){ toast('Selecione ao menos uma foto ou vídeo.'); return; }
+  openNewPostScreen();
+}
+function openNewPostScreen(){
+  renderNewPostThumbs();
+  document.getElementById('newPostModal').classList.add('show');
+}
+function renderNewPostThumbs(){
+  var wrap = document.getElementById('newPostThumbs');
+  wrap.innerHTML = pendingPostMedia.map(function(m,i){
+    var inner = m.type==='video' ? '<video src="'+m.url+'" muted></video>' : '<img src="'+m.url+'">';
+    return '<div class="newpost-thumb">'+inner+'<span class="rm" onclick="removePendingMedia('+i+')">✕</span></div>';
+  }).join('');
+  document.getElementById('newPostPhotoCount').textContent = pendingPostMedia.length+'/3';
+}
+function removePendingMedia(i){
+  pendingPostMedia.splice(i,1);
+  renderNewPostThumbs();
+}
+function selectPostTag(el){
+  el.parentElement.querySelectorAll('.tag-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  pendingPostTag = el.textContent;
+}
+function updateNewPostCharCount(){
+  var ta = document.getElementById('newPostText');
+  document.getElementById('newPostCharCount').textContent = 500 - ta.value.length;
+}
+function cancelNewPost(){
+  pendingPostMedia = [];
+  document.getElementById('newPostText').value = '';
+  updateNewPostCharCount();
+  document.getElementById('newPostModal').classList.remove('show');
+}
+function publishNewPost(){
+  if(!pendingPostMedia.length){ toast('Adicione ao menos uma foto ou vídeo.'); return; }
+  var legenda = document.getElementById('newPostText').value.trim();
+  var tag = pendingPostTag;
+  var media = pendingPostMedia.slice();
+  document.getElementById('newPostModal').classList.remove('show');
+  if(media.length===1){
+    createFeedPost(media[0].url, media[0].type==='video', legenda, tag);
+  } else {
+    createFeedPostCarousel(media.map(function(m){ return m.url; }), legenda, tag);
   }
-  openEditor(file, 'feed');
+  pendingPostMedia = [];
+  document.getElementById('newPostText').value = '';
+  updateNewPostCharCount();
+  var tagsWrap = document.getElementById('newPostTags');
+  var chips = tagsWrap.querySelectorAll('.tag-chip');
+  chips.forEach(function(c,i){ c.classList.toggle('active', i===0); });
+  pendingPostTag = chips[0] ? chips[0].textContent : 'Testemunho';
 }
 function handleProfileFile(event){
   var file = event.target.files && event.target.files[0];
@@ -1492,9 +1834,6 @@ function confirmEditor(){
     myProfilePic = dataUrl;
     updateProfileAvatarUI();
     toast('Foto de perfil atualizada!');
-  } else if(type==='feed'){
-    var legenda = prompt('Escreva uma legenda para a publicação:', '') || '';
-    createFeedPost(dataUrl, false, legenda);
   } else if(type==='story'){
     myStories.push({ id:Date.now(), img:dataUrl, createdAt:Date.now() });
     renderStories();
@@ -1513,6 +1852,12 @@ function confirmEditor(){
 var myProfilePic = null;
 var myBio = 'Servindo a Missão Piauiense com alegria! 🙏';
 var myPostCount = 0;
+var mySignupEmail = '';
+var mySignupTelefone = '';
+var myProfileInfo = {
+  nome:'', apelido:'', dataNascimento:'', genero:'', cpf:'', instagram:'',
+  privacidade:{ estadoCivilVisivel:true, estadoCivil:'Solteiro(a)', idadeVisivel:false, cidadeVisivel:true }
+};
 function updateProfileAvatarUI(){
   var big = document.getElementById('profileAvatarBig');
   if(myProfilePic){
@@ -1522,64 +1867,108 @@ function updateProfileAvatarUI(){
   }
   renderStories();
 }
-function saveBio(){
+function populateProfileForm(){
+  var nomeEl = document.getElementById('pInfoNome');
+  if(!nomeEl) return;
+  nomeEl.value = myProfileInfo.nome;
+  document.getElementById('pInfoApelido').value = myProfileInfo.apelido;
+  document.getElementById('profileBio').value = myBio;
+  document.getElementById('pInfoNascimento').value = myProfileInfo.dataNascimento;
+  document.getElementById('pInfoGenero').value = myProfileInfo.genero;
+  document.getElementById('pInfoCpf').value = myProfileInfo.cpf;
+  document.getElementById('pInfoInstagram').value = myProfileInfo.instagram;
+  document.getElementById('pInfoEmail').value = mySignupEmail;
+  document.getElementById('pInfoCelular').value = mySignupTelefone;
+  document.getElementById('pInfoEstadoCivil').value = myProfileInfo.privacidade.estadoCivil;
+  var civToggle = document.getElementById('privEstadoCivilToggle');
+  civToggle.classList.toggle('on', myProfileInfo.privacidade.estadoCivilVisivel);
+  document.getElementById('pInfoEstadoCivilWrap').classList.toggle('hidden', !myProfileInfo.privacidade.estadoCivilVisivel);
+  document.getElementById('privIdadeToggle').classList.toggle('on', myProfileInfo.privacidade.idadeVisivel);
+  document.getElementById('privCidadeToggle').classList.toggle('on', myProfileInfo.privacidade.cidadeVisivel);
+}
+function saveProfileInfo(){
+  myProfileInfo.nome = document.getElementById('pInfoNome').value.trim();
+  myProfileInfo.apelido = document.getElementById('pInfoApelido').value.trim();
   myBio = document.getElementById('profileBio').value.trim();
-  toast('Bio atualizada!');
+  myProfileInfo.dataNascimento = document.getElementById('pInfoNascimento').value;
+  myProfileInfo.genero = document.getElementById('pInfoGenero').value;
+  myProfileInfo.cpf = document.getElementById('pInfoCpf').value.trim();
+  myProfileInfo.instagram = document.getElementById('pInfoInstagram').value.trim();
+  myProfileInfo.privacidade.estadoCivilVisivel = document.getElementById('privEstadoCivilToggle').classList.contains('on');
+  myProfileInfo.privacidade.estadoCivil = document.getElementById('pInfoEstadoCivil').value;
+  myProfileInfo.privacidade.idadeVisivel = document.getElementById('privIdadeToggle').classList.contains('on');
+  myProfileInfo.privacidade.cidadeVisivel = document.getElementById('privCidadeToggle').classList.contains('on');
+  toast('Alterações salvas com sucesso!');
 }
 function updatePostCountUI(){
   var el = document.getElementById('statPosts');
   if(el) el.textContent = myPostCount;
 }
 
-/* ---- Seguir / seguidores ---- */
-var followableUsers = [
-  { id:1, nome:'Líder Marcos', sub:'Igreja Nova Vida', following:false },
-  { id:2, nome:'Líder Fernanda', sub:'Igreja Renovo', following:false },
-  { id:3, nome:'Pastor Elias', sub:'Distrito Norte', following:true },
-  { id:4, nome:'Robson Alves', sub:'Igreja Getsêmani', following:false }
+/* ---- Diretório de pessoas (seguir / seguidores / perfis) ---- */
+var peopleDirectory = [
+  { id:1, nome:'Líder Marcos', sub:'Central Teresina', initials:'LM', color:'var(--primary)', following:false, followsYou:true, posts:14, followersBase:32, followingBase:18 },
+  { id:2, nome:'Líder Fernanda', sub:'Parnaíba', initials:'LF', color:'var(--purple)', following:false, followsYou:false, posts:9, followersBase:21, followingBase:26 },
+  { id:3, nome:'Pastor Eduardo Chateaubriand', sub:'Central Teresina', initials:'EC', color:'var(--green)', following:true, followsYou:true, posts:22, followersBase:58, followingBase:12 },
+  { id:4, nome:'Robson Alves', sub:'Guadalupe', initials:'RA', color:'var(--red)', following:false, followsYou:false, posts:6, followersBase:15, followingBase:20 },
+  { id:5, nome:'Líder Ana', sub:'Aeroporto - Teresina', initials:'LA', color:'#D9822B', following:false, followsYou:true, posts:17, followersBase:29, followingBase:14 },
+  { id:6, nome:'Pastor Emerson Paulo Da Silva', sub:'Aeroporto - PI', initials:'EP', color:'var(--primary)', following:false, followsYou:true, posts:11, followersBase:47, followingBase:9 },
+  { id:7, nome:'Maria Fernandes', sub:'Porto Alegre', initials:'MF', color:'var(--green)', following:false, followsYou:true, posts:8, followersBase:19, followingBase:22 },
+  { id:8, nome:'Pastor Mizael Almeida Cavalcanti', sub:'Parnaíba', initials:'MC', color:'var(--purple)', following:false, followsYou:false, posts:13, followersBase:41, followingBase:11 },
+  { id:9, nome:'Líder Robson', sub:'Floriano', initials:'LR', color:'var(--red)', following:false, followsYou:false, posts:5, followersBase:12, followingBase:16 },
+  { id:10, nome:'Pastora Raniele Gonçalves Costa', sub:'São Raimundo Nonato', initials:'RC', color:'#1F8A70', following:false, followsYou:true, posts:19, followersBase:36, followingBase:10 }
 ];
-var followersDemo = ['Líder Ana','Pastor João','Maria Fernandes','Robson Alves','Líder Fernanda','Pr. Carlos Meneses'];
-var myFollowersCount = followersDemo.length + 12;
+var myFollowersPadding = 12;
+var currentPersonModalId = null;
+
 function renderFollowSuggestions(){
   var wrap = document.getElementById('followSuggestions');
   if(!wrap) return;
-  wrap.innerHTML = followableUsers.map(function(u){
-    return '<div class="active-user-row"><div class="pav">'+initials(u.nome)+'</div><div style="flex:1;"><b>'+u.nome+'</b><span>'+u.sub+'</span></div>'
-      + '<div class="row-actions"><button class="'+(u.following?'btn-reject':'btn-approve')+'" onclick="toggleFollow('+u.id+')">'+(u.following?'Seguindo':'Seguir')+'</button></div></div>';
+  wrap.innerHTML = peopleDirectory.map(function(u){
+    return '<div class="active-user-row"><div class="pav" style="background:'+u.color+'; color:#fff; cursor:pointer;" onclick="openPersonProfile('+u.id+')">'+u.initials+'</div><div style="flex:1; cursor:pointer;" onclick="openPersonProfile('+u.id+')"><b>'+u.nome+'</b><span>'+u.sub+'</span></div>'
+      + '<div class="row-actions"><button class="'+(u.following?'btn-reject':'btn-approve')+'" onclick="togglePersonFollowById('+u.id+')">'+(u.following?'Seguindo':'Seguir')+'</button></div></div>';
   }).join('');
 }
-function toggleFollow(id){
-  var u = followableUsers.find(function(x){ return x.id===id; });
+function togglePersonFollowById(id){
+  var u = peopleDirectory.find(function(x){ return x.id===id; });
   if(!u) return;
   u.following = !u.following;
+  if(u.following) u.followsYou = true;
   renderFollowSuggestions();
+  if(typeof renderFeedSuggestions==='function') renderFeedSuggestions();
+  if(typeof filterFriendSearch==='function') filterFriendSearch();
+  if(currentPersonModalId===id) updatePersonModalFollowBtn();
   updateFollowingCount();
+  updateFollowersCountUI();
   toast(u.following ? ('Você começou a seguir '+u.nome+'.') : ('Você deixou de seguir '+u.nome+'.'));
 }
 function updateFollowingCount(){
-  var count = followableUsers.filter(function(u){ return u.following; }).length;
+  var count = peopleDirectory.filter(function(u){ return u.following; }).length;
   var el = document.getElementById('statFollowing');
   if(el) el.textContent = count;
 }
 function updateFollowersCountUI(){
+  var count = peopleDirectory.filter(function(u){ return u.followsYou; }).length + myFollowersPadding;
   var el = document.getElementById('statFollowers');
-  if(el) el.textContent = myFollowersCount;
+  if(el) el.textContent = count;
 }
 function openFollowList(type){
   var panel = document.getElementById('followListPanel');
   var title = document.getElementById('followListTitle');
   var body = document.getElementById('followListBody');
   if(type==='followers'){
-    title.textContent = 'Seguidores ('+myFollowersCount+')';
-    body.innerHTML = followersDemo.map(function(n){
-      return '<div class="active-user-row"><div class="pav">'+initials(n)+'</div><div style="flex:1;"><b>'+n+'</b></div></div>';
-    }).join('') + '<div class="empty-note">+ '+(myFollowersCount-followersDemo.length)+' outras pessoas seguem você</div>';
+    var followers = peopleDirectory.filter(function(u){ return u.followsYou; });
+    title.textContent = 'Seguidores ('+(followers.length+myFollowersPadding)+')';
+    body.innerHTML = followers.map(function(u){
+      return '<div class="active-user-row"><div class="pav" style="background:'+u.color+'; color:#fff; cursor:pointer;" onclick="openPersonProfile('+u.id+')">'+u.initials+'</div><div style="flex:1; cursor:pointer;" onclick="openPersonProfile('+u.id+')"><b>'+u.nome+'</b><span>'+u.sub+'</span></div>'
+        + '<div class="row-actions"><button class="'+(u.following?'btn-reject':'btn-approve')+'" onclick="togglePersonFollowById('+u.id+'); openFollowList(\'followers\')">'+(u.following?'Seguindo':'Seguir de volta')+'</button></div></div>';
+    }).join('') + '<div class="empty-note">+ '+myFollowersPadding+' outras pessoas seguem você</div>';
   } else {
-    var following = followableUsers.filter(function(u){ return u.following; });
+    var following = peopleDirectory.filter(function(u){ return u.following; });
     title.textContent = 'Seguindo ('+following.length+')';
     body.innerHTML = following.length ? following.map(function(u){
-      return '<div class="active-user-row"><div class="pav">'+initials(u.nome)+'</div><div style="flex:1;"><b>'+u.nome+'</b><span>'+u.sub+'</span></div>'
-        + '<div class="row-actions"><button class="btn-reject" onclick="toggleFollow('+u.id+'); openFollowList(\'following\')">Deixar de seguir</button></div></div>';
+      return '<div class="active-user-row"><div class="pav" style="background:'+u.color+'; color:#fff; cursor:pointer;" onclick="openPersonProfile('+u.id+')">'+u.initials+'</div><div style="flex:1; cursor:pointer;" onclick="openPersonProfile('+u.id+')"><b>'+u.nome+'</b><span>'+u.sub+'</span></div>'
+        + '<div class="row-actions"><button class="btn-reject" onclick="togglePersonFollowById('+u.id+'); openFollowList(\'following\')">Deixar de seguir</button></div></div>';
     }).join('') : '<div class="empty-note">Você ainda não segue ninguém.</div>';
   }
   panel.classList.remove('hidden');
@@ -1588,11 +1977,89 @@ function closeFollowList(){
   document.getElementById('followListPanel').classList.add('hidden');
 }
 
+/* ---- Buscar amigos e sugestões (Feed) ---- */
+function filterFriendSearch(){
+  var input = document.getElementById('friendSearchInput');
+  var el = document.getElementById('friendSearchResults');
+  if(!input || !el) return;
+  var term = input.value.toLowerCase().trim();
+  if(!term){ el.classList.add('hidden'); el.innerHTML = ''; return; }
+  var matches = peopleDirectory.filter(function(p){ return p.nome.toLowerCase().indexOf(term)!==-1; });
+  el.innerHTML = matches.length ? matches.map(function(p){
+    return '<div class="indic-search-row" onclick="openPersonProfile('+p.id+')">'
+      + '<div class="pav" style="background:'+p.color+'; color:#fff; width:30px; height:30px; font-size:11px;">'+p.initials+'</div>'
+      + '<div style="flex:1;"><b>'+p.nome+'</b><span>'+p.sub+'</span></div>'
+      + '<span class="tag">'+(p.following ? 'Seguindo' : 'Seguir')+'</span></div>';
+  }).join('') : '<div class="empty-note">Nenhuma pessoa encontrada.</div>';
+  el.classList.remove('hidden');
+}
+document.addEventListener('click', function(e){
+  var wrap = document.getElementById('friendSearchResults');
+  if(!wrap || wrap.classList.contains('hidden')) return;
+  if(!e.target.closest || !e.target.closest('.friend-search-wrap')) wrap.classList.add('hidden');
+});
+function renderFeedSuggestions(){
+  var row = document.getElementById('feedSuggestionsRow');
+  if(!row) return;
+  var suggestions = peopleDirectory.filter(function(p){ return !p.following; });
+  row.innerHTML = suggestions.length ? suggestions.map(function(p){
+    return '<div class="suggestion-card">'
+      + '<div class="av" style="background:'+p.color+';" onclick="openPersonProfile('+p.id+')">'+p.initials+'</div>'
+      + '<b onclick="openPersonProfile('+p.id+')">'+p.nome+'</b><span>'+p.sub+'</span>'
+      + '<button class="btn-approve" onclick="togglePersonFollowById('+p.id+')">Seguir</button>'
+      + '</div>';
+  }).join('') : '<div class="empty-note">Você já segue todo mundo por aqui 🎉</div>';
+}
+function openPersonProfile(id){
+  var p = peopleDirectory.find(function(x){ return x.id===id; });
+  if(!p) return;
+  currentPersonModalId = id;
+  var avatarEl = document.getElementById('personModalAvatar');
+  avatarEl.style.background = p.color;
+  avatarEl.textContent = p.initials;
+  document.getElementById('personModalName').textContent = p.nome;
+  document.getElementById('personModalSub').textContent = p.sub;
+  document.getElementById('personModalPosts').textContent = p.posts;
+  document.getElementById('personModalFollowers').textContent = p.followersBase;
+  document.getElementById('personModalFollowing').textContent = p.followingBase;
+  updatePersonModalFollowBtn();
+  renderPersonModalGrid(p.posts);
+  document.getElementById('personModal').classList.add('show');
+}
+function renderPersonModalGrid(count){
+  var grid = document.getElementById('personModalGrid');
+  if(!grid) return;
+  var palette = [
+    'linear-gradient(135deg,#a9c4dd,#6f93b6)', 'linear-gradient(135deg,#f5c453,#e2434d)',
+    'linear-gradient(135deg,#6C4F9E,#a637a8)', 'linear-gradient(135deg,#1F8A70,#5fd6b0)',
+    'linear-gradient(135deg,#2C5F8A,#1B3A57)', 'linear-gradient(135deg,#D9822B,#f5c453)'
+  ];
+  var n = Math.max(3, Math.min(9, count));
+  var html = '';
+  for(var i=0;i<n;i++){ html += '<div style="background:'+palette[i%palette.length]+';"></div>'; }
+  grid.innerHTML = html;
+}
+function updatePersonModalFollowBtn(){
+  var p = peopleDirectory.find(function(x){ return x.id===currentPersonModalId; });
+  var btn = document.getElementById('personModalFollowBtn');
+  if(!p || !btn) return;
+  btn.textContent = p.following ? 'Deixar de seguir' : 'Seguir';
+  btn.className = 'btn '+(p.following ? 'btn-ghost' : 'btn-solid');
+}
+function togglePersonFollow(){
+  if(currentPersonModalId==null) return;
+  togglePersonFollowById(currentPersonModalId);
+}
+function closePersonProfile(){
+  document.getElementById('personModal').classList.remove('show');
+  currentPersonModalId = null;
+}
+
 /* ================= STORIES (24 horas, navegação sequencial) ================= */
 var storiesSeed = [
-  { id:'s1', user:'Líder de Central Teresina', createdAt: Date.now()-3*3600*1000, color:'#6C4F9E', initials:'CT' },
-  { id:'s2', user:'Pastor Eduardo Chateaubriand', createdAt: Date.now()-8*3600*1000, color:'#2C5F8A', initials:'EC' },
-  { id:'s3', user:'Pastor Emerson Paulo Da Silva', createdAt: Date.now()-20*3600*1000, color:'#1F8A70', initials:'EP' }
+  { id:'s1', user:'Líder Marcos', createdAt: Date.now()-3*3600*1000, color:'var(--primary)', initials:'LM', personId:1 },
+  { id:'s2', user:'Pastor Eduardo Chateaubriand', createdAt: Date.now()-8*3600*1000, color:'var(--green)', initials:'EC', personId:3 },
+  { id:'s3', user:'Pastor Emerson Paulo Da Silva', createdAt: Date.now()-20*3600*1000, color:'#1F8A70', initials:'EP', personId:6 }
 ];
 var myStories = [];
 var storyGroups = [];
@@ -1669,6 +2136,29 @@ function setStoryMetaForPosition(groupIndex, itemIndex){
   var item = group.stories[itemIndex];
   var nameEl = document.getElementById('storyViewerName');
   nameEl.textContent = group.name+' · expira em '+hoursLeft(item.createdAt)+'h';
+  var avatarEl = document.getElementById('storyViewerAvatar');
+  if(avatarEl){
+    if(group.key==='me'){
+      avatarEl.style.background = 'var(--primary)';
+      avatarEl.innerHTML = myProfilePic ? '<img src="'+myProfilePic+'">' : 'EU';
+    } else {
+      avatarEl.style.background = group.color;
+      avatarEl.innerHTML = group.initials;
+    }
+  }
+}
+function goToStoryPersonProfile(){
+  var group = storyGroups[storyGroupIndex];
+  if(!group) return;
+  closeStoryViewer();
+  if(group.key==='me'){
+    go('perfil');
+    return;
+  }
+  var item = group.stories[storyItemIndex];
+  if(item && item.personId){
+    openPersonProfile(item.personId);
+  }
 }
 function computeNextStoryPosition(dir){
   var newItemIndex = storyItemIndex + dir;
@@ -1783,11 +2273,11 @@ setInterval(renderStories, 60000);
 
 /* ================= FEED INFINITO ================= */
 var feedPool = [
-  { name:'Líder Marcos · Igreja Nova Vida', avatar:'M', color:'var(--green)', media:'📷 grupo de estudo bíblico', text:'Mais um encontro do pequeno grupo dessa semana, com ótimas conversas e decisões por Cristo!', likes:14, comments:3 },
-  { name:'Líder Fernanda · Igreja Renovo', avatar:'F', color:'var(--red)', media:'📷 distribuição de literatura', text:'Equipe de colportagem entregando literatura no bairro hoje pela manhã.', likes:19, comments:5 },
-  { name:'Pastor Elias · Distrito Norte', avatar:'E', color:'var(--purple)', media:'🎥 culto de oração', text:'Noite de oração especial pelas famílias do distrito.', likes:27, comments:8 },
-  { name:'Líder de Aeroporto - Teresina', avatar:'A', color:'var(--purple)', media:'📷 batismo', text:'Momento especial de batismo neste sábado! Glória a Deus.', likes:35, comments:11 },
-  { name:'Robson Alves · Igreja Getsêmani', avatar:'R', color:'var(--amber)', media:'📷 evangelismo de rua', text:'Ação de evangelismo nas ruas do bairro com distribuição de folhetos.', likes:9, comments:2 }
+  { name:'Líder Marcos · Igreja Nova Vida', avatar:'M', color:'var(--green)', media:'📷 grupo de estudo bíblico', text:'Mais um encontro do pequeno grupo dessa semana, com ótimas conversas e decisões por Cristo!', likes:14, comments:3, tag:'Estudo Bíblico' },
+  { name:'Líder Fernanda · Igreja Renovo', avatar:'F', color:'var(--red)', media:'📷 distribuição de literatura', text:'Equipe de colportagem entregando literatura no bairro hoje pela manhã.', likes:19, comments:5, tag:'Testemunho' },
+  { name:'Pastor Elias · Distrito Norte', avatar:'E', color:'var(--purple)', media:'🎥 culto de oração', text:'Noite de oração especial pelas famílias do distrito.', likes:27, comments:8, tag:'Comunhão' },
+  { name:'Líder de Aeroporto - Teresina', avatar:'A', color:'var(--purple)', media:'📷 batismo', text:'Momento especial de batismo neste sábado! Glória a Deus.', likes:35, comments:11, tag:'Batismo' },
+  { name:'Robson Alves · Igreja Getsêmani', avatar:'R', color:'var(--amber)', media:'📷 evangelismo de rua', text:'Ação de evangelismo nas ruas do bairro com distribuição de folhetos.', likes:9, comments:2, tag:'Sábado Missionário' }
 ];
 var feedPoolIndex = 0;
 var feedLoading = false;
@@ -1795,11 +2285,11 @@ function appendFeedTemplatePost(t){
   var post = document.createElement('div');
   post.className = 'post';
   var horas = Math.floor(Math.random()*10)+1;
-  post.innerHTML = '<div class="post-head"><div class="post-av" style="background:'+t.color+';">'+t.avatar+'</div><div><b>'+t.name+'</b><span>há '+horas+' horas</span></div></div>'
+  post.innerHTML = '<div class="post-head"><div class="post-av" style="background:'+t.color+';">'+t.avatar+'</div><div style="flex:1;"><b>'+t.name+'</b><span>há '+horas+' horas</span></div>'
+    + (t.tag ? '<span class="post-tag">'+t.tag+'</span>' : '') + '</div>'
     + '<div class="post-media">'+t.media+'</div>'
     + '<div class="post-text">'+t.text+'</div>'
-    + '<div class="post-actions"><span onclick="toggleLike(this)">🤍 '+t.likes+' curtidas</span><span class="comment-toggle" onclick="toggleComments(this)">💬 '+t.comments+' comentários</span></div>'
-    + '<div class="post-comments hidden"><div class="comments-list"></div><div class="comment-input-row"><input type="text" placeholder="Adicionar comentário..." onkeypress="if(event.key===\'Enter\'){addComment(this); event.preventDefault();}"><button onclick="addComment(this.previousElementSibling)">Enviar</button></div></div>';
+    + buildPostInteractionsHtml('<span onclick="toggleLike(this)">🤍 '+t.likes+' curtidas</span>', t.comments);
   document.getElementById('feedPosts').appendChild(post);
 }
 function loadMoreFeedPosts(){
@@ -1866,6 +2356,9 @@ function submitCadastro(){
     activeUsers.unshift({ id:nextUserId++, nome:nome, perfil:'Membro', destino:destino, email:email, telefone:telefone, senha:senha });
     userChurch = igreja;
     userDistrict = distrito;
+    mySignupEmail = email;
+    mySignupTelefone = telefone;
+    myProfileInfo.nome = nome;
     ['cadNome','cadTelefone','cadEmail','cadSenha','cadConfirmar'].forEach(function(id){ document.getElementById(id).value=''; });
     toast('Conta criada! Bem-vindo(a), '+nome+'.');
     loginAs('membro');
@@ -2073,6 +2566,13 @@ function switchRole(role){
   if(selSidebar) selSidebar.value = role;
   var selSheet = document.getElementById('roleSelectSheet');
   if(selSheet) selSheet.value = role;
+  var isAdm = role==='adm';
+  var sidebarRoleRow = document.getElementById('sidebarRoleRow');
+  if(sidebarRoleRow) sidebarRoleRow.classList.toggle('hidden', !isAdm);
+  var sheetRoleRow = document.getElementById('sheetRoleRow');
+  if(sheetRoleRow) sheetRoleRow.classList.toggle('hidden', !isAdm);
+  var sheetRoleTitle = document.getElementById('sheetRoleTitle');
+  if(sheetRoleTitle) sheetRoleTitle.classList.toggle('hidden', !isAdm);
   var editButtons = document.querySelectorAll('.chal .mini-btn');
   var canEdit = (role==='lider' || role==='pastor' || role==='adm');
   editButtons.forEach(b=> b.style.visibility = canEdit ? 'visible' : 'hidden');
