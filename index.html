@@ -1592,11 +1592,12 @@ function closeFollowList(){
 var storiesSeed = [
   { id:'s1', user:'Líder de Central Teresina', createdAt: Date.now()-3*3600*1000, color:'#6C4F9E', initials:'CT' },
   { id:'s2', user:'Pastor Eduardo Chateaubriand', createdAt: Date.now()-8*3600*1000, color:'#2C5F8A', initials:'EC' },
-  { id:'s3', user:'Aeroporto - PI', createdAt: Date.now()-20*3600*1000, color:'#1F8A70', initials:'AP' }
+  { id:'s3', user:'Pastor Emerson Paulo Da Silva', createdAt: Date.now()-20*3600*1000, color:'#1F8A70', initials:'EP' }
 ];
 var myStories = [];
-var storyQueue = [];
-var storyIndex = 0;
+var storyGroups = [];
+var storyGroupIndex = 0;
+var storyItemIndex = 0;
 var storyTimerId = null;
 var STORY_DURATION = 5000;
 
@@ -1607,14 +1608,13 @@ function renderStories(){
   myStories = myStories.filter(function(s){ return (now - s.createdAt) < 24*3600*1000; });
   var myLast = myStories.length ? myStories[myStories.length-1] : null;
   var myAvatarInner = myLast ? '<img src="'+myLast.img+'">' : (myProfilePic ? '<img src="'+myProfilePic+'">' : 'EU');
-  var html = '<div class="story-item story-add" onclick="'+(myLast ? 'openStoryViewer(0)' : "document.getElementById('storyFileInput').click()")+'">'
+  var html = '<div class="story-item story-add" onclick="'+(myLast ? "openStoryViewer('me')" : "document.getElementById('storyFileInput').click()")+'">'
     + '<div class="story-ring'+(myLast ? '' : ' seen')+'"><div class="inner"><div class="story-avatar">'+myAvatarInner+'</div></div>'
     + '<div class="plus" onclick="event.stopPropagation(); document.getElementById(\'storyFileInput\').click();">+</div></div><span>Seu story</span></div>';
 
   var seedVisible = storiesSeed.filter(function(s){ return (now - s.createdAt) < 24*3600*1000; });
-  seedVisible.forEach(function(s, i){
-    var idx = myStories.length + i;
-    html += '<div class="story-item" onclick="openStoryViewer('+idx+')">'
+  seedVisible.forEach(function(s){
+    html += '<div class="story-item" onclick="openStoryViewer(\''+s.id+'\')">'
       + '<div class="story-ring"><div class="inner"><div class="story-avatar" style="background:'+s.color+'; color:#fff;">'+s.initials+'</div></div></div>'
       + '<span>'+s.user+'</span></div>';
   });
@@ -1624,18 +1624,26 @@ function hoursLeft(createdAt){
   var msLeft = (createdAt + 24*3600*1000) - Date.now();
   return Math.max(0, Math.ceil(msLeft/3600000));
 }
-function getStoryQueue(){
+/* Cada grupo representa UMA PESSOA (nunca um distrito/igreja). "stories" guarda
+   todas as postagens dela, em ordem — a tela só avança para o próximo grupo
+   (próxima pessoa) depois de esgotar todas as postagens da pessoa atual. */
+function getStoryGroups(){
   var now = Date.now();
-  var queue = myStories.map(function(s){ return { type:'mine', data:s }; });
-  storiesSeed.filter(function(s){ return (now - s.createdAt) < 24*3600*1000; }).forEach(function(s){
-    queue.push({ type:'seed', data:s });
+  var groups = [];
+  if(myStories.length){
+    groups.push({ key:'me', name:'Você', stories: myStories.slice() });
+  }
+  storiesSeed.filter(function(s){ return (now-s.createdAt) < 24*3600*1000; }).forEach(function(s){
+    groups.push({ key:s.id, name:s.user, color:s.color, initials:s.initials, stories:[s] });
   });
-  return queue;
+  return groups;
 }
 function renderStoryProgressBars(){
   var wrap = document.getElementById('storyProgressWrap');
-  wrap.innerHTML = storyQueue.map(function(_, i){
-    var cls = i < storyIndex ? 'seg done' : (i === storyIndex ? 'seg active' : 'seg');
+  var group = storyGroups[storyGroupIndex];
+  if(!wrap || !group) return;
+  wrap.innerHTML = group.stories.map(function(_, i){
+    var cls = i < storyItemIndex ? 'seg done' : (i === storyItemIndex ? 'seg active' : 'seg');
     return '<div class="'+cls+'"><div class="fillbar"></div></div>';
   }).join('');
 }
@@ -1645,28 +1653,40 @@ function computeCubeHalfWidth(){
   var wrap = document.getElementById('storyCubeWrap');
   return wrap ? wrap.getBoundingClientRect().width/2 : 0;
 }
-function setFaceContent(imgEl, item){
-  if(item.type==='mine'){
-    imgEl.src = item.data.img;
+function setFaceContentForPosition(imgEl, groupIndex, itemIndex){
+  var group = storyGroups[groupIndex];
+  var item = group.stories[itemIndex];
+  if(group.key==='me'){
+    imgEl.src = item.img;
   } else {
-    var s = item.data;
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920"><rect width="100%" height="100%" fill="'+s.color+'"/>'
-      + '<text x="50%" y="50%" fill="#fff" font-size="64" text-anchor="middle" font-family="sans-serif" dy=".3em">'+s.user+'</text></svg>';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920"><rect width="100%" height="100%" fill="'+group.color+'"/>'
+      + '<text x="50%" y="50%" fill="#fff" font-size="64" text-anchor="middle" font-family="sans-serif" dy=".3em">'+group.name+'</text></svg>';
     imgEl.src = 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
   }
 }
-function setStoryMeta(item){
+function setStoryMetaForPosition(groupIndex, itemIndex){
+  var group = storyGroups[groupIndex];
+  var item = group.stories[itemIndex];
   var nameEl = document.getElementById('storyViewerName');
-  if(item.type==='mine'){
-    nameEl.textContent = 'Você · expira em '+hoursLeft(item.data.createdAt)+'h';
-  } else {
-    nameEl.textContent = item.data.user+' · expira em '+hoursLeft(item.data.createdAt)+'h';
-  }
+  nameEl.textContent = group.name+' · expira em '+hoursLeft(item.createdAt)+'h';
 }
-function openStoryViewer(index){
-  storyQueue = getStoryQueue();
-  if(!storyQueue.length) return;
-  storyIndex = Math.max(0, Math.min(index, storyQueue.length-1));
+function computeNextStoryPosition(dir){
+  var newItemIndex = storyItemIndex + dir;
+  var currentGroup = storyGroups[storyGroupIndex];
+  if(currentGroup && newItemIndex >= 0 && newItemIndex < currentGroup.stories.length){
+    return { groupIndex:storyGroupIndex, itemIndex:newItemIndex };
+  }
+  var newGroupIndex = storyGroupIndex + dir;
+  if(newGroupIndex < 0 || newGroupIndex >= storyGroups.length) return null;
+  var itemIndex = dir>0 ? 0 : storyGroups[newGroupIndex].stories.length-1;
+  return { groupIndex:newGroupIndex, itemIndex:itemIndex };
+}
+function openStoryViewer(groupKey){
+  storyGroups = getStoryGroups();
+  if(!storyGroups.length) return;
+  var idx = storyGroups.findIndex(function(g){ return g.key===groupKey; });
+  storyGroupIndex = idx===-1 ? 0 : idx;
+  storyItemIndex = 0;
   document.getElementById('storyViewer').classList.add('show');
   var halfW = computeCubeHalfWidth();
   var cube = document.getElementById('storyCube');
@@ -1680,18 +1700,20 @@ function openStoryViewer(index){
 }
 function showCurrentStory(){
   clearTimeout(storyTimerId);
-  var item = storyQueue[storyIndex];
-  if(!item){ closeStoryViewer(); return; }
-  setFaceContent(document.getElementById('cubeImgFront'), item);
-  setStoryMeta(item);
+  var group = storyGroups[storyGroupIndex];
+  if(!group || !group.stories[storyItemIndex]){ closeStoryViewer(); return; }
+  setFaceContentForPosition(document.getElementById('cubeImgFront'), storyGroupIndex, storyItemIndex);
+  setStoryMetaForPosition(storyGroupIndex, storyItemIndex);
   renderStoryProgressBars();
   storyTimerId = setTimeout(nextStory, STORY_DURATION);
 }
 function transitionStory(dir){
   if(cubeAnimating) return;
-  var newIndex = storyIndex + dir;
-  if(newIndex < 0){ showCurrentStory(); return; }
-  if(newIndex > storyQueue.length-1){ closeStoryViewer(); return; }
+  var pos = computeNextStoryPosition(dir);
+  if(!pos){
+    if(dir>0){ closeStoryViewer(); } else { showCurrentStory(); }
+    return;
+  }
   clearTimeout(storyTimerId);
   cubeAnimating = true;
 
@@ -1700,8 +1722,7 @@ function transitionStory(dir){
   var sideImg = document.getElementById('cubeImgSide');
   var frontFaceEl = document.getElementById('cubeFaceFront');
   var halfW = computeCubeHalfWidth();
-  var nextItem = storyQueue[newIndex];
-  setFaceContent(sideImg, nextItem);
+  setFaceContentForPosition(sideImg, pos.groupIndex, pos.itemIndex);
 
   cube.classList.add('no-anim');
   cube.style.transform = 'rotateY(0deg)';
@@ -1716,13 +1737,14 @@ function transitionStory(dir){
 
   setTimeout(function(){
     document.getElementById('cubeImgFront').src = sideImg.src;
-    storyIndex = newIndex;
+    storyGroupIndex = pos.groupIndex;
+    storyItemIndex = pos.itemIndex;
     cube.classList.add('no-anim');
     cube.style.transform = 'rotateY(0deg)';
     void cube.offsetWidth;
     cube.classList.remove('no-anim');
     cubeAnimating = false;
-    setStoryMeta(nextItem);
+    setStoryMetaForPosition(storyGroupIndex, storyItemIndex);
     renderStoryProgressBars();
     storyTimerId = setTimeout(nextStory, STORY_DURATION);
   }, CUBE_MS);
