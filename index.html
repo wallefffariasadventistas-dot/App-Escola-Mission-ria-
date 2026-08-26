@@ -787,7 +787,7 @@
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pelo seu distrito.')">Meu distrito</div>
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pela sua igreja.')">Minha igreja</div>
               </div>
-              <input type="file" id="feedFileInput" accept="image/*,video/*" capture="environment" multiple style="display:none;" onchange="handleFeedFile(event)">
+              <input type="file" id="feedFileInput" accept="image/*,video/*" multiple style="display:none;" onchange="handleFeedFile(event)">
               <button class="btn btn-solid" style="margin-bottom:14px;" onclick="document.getElementById('feedFileInput').click()">＋ Nova publicação</button>
               <div id="feedPosts">
                 <div class="post">
@@ -1681,13 +1681,21 @@ function handleFeedFile(event){
   var files = event.target.files;
   if(!files || !files.length) return;
   event.target.value = '';
-  Array.prototype.slice.call(files).forEach(function(f){
-    if(pendingPostMedia.length >= 3) return;
+  var slotsLeft = 3 - pendingPostMedia.length;
+  if(slotsLeft <= 0){ toast('Você já selecionou o máximo de 3 fotos.'); openNewPostScreen(); return; }
+  var fileList = Array.prototype.slice.call(files).slice(0, slotsLeft);
+  fileList.forEach(function(f){
     var type = f.type.indexOf('video')===0 ? 'video' : 'image';
-    pendingPostMedia.push({ type:type, url:URL.createObjectURL(f) });
+    var reader = new FileReader();
+    reader.onload = function(e){
+      pendingPostMedia.push({ type:type, url:e.target.result });
+      openNewPostScreen();
+    };
+    reader.onerror = function(){
+      toast('Não foi possível carregar uma das fotos. Tente novamente.');
+    };
+    reader.readAsDataURL(f);
   });
-  if(!pendingPostMedia.length){ toast('Selecione ao menos uma foto ou vídeo.'); return; }
-  openNewPostScreen();
 }
 function openNewPostScreen(){
   renderNewPostThumbs();
@@ -1782,7 +1790,13 @@ function openEditor(file, type){
     applyEditorTransform();
   };
   document.getElementById('editorModal').classList.add('show');
-  img.src = URL.createObjectURL(file);
+  var reader = new FileReader();
+  reader.onload = function(e){ img.src = e.target.result; };
+  reader.onerror = function(){
+    toast('Não foi possível carregar a foto. Tente novamente.');
+    cancelEditor();
+  };
+  reader.readAsDataURL(file);
 }
 function applyEditorTransform(){
   var img = document.getElementById('editorImg');
@@ -1817,15 +1831,25 @@ function confirmEditor(){
   var canvas = document.createElement('canvas');
   canvas.width = outW; canvas.height = outH;
   var ctx = canvas.getContext('2d');
-  var factor = outW / vw;
+  var factor = vw ? (outW / vw) : 1;
   var dispW = editorState.baseW * editorState.scale;
   var dispH = editorState.baseH * editorState.scale;
   var centerX = vw/2 + editorState.x;
   var centerY = vh/2 + editorState.y;
   var imgLeft = centerX - dispW/2;
   var imgTop = centerY - dispH/2;
-  ctx.drawImage(img, imgLeft*factor, imgTop*factor, dispW*factor, dispH*factor);
-  var dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+  var dx = imgLeft*factor, dy = imgTop*factor, dw = dispW*factor, dh = dispH*factor;
+  var validCrop = [dx,dy,dw,dh].every(function(n){ return isFinite(n); }) && dw>0 && dh>0;
+  if(!validCrop && img.naturalWidth && img.naturalHeight){
+    // proteção: se o cálculo de recorte falhar por algum motivo, nunca gerar imagem em branco/preta —
+    // desenha a foto inteira cobrindo o quadro, sem zoom/posição personalizados.
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    var coverScale = Math.max(outW/iw, outH/ih);
+    var fw = iw*coverScale, fh = ih*coverScale;
+    dx = (outW-fw)/2; dy = (outH-fh)/2; dw = fw; dh = fh;
+  }
+  ctx.drawImage(img, dx, dy, dw, dh);
+  var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
   var type = editorContext.type;
   editorContext = null;
   document.getElementById('editorModal').classList.remove('show');
@@ -3529,19 +3553,26 @@ function addMaterial(){
   if(!titulo){ toast('Informe o título do material.'); return; }
   if(!file){ toast('Selecione o arquivo para publicar.'); return; }
   var tam = formatBytes(file.size);
-  var fileUrl = URL.createObjectURL(file);
-  var colorMap = { PDF:'var(--red)', PPT:'#D9822B', 'Vídeo':'var(--primary)', Treinamento:'var(--purple)', Guia:'var(--green)', Manual:'var(--green)' };
-  var tagMap = { PDF:'PDF', PPT:'PPT', 'Vídeo':'▶', Treinamento:'TR', Guia:'GD', Manual:'DOC' };
-  var row = document.createElement('div');
-  row.className = 'mat-row';
-  row.dataset.cat = cat.toLowerCase();
-  var tituloEscapado = titulo.replace(/'/g,"\\'");
-  row.innerHTML = '<div class="mat-ic" style="background:'+(colorMap[cat]||'var(--primary)')+';">'+(tagMap[cat]||cat)+'</div>'
-    + '<div class="mat-name">'+titulo+'<span>'+cat+' &middot; '+tam+'</span></div><div class="dl-btn" onclick="downloadMaterial(\''+tituloEscapado+'\', \''+fileUrl+'\', \''+file.name.replace(/'/g,"\\'")+'\')">⬇</div>';
-  document.getElementById('materiais-list').prepend(row);
-  tituloEl.value = '';
-  fileEl.value = '';
-  toast('"'+titulo+'" publicado na Biblioteca de Materiais.');
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var fileUrl = e.target.result;
+    var colorMap = { PDF:'var(--red)', PPT:'#D9822B', 'Vídeo':'var(--primary)', Treinamento:'var(--purple)', Guia:'var(--green)', Manual:'var(--green)' };
+    var tagMap = { PDF:'PDF', PPT:'PPT', 'Vídeo':'▶', Treinamento:'TR', Guia:'GD', Manual:'DOC' };
+    var row = document.createElement('div');
+    row.className = 'mat-row';
+    row.dataset.cat = cat.toLowerCase();
+    var tituloEscapado = titulo.replace(/'/g,"\\'");
+    row.innerHTML = '<div class="mat-ic" style="background:'+(colorMap[cat]||'var(--primary)')+';">'+(tagMap[cat]||cat)+'</div>'
+      + '<div class="mat-name">'+titulo+'<span>'+cat+' &middot; '+tam+'</span></div><div class="dl-btn" onclick="downloadMaterial(\''+tituloEscapado+'\', \''+fileUrl+'\', \''+file.name.replace(/'/g,"\\'")+'\')">⬇</div>';
+    document.getElementById('materiais-list').prepend(row);
+    tituloEl.value = '';
+    fileEl.value = '';
+    toast('"'+titulo+'" publicado na Biblioteca de Materiais.');
+  };
+  reader.onerror = function(){
+    toast('Não foi possível carregar o arquivo. Tente novamente.');
+  };
+  reader.readAsDataURL(file);
 }
 
 /* ---- Rankings ---- */
