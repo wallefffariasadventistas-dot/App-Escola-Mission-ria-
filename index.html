@@ -226,6 +226,10 @@
   .post-text{ padding:10px 14px 4px; font-size:13px; color:var(--ink); line-height:1.5;}
   .post-actions{ display:flex; gap:14px; padding:10px 14px 14px; font-size:19px; color:var(--ink); font-weight:400;}
   .post-actions span{ cursor:pointer; display:flex; align-items:center; gap:5px; font-size:13px; font-weight:700; color:var(--muted);}
+  .post-actions .icon-action svg{ display:block; }
+  .post-actions .icon-action .count{ font-size:13px; font-weight:700; }
+  .post-actions .repost-btn.reposted{ color:var(--green); }
+  .post-actions .save-btn.saved{ color:var(--primary); }
   .post-actions span.liked{ color:var(--red); }
   .post-comments{ padding:0 14px 14px; }
   .post-comments.hidden{ display:none; }
@@ -834,9 +838,8 @@
                   <div class="post-actions">
                     <span class="liked" onclick="toggleLike(this)">❤ 24 curtidas</span>
                     <span class="comment-toggle" onclick="toggleComments(this)">💬 6 comentários</span>
-                    <span onclick="toggleRepost(this)">🔁 0</span>
-                    <span onclick="toast('Publicação enviada!')">📤</span>
-                    <span onclick="toggleSave(this)" style="margin-left:auto;">🔖</span>
+                    <span class="icon-action repost-btn" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
+                    <span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
                   </div>
                   <div class="post-comments hidden">
                     <div class="comments-list"></div>
@@ -873,9 +876,8 @@
                   <div class="post-actions">
                     <span onclick="toggleLike(this)">🤍 41 curtidas</span>
                     <span class="comment-toggle" onclick="toggleComments(this)">💬 9 comentários</span>
-                    <span onclick="toggleRepost(this)">🔁 0</span>
-                    <span onclick="toast('Publicação enviada!')">📤</span>
-                    <span onclick="toggleSave(this)" style="margin-left:auto;">🔖</span>
+                    <span class="icon-action repost-btn" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
+                    <span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
                   </div>
                   <div class="post-comments hidden">
                     <div class="comments-list"></div>
@@ -1353,7 +1355,9 @@ function selectChip(el){
     }
   }
 }
+var actualLoginRole = null;
 function loginAs(role){
+  actualLoginRole = role;
   showView('app');
   switchRole(role);
   go('dashboard');
@@ -1764,6 +1768,10 @@ function addComment(inputEl){
   var statCommentsEl = document.getElementById('statComments');
   if(statCommentsEl) statCommentsEl.textContent = myCommentCount;
 }
+var ICON_REPOST_SVG = '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
+function bookmarkSvg(filled){
+  return '<svg viewBox="0 0 24 24" width="21" height="21" fill="'+(filled ? 'currentColor' : 'none')+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
+}
 function buildPostInteractionsHtml(likeSpanHtml, commentCount){
   var emojiRow = ['❤️','🙌','🔥','👏','😢','😍','😮','😂'].map(function(e){
     return '<span onclick="insertCommentEmoji(this,\''+e+'\')">'+e+'</span>';
@@ -1771,9 +1779,8 @@ function buildPostInteractionsHtml(likeSpanHtml, commentCount){
   return '<div class="post-actions">'
     + likeSpanHtml
     + '<span class="comment-toggle" onclick="toggleComments(this)">💬 '+commentCount+' comentários</span>'
-    + '<span onclick="toggleRepost(this)">🔁 0</span>'
-    + '<span onclick="toast(\'Publicação enviada!\')">📤</span>'
-    + '<span onclick="toggleSave(this)" style="margin-left:auto;">🔖</span>'
+    + '<span class="icon-action repost-btn" onclick="toggleRepost(this)">'+ICON_REPOST_SVG+'<b class="count">0</b></span>'
+    + '<span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;">'+bookmarkSvg(false)+'</span>'
     + '</div>'
     + '<div class="post-comments hidden">'
     + '<div class="comments-list"></div>'
@@ -1810,8 +1817,8 @@ document.addEventListener('click', function(e){
   }
 });
 function toggleRepost(el){
-  var match = el.textContent.match(/(\d+)/);
-  var count = match ? parseInt(match[1],10) : 0;
+  var countEl = el.querySelector('.count');
+  var count = countEl ? (parseInt(countEl.textContent,10)||0) : 0;
   if(el.classList.contains('reposted')){
     el.classList.remove('reposted');
     count = Math.max(0, count-1);
@@ -1820,11 +1827,11 @@ function toggleRepost(el){
     count = count+1;
     toast('Republicado no seu perfil!');
   }
-  el.innerHTML = '🔁 '+count;
+  if(countEl) countEl.textContent = count;
 }
 function toggleSave(el){
   el.classList.toggle('saved');
-  el.textContent = el.classList.contains('saved') ? '📑' : '🔖';
+  el.innerHTML = bookmarkSvg(el.classList.contains('saved'));
   toast(el.classList.contains('saved') ? 'Publicação salva.' : 'Removida dos salvos.');
 }
 function insertCommentEmoji(el, emoji){
@@ -2896,13 +2903,13 @@ function switchRole(role){
   if(selSidebar) selSidebar.value = role;
   var selSheet = document.getElementById('roleSelectSheet');
   if(selSheet) selSheet.value = role;
-  var isAdm = role==='adm';
+  var showRoleSelector = actualLoginRole==='adm';
   var sidebarRoleRow = document.getElementById('sidebarRoleRow');
-  if(sidebarRoleRow) sidebarRoleRow.classList.toggle('hidden', !isAdm);
+  if(sidebarRoleRow) sidebarRoleRow.classList.toggle('hidden', !showRoleSelector);
   var sheetRoleRow = document.getElementById('sheetRoleRow');
-  if(sheetRoleRow) sheetRoleRow.classList.toggle('hidden', !isAdm);
+  if(sheetRoleRow) sheetRoleRow.classList.toggle('hidden', !showRoleSelector);
   var sheetRoleTitle = document.getElementById('sheetRoleTitle');
-  if(sheetRoleTitle) sheetRoleTitle.classList.toggle('hidden', !isAdm);
+  if(sheetRoleTitle) sheetRoleTitle.classList.toggle('hidden', !showRoleSelector);
   var editButtons = document.querySelectorAll('.chal .mini-btn');
   var canEdit = (role==='lider' || role==='pastor' || role==='adm');
   editButtons.forEach(b=> b.style.visibility = canEdit ? 'visible' : 'hidden');
