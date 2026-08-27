@@ -231,11 +231,25 @@
   .post-actions .repost-btn.reposted{ color:var(--green); }
   .post-actions .save-btn.saved{ color:var(--primary); }
   .post-actions span.liked{ color:var(--red); }
-  .post-comments{ padding:0 14px 14px; }
-  .post-comments.hidden{ display:none; }
-  .comments-list{ margin-bottom:8px; }
-  .comment-item{ font-size:12.5px; color:var(--ink); margin-bottom:6px; line-height:1.4; }
-  .comment-item b{ margin-right:4px; }
+  .comments-list{ padding:0 14px; margin-bottom:2px; }
+  .comments-list.collapsed .comment-item:nth-child(n+4){ display:none; }
+  .comment-item{ font-size:12.5px; color:var(--ink); margin-bottom:8px; line-height:1.4; }
+  .comment-body b.comment-author{ margin-right:4px; font-weight:700; }
+  .comment-actions{ display:flex; gap:14px; margin:3px 0 0 2px; }
+  .comment-like{ display:flex; align-items:center; gap:4px; font-size:11px; color:var(--muted); cursor:pointer; font-weight:600; }
+  .comment-like.liked{ color:var(--red); }
+  .comment-reply-btn{ font-size:11px; color:var(--muted); cursor:pointer; font-weight:700; }
+  .comment-replies{ margin:8px 0 0 18px; padding-left:10px; border-left:2px solid var(--line); }
+  .comment-replies:empty{ display:none; }
+  .comment-replies .comment-item{ margin-bottom:8px; }
+  .view-all-comments{ padding:0 14px 10px; font-size:12px; color:var(--muted); font-weight:700; cursor:pointer; }
+  .view-all-comments.hidden{ display:none; }
+  .comment-compose{ padding:0 14px 14px; }
+  .comment-compose.hidden{ display:none; }
+  .reply-banner{ display:flex; align-items:center; gap:8px; background:var(--bg); border-radius:10px; padding:7px 12px; font-size:11.5px; color:var(--muted); margin-bottom:8px; }
+  .reply-banner.hidden{ display:none; }
+  .reply-banner b{ color:var(--ink); }
+  .reply-banner span{ margin-left:auto; cursor:pointer; font-weight:700; }
   .comment-input-row{ display:flex; gap:8px; }
   .comment-input-row input{ flex:1; padding:9px 12px; border-radius:20px; border:1.5px solid var(--line); font-size:12.5px; outline:none; background:#fff; color:var(--ink);}
   .comment-input-row input:focus{ border-color:var(--primary); }
@@ -765,6 +779,7 @@
                 <div class="profile-card-sub" style="margin-bottom:6px;">Alvo registrado: <b style="color:var(--navy);" id="indicMetaAnualValues">— · — · — · —</b></div>
                 <div class="profile-card-sub" id="indicMetaAnualProgresso" style="margin-bottom:0;">0% da meta anual alcançado até agora.</div>
               </div>
+              <div class="hidden" id="missaoAdminDashboard" style="margin-top:12px;"></div>
               <div class="stat-grid">
                 <div class="stat-card"><div class="n" id="ind-missionarios">84</div><div class="t">Missionários em Ação</div></div>
                 <div class="stat-card"><div class="n" id="ind-estudos">47</div><div class="t">Amigos Estudando a Bíblia</div></div>
@@ -837,12 +852,19 @@
                   <div class="post-text">Mais uma família recebendo o estudo da Bíblia hoje! Glória a Deus pela abertura de corações. 🙏</div>
                   <div class="post-actions">
                     <span class="liked" onclick="toggleLike(this)">❤ 24 curtidas</span>
-                    <span class="comment-toggle" onclick="toggleComments(this)">💬 6 comentários</span>
+                    <span class="comment-toggle" onclick="toggleComments(this)">💬 4 comentários</span>
                     <span class="icon-action repost-btn" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
                     <span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
                   </div>
-                  <div class="post-comments hidden">
-                    <div class="comments-list"></div>
+                  <div class="comments-list collapsed">
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Maria Fernandes</b> Que alegria! Deus está trabalhando muito nessa região 🙌</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">3</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Líder Marcos</b> Glória a Deus! Vamos continuar orando por mais famílias.</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">1</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Pastor Emerson Paulo Da Silva</b> Excelente testemunho, parabéns pelo trabalho!</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">2</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Ana Clara</b> Amém! 🙏</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">0</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                  </div>
+                  <div class="view-all-comments" onclick="toggleComments(this)">Ver todos os 4 comentários</div>
+                  <div class="comment-compose hidden">
+                    <div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span onclick="cancelReply(this.closest('.post'))">✕</span></div>
                     <div class="comment-emoji-row">
                       <span onclick="insertCommentEmoji(this,'❤️')">❤️</span>
                       <span onclick="insertCommentEmoji(this,'🙌')">🙌</span>
@@ -875,12 +897,20 @@
                   <div class="post-text">Tarde abençoada de ação missionária com as igrejas do distrito. Parabéns aos líderes envolvidos!</div>
                   <div class="post-actions">
                     <span onclick="toggleLike(this)">🤍 41 curtidas</span>
-                    <span class="comment-toggle" onclick="toggleComments(this)">💬 9 comentários</span>
+                    <span class="comment-toggle" onclick="toggleComments(this)">💬 5 comentários</span>
                     <span class="icon-action repost-btn" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
                     <span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
                   </div>
-                  <div class="post-comments hidden">
-                    <div class="comments-list"></div>
+                  <div class="comments-list collapsed">
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Líder Fernanda</b> Tarde maravilhosa! Deus abençoe a todos envolvidos.</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">4</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Robson Alves</b> Foi uma experiência incrível participar!</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">2</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Pastora Raniele Gonçalves Costa</b> Parabéns pela organização do distrito!</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">3</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Maria Fernandes</b> Momentos assim fortalecem nossa fé 🙏</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">1</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                    <div class="comment-item"><div class="comment-body"><b class="comment-author">Líder Marcos</b> Já estamos ansiosos pro próximo!</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">0</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
+                  </div>
+                  <div class="view-all-comments" onclick="toggleComments(this)">Ver todos os 5 comentários</div>
+                  <div class="comment-compose hidden">
+                    <div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span onclick="cancelReply(this.closest('.post'))">✕</span></div>
                     <div class="comment-emoji-row">
                       <span onclick="insertCommentEmoji(this,'❤️')">❤️</span>
                       <span onclick="insertCommentEmoji(this,'🙌')">🙌</span>
@@ -1257,11 +1287,99 @@
       <div class="person-modal" id="legalModal" onclick="if(event.target===this) closeLegalModal()">
         <div class="person-modal-card" style="text-align:left;">
           <span class="person-modal-close" onclick="closeLegalModal()">✕</span>
-          <div class="detail-title" style="text-align:center;">Termos e Privacidade</div>
-          <div class="profile-card-sub" style="margin-top:14px; max-height:46vh; overflow-y:auto;">
-            <p style="margin-bottom:10px;">Este aplicativo é de uso interno da Missão Piauiense, voltado à comunicação e organização das atividades missionárias entre membros, líderes, pastores e a Administração.</p>
-            <p style="margin-bottom:10px;">Os dados informados (nome, contato, fotos, publicações e indicadores) são usados apenas para fins de comunicação interna e acompanhamento missionário, e não são compartilhados com terceiros.</p>
-            <p>Ao continuar usando o app, você concorda com essas condições. Em caso de dúvidas, procure a Administração da sua Missão.</p>
+          <div class="detail-title" style="text-align:center;">Termos de Uso e Política de Privacidade</div>
+          <div class="profile-card-sub" style="text-align:center; margin-top:2px;">Última atualização: 27/08/2026</div>
+          <div class="profile-card-sub" id="legalTextBody" style="margin-top:14px; max-height:56vh; overflow-y:auto; font-size:12px; line-height:1.55;">
+
+            <p style="font-weight:800; color:var(--navy); font-size:13.5px; margin:0 0 10px;">TERMOS DE USO</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">1. Aceitação dos Termos</p>
+            <p style="margin-bottom:8px;">Ao criar uma conta ou utilizar o aplicativo Escola Missionária MPi ("Aplicativo"), você concorda com estes Termos de Uso e com a Política de Privacidade descrita abaixo. Se você não concordar com algum ponto, não utilize o Aplicativo.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">2. Finalidade do Aplicativo</p>
+            <p style="margin-bottom:8px;">O Aplicativo é uma ferramenta de uso interno da Missão Piauiense, destinada exclusivamente a: comunicação entre membros, líderes, pastores e a Administração da Missão; acompanhamento de indicadores e desafios missionários das igrejas e distritos; compartilhamento de testemunhos, fotos e publicações relacionadas às atividades missionárias; e organização de dados administrativos (igrejas, distritos, usuários) pela Administração.</p>
+            <p style="margin-bottom:8px;">O uso do Aplicativo é restrito a pessoas vinculadas à Missão Piauiense (membros, líderes, pastores e administradores autorizados) e não se destina ao público em geral.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">3. Cadastro e Conta</p>
+            <p style="margin-bottom:8px;">Membros têm acesso imediato após o cadastro. Líderes e Pastores dependem de aprovação da Administração (ou do Pastor do distrito, no caso de Líderes) antes de acessar o Aplicativo. Você é responsável por manter a confidencialidade da sua senha e por todas as atividades realizadas na sua conta. As informações fornecidas no cadastro devem ser verdadeiras e atualizadas. É proibido criar contas falsas, se passar por outra pessoa, ou fornecer dados de terceiros sem autorização.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">4. Conduta do Usuário</p>
+            <p style="margin-bottom:4px;">Ao publicar conteúdo (posts, fotos, stories, comentários) no Aplicativo, você concorda em não:</p>
+            <p style="margin:0 0 3px 12px;">• Publicar conteúdo ofensivo, discriminatório, difamatório, violento ou que viole a lei;</p>
+            <p style="margin:0 0 3px 12px;">• Publicar conteúdo sexual, ilegal ou que exponha menores de idade de forma inadequada;</p>
+            <p style="margin:0 0 3px 12px;">• Assediar, ameaçar ou constranger outros usuários;</p>
+            <p style="margin:0 0 3px 12px;">• Publicar spam, propaganda não autorizada ou conteúdo alheio à finalidade missionária do Aplicativo;</p>
+            <p style="margin:0 0 8px 12px;">• Violar direitos autorais ou de imagem de terceiros.</p>
+            <p style="margin-bottom:8px;">A Administração pode remover qualquer conteúdo que viole estes Termos e suspender ou excluir contas que os descumpram, sem aviso prévio, quando necessário para proteger outros usuários.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">5. Conteúdo Publicado pelo Usuário</p>
+            <p style="margin-bottom:8px;">Você mantém a titularidade sobre as fotos e textos que publica, mas concede à Missão Piauiense uma licença não exclusiva para exibi-los dentro do Aplicativo, para os fins descritos no item 2. Você é o único responsável pelo conteúdo que publica. Evite publicar fotos de terceiros (especialmente crianças e adolescentes) sem autorização de quem aparece na imagem ou de seus responsáveis.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">6. Moderação e Denúncias</p>
+            <p style="margin-bottom:8px;">Qualquer usuário pode denunciar conteúdo impróprio para a Administração. A Administração se compromete a analisar denúncias e agir dentro de um prazo razoável.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">7. Propriedade Intelectual</p>
+            <p style="margin-bottom:8px;">O Aplicativo, sua marca, design e funcionalidades pertencem à Missão Piauiense. É proibido copiar, modificar ou redistribuir o Aplicativo sem autorização.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">8. Isenção de Responsabilidade</p>
+            <p style="margin-bottom:8px;">O Aplicativo é fornecido "como está". A Missão Piauiense não garante que o Aplicativo estará livre de erros ou interrupções, e não se responsabiliza por danos indiretos decorrentes do uso do Aplicativo, dentro dos limites permitidos pela lei brasileira.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">9. Encerramento de Conta</p>
+            <p style="margin-bottom:8px;">Você pode solicitar a exclusão da sua conta a qualquer momento pelo próprio Aplicativo (Meu Perfil → Excluir Conta) ou pelo contato informado ao final deste documento. A Administração também pode encerrar contas que violem estes Termos.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">10. Alterações nos Termos</p>
+            <p style="margin-bottom:8px;">Estes Termos podem ser atualizados periodicamente. Mudanças significativas serão comunicadas dentro do Aplicativo. O uso continuado após a atualização representa concordância com os novos termos.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">11. Lei Aplicável</p>
+            <p style="margin-bottom:8px;">Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o foro da comarca de Teresina-PI para dirimir eventuais controvérsias.</p>
+
+            <p style="font-weight:800; color:var(--navy); font-size:13.5px; margin:20px 0 10px; padding-top:14px; border-top:1px solid var(--line);">POLÍTICA DE PRIVACIDADE</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">1. Quem Somos</p>
+            <p style="margin-bottom:8px;">Esta Política de Privacidade se aplica ao aplicativo Escola Missionária MPi, mantido por:</p>
+            <p style="margin:0 0 2px;"><b>União Nordeste Brasileira da Igreja Adventista do Sétimo Dia — Missão Piauiense</b></p>
+            <p style="margin:0 0 2px;">CNPJ: 01.104.932/0063-40</p>
+            <p style="margin-bottom:8px;">Endereço: Rua Acésio do Rego Monteiro, 1977, Bairro Ininga, CEP 64049-610, Teresina-PI</p>
+            <p style="margin-bottom:8px;">Doravante "Controladora" dos dados, para fins da LGPD (Lei nº 13.709/2018).</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">2. Quais Dados Coletamos</p>
+            <p style="margin-bottom:4px;"><b>Dados fornecidos por você:</b></p>
+            <p style="margin:0 0 3px 12px;">• Identificação: nome completo, como quer ser chamado (obrigatório)</p>
+            <p style="margin:0 0 3px 12px;">• Contato: e-mail, telefone/celular (obrigatório)</p>
+            <p style="margin:0 0 3px 12px;">• Documento: CPF (obrigatório, para identificação organizacional interna)</p>
+            <p style="margin:0 0 3px 12px;">• Perfil: foto, bio, data de nascimento, gênero, nacionalidade, estado civil, cidade, Instagram (opcionais)</p>
+            <p style="margin:0 0 3px 12px;">• Conteúdo: fotos, vídeos, textos, comentários e stories publicados</p>
+            <p style="margin:0 0 8px 12px;">• Organizacional: igreja e distrito vinculados, indicadores missionários</p>
+            <p style="margin-bottom:8px;">Não coletamos dados de localização em tempo real, nem acessamos contatos, câmera ou galeria além do momento em que você escolhe uma foto para enviar.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">3. Por Que Coletamos Esses Dados</p>
+            <p style="margin-bottom:8px;">Usamos seus dados para: criar e gerenciar sua conta; identificação organizacional dentro da Missão; exibir seu perfil e publicações a outros usuários do Aplicativo; gerar relatórios de indicadores missionários (igreja, distrito, missão); e comunicação interna (notificações, avisos). Campos opcionais do seu perfil (estado civil, idade, cidade) só ficam visíveis a outros usuários se você escolher exibi-los, nas configurações de privacidade do seu perfil.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">4. Com Quem Compartilhamos Seus Dados</p>
+            <p style="margin-bottom:8px;">Dentro do Aplicativo, líderes, pastores e administradores têm acesso aos dados e indicadores das igrejas/distritos sob sua responsabilidade, conforme o papel de cada um. Utilizamos prestadores de serviço técnico (hospedagem) apenas na medida necessária para o funcionamento do Aplicativo. Não vendemos nem alugamos seus dados a terceiros para fins de publicidade. Podemos divulgar dados caso exigido por lei ou ordem judicial.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">5. Por Quanto Tempo Guardamos Seus Dados</p>
+            <p style="margin-bottom:8px;">Mantemos seus dados enquanto sua conta estiver ativa. Após a exclusão da conta, os dados pessoais são removidos ou anonimizados, exceto quando a lei exigir retenção por prazo maior.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">6. Seus Direitos (LGPD)</p>
+            <p style="margin-bottom:4px;">Você tem direito a, mediante solicitação: confirmar a existência de tratamento dos seus dados; acessar seus dados; corrigir dados incompletos, inexatos ou desatualizados; solicitar a exclusão dos seus dados; solicitar a portabilidade dos dados; revogar o consentimento dado, quando aplicável; e saber com quem seus dados são compartilhados.</p>
+            <p style="margin-bottom:8px;">Para exercer esses direitos, use a opção "Excluir Conta" no Aplicativo ou entre em contato pelo canal informado abaixo.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">7. Segurança dos Dados</p>
+            <p style="margin-bottom:8px;">Adotamos medidas técnicas e administrativas razoáveis para proteger seus dados contra acesso não autorizado, perda ou vazamento. Nos comprometemos a agir rapidamente em caso de incidente de segurança, incluindo a comunicação aos titulares afetados quando exigido por lei.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">8. Crianças e Adolescentes</p>
+            <p style="margin-bottom:8px;">O Aplicativo pode ser usado por membros menores de idade vinculados à igreja, sempre com o conhecimento de seus responsáveis. Pais/responsáveis podem solicitar acesso, correção ou exclusão dos dados de menores sob sua responsabilidade pelo canal de contato abaixo.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">9. Alterações nesta Política</p>
+            <p style="margin-bottom:8px;">Esta Política pode ser atualizada periodicamente. A data da última atualização estará sempre indicada no topo deste documento. Alterações relevantes serão comunicadas dentro do Aplicativo.</p>
+
+            <p style="font-weight:800; color:var(--navy); margin:12px 0 4px;">10. Contato / Encarregado de Dados (DPO)</p>
+            <p style="margin-bottom:8px;">Dúvidas, solicitações ou denúncias relacionadas a privacidade podem ser enviadas para:</p>
+            <p style="margin:0 0 2px;"><b>União Nordeste Brasileira da Igreja Adventista do Sétimo Dia — Missão Piauiense</b></p>
+            <p style="margin:0 0 2px;">CNPJ: 01.104.932/0063-40</p>
+            <p style="margin:0 0 2px;">Endereço: Rua Acésio do Rego Monteiro, 1977, Bairro Ininga, CEP 64049-610, Teresina-PI</p>
+            <p style="margin-bottom:0;">Encarregado de Dados (DPO): a definir</p>
           </div>
           <button class="btn btn-solid" style="margin-top:16px;" onclick="closeLegalModal()">Entendi</button>
         </div>
@@ -1589,7 +1707,7 @@ function computeIndicData(){
     colpDetail = aggregateColpDetail(churches);
   } else {
     valores = aggregateAchieved(igrejasList);
-    metas = aggregateMetas(distritosList);
+    metas = somaIndicadores(missaoMetaAnual)>0 ? missaoMetaAnual : aggregateMetas(distritosList);
     label = 'Missão Piauiense';
     var totalIgrejas = igrejasList.filter(function(g){ return g.tipo!=='Grupo'; }).length;
     var totalGrupos = igrejasList.filter(function(g){ return g.tipo==='Grupo'; }).length;
@@ -1641,6 +1759,7 @@ function renderIndicadoresView(){
     renderIndicEditor(userChurch, 'ownIndicEditorWrap');
   }
 
+  renderMissaoAdminDashboard();
   recalcThermometer();
 }
 function recalcThermometer(){
@@ -1655,6 +1774,113 @@ function recalcThermometer(){
   var legend = document.getElementById('indicThermoLegend');
   var scopeText = indicScope.type==='igreja' ? 'da igreja' : (indicScope.type==='distrito' ? 'do distrito' : 'da Missão Piauiense');
   if(legend) legend.innerHTML = '<b>Termômetro Missionário</b>'+pct+'% da meta anual '+scopeText;
+}
+function renderMissaoAdminDashboard(){
+  var wrap = document.getElementById('missaoAdminDashboard');
+  if(!wrap) return;
+  var show = currentUserRole==='adm' && indicScope.type==='missao';
+  wrap.classList.toggle('hidden', !show);
+  if(!show) return;
+
+  var achievedAnual = aggregateAchieved(igrejasList);
+  var totalMetaAnual = somaIndicadores(missaoMetaAnual);
+  var totalAchievedAnual = somaIndicadores(achievedAnual);
+  var pctAnual = totalMetaAnual>0 ? Math.round((totalAchievedAnual/totalMetaAnual)*100) : 0;
+  var faltaAnual = Math.max(0, totalMetaAnual-totalAchievedAnual);
+
+  var html = '<div class="profile-card" style="border:1.5px solid var(--primary);">'
+    + '<div class="profile-card-title">🏛️ Meta Geral da Missão Piauiense <span class="tag" style="background:var(--primary-light); color:var(--primary);">Só Administração</span></div>'
+    + '<div class="profile-card-sub">Defina o alvo anual da Missão inteira. O quanto já foi alcançado vem automaticamente da soma do que cada distrito/igreja já marcou como alcançado nos trimestres.</div>'
+    + '<div class="two-col"><div class="field"><label>Missionários em ação</label><input id="missaoMetaMissionarios" type="number" value="'+missaoMetaAnual.missionarios+'"></div><div class="field"><label>Estudos bíblicos</label><input id="missaoMetaEstudos" type="number" value="'+missaoMetaAnual.estudos+'"></div></div>'
+    + '<div class="two-col"><div class="field"><label>Batismos</label><input id="missaoMetaBatismos" type="number" value="'+missaoMetaAnual.batismos+'"></div><div class="field"><label>Enviados</label><input id="missaoMetaEnviados" type="number" value="'+missaoMetaAnual.enviados+'"></div></div>'
+    + '<button class="btn btn-solid" onclick="saveMissaoMetaAnual()">💾 Salvar Meta Anual da Missão</button>'
+    + '</div>';
+
+  html += '<div class="profile-card">'
+    + '<div class="profile-card-title">📈 Progresso Anual da Missão</div>'
+    + '<div class="profile-card-sub" style="margin-bottom:0;">'+pctAnual+'% do alvo anual da Missão já alcançado. Faltam <b style="color:var(--navy);">'+faltaAnual+'</b> pontos no total.</div>'
+    + '</div>';
+
+  missaoMetasTrimestrais.forEach(function(m, i){
+    var achievedT = aggregateAchievedTrimester(igrejasList, i);
+    var totalMetaT = somaIndicadores(m);
+    var totalAchievedT = somaIndicadores(achievedT);
+    var pctT = totalMetaT>0 ? Math.round((totalAchievedT/totalMetaT)*100) : 0;
+    html += '<div class="profile-card">'
+      + '<div class="profile-card-title">'+TRIMESTRE_LABELS[i]+' <span class="tag" style="background:var(--primary-light); color:var(--primary);">Missão</span></div>'
+      + '<div class="two-col"><div class="field"><label>Meta · Missionários</label><input id="missaoTri'+i+'Missionarios" type="number" value="'+m.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="missaoTri'+i+'Estudos" type="number" value="'+m.estudos+'"></div></div>'
+      + '<div class="two-col"><div class="field"><label>Meta · Batismos</label><input id="missaoTri'+i+'Batismos" type="number" value="'+m.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="missaoTri'+i+'Enviados" type="number" value="'+m.enviados+'"></div></div>'
+      + '<button class="btn btn-ghost-dark" style="margin-bottom:10px;" onclick="saveMissaoTrimestreMeta('+i+')">Salvar meta do trimestre</button>'
+      + '<div class="profile-card-sub" style="margin-bottom:0;">'+pctT+'% alcançado neste trimestre ('+totalAchievedT+' de '+totalMetaT+') — considerando o que já foi marcado como alcançado pelos distritos/igrejas.</div>'
+      + '</div>';
+  });
+
+  html += buildMissaoComparativoHtml(achievedAnual);
+  wrap.innerHTML = html;
+}
+function buildMissaoComparativoHtml(achievedAnual){
+  var indicadores = [
+    { key:'missionarios', label:'Missionários em Ação' },
+    { key:'estudos', label:'Amigos Estudando a Bíblia' },
+    { key:'batismos', label:'Novos Discípulos' },
+    { key:'enviados', label:'Missionários Enviados' }
+  ];
+  var rows = indicadores.map(function(ind){
+    var meta = missaoMetaAnual[ind.key];
+    var alcancado = achievedAnual[ind.key];
+    var pct = meta>0 ? Math.round((alcancado/meta)*100) : 0;
+    return '<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; padding:7px 0; border-bottom:1px solid var(--line);">'
+      + '<span style="flex:1;">'+ind.label+'</span>'
+      + '<span style="width:48px; text-align:right; color:var(--muted);">'+meta+'</span>'
+      + '<span style="width:48px; text-align:right; font-weight:700; color:var(--navy);">'+alcancado+'</span>'
+      + '<span style="width:44px; text-align:right; font-weight:800; color:'+(pct>=100 ? 'var(--green)' : 'var(--primary)')+';">'+pct+'%</span>'
+      + '</div>';
+  }).join('');
+
+  var trimestreRows = missaoMetasTrimestrais.map(function(m,i){
+    var achievedT = aggregateAchievedTrimester(igrejasList, i);
+    var metaT = somaIndicadores(m);
+    var alcT = somaIndicadores(achievedT);
+    var pctT = metaT>0 ? Math.round((alcT/metaT)*100) : 0;
+    var status = metaT===0 ? '—' : (pctT>=100 ? '✅ Alcançado' : '⚠️ Faltou '+Math.max(0,metaT-alcT));
+    return '<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; padding:7px 0; border-bottom:1px solid var(--line);">'
+      + '<span style="flex:1;">'+TRIMESTRE_LABELS[i].split(' · ')[0]+'</span>'
+      + '<span style="width:48px; text-align:right; color:var(--muted);">'+metaT+'</span>'
+      + '<span style="width:48px; text-align:right; font-weight:700; color:var(--navy);">'+alcT+'</span>'
+      + '<span style="text-align:right; font-weight:700; color:'+(pctT>=100 ? 'var(--green)' : 'var(--red)')+'; flex:none; min-width:104px;">'+status+'</span>'
+      + '</div>';
+  }).join('');
+
+  return '<div class="profile-card">'
+    + '<div class="profile-card-title">📊 Dashboard — Metas x Alcançado (Anual)</div>'
+    + '<div style="display:flex; font-size:10px; font-weight:800; color:var(--muted); padding-bottom:4px; border-bottom:2px solid var(--line);">'
+    + '<span style="flex:1;">Indicador</span><span style="width:48px; text-align:right;">Meta</span><span style="width:48px; text-align:right;">Alcanç.</span><span style="width:44px; text-align:right;">%</span>'
+    + '</div>'
+    + rows
+    + '</div>'
+    + '<div class="profile-card">'
+    + '<div class="profile-card-title">📊 Dashboard — Metas x Alcançado (por Trimestre)</div>'
+    + '<div style="display:flex; font-size:10px; font-weight:800; color:var(--muted); padding-bottom:4px; border-bottom:2px solid var(--line);">'
+    + '<span style="flex:1;">Trimestre</span><span style="width:48px; text-align:right;">Meta</span><span style="width:48px; text-align:right;">Alcanç.</span><span style="flex:none; min-width:104px; text-align:right;">Situação</span>'
+    + '</div>'
+    + trimestreRows
+    + '</div>';
+}
+function saveMissaoMetaAnual(){
+  missaoMetaAnual.missionarios = Number(document.getElementById('missaoMetaMissionarios').value)||0;
+  missaoMetaAnual.estudos = Number(document.getElementById('missaoMetaEstudos').value)||0;
+  missaoMetaAnual.batismos = Number(document.getElementById('missaoMetaBatismos').value)||0;
+  missaoMetaAnual.enviados = Number(document.getElementById('missaoMetaEnviados').value)||0;
+  renderIndicadoresView();
+  toast('Meta anual da Missão salva.');
+}
+function saveMissaoTrimestreMeta(i){
+  missaoMetasTrimestrais[i].missionarios = Number(document.getElementById('missaoTri'+i+'Missionarios').value)||0;
+  missaoMetasTrimestrais[i].estudos = Number(document.getElementById('missaoTri'+i+'Estudos').value)||0;
+  missaoMetasTrimestrais[i].batismos = Number(document.getElementById('missaoTri'+i+'Batismos').value)||0;
+  missaoMetasTrimestrais[i].enviados = Number(document.getElementById('missaoTri'+i+'Enviados').value)||0;
+  renderIndicadoresView();
+  toast((i+1)+'º trimestre da Missão: meta salva.');
 }
 function filterIndicSearch(){
   var term = document.getElementById('indicSearchInput').value.toLowerCase().trim();
@@ -1737,33 +1963,101 @@ function toggleLike(el){
     el.innerHTML = '❤ '+count+' curtidas';
   }
 }
+var pendingReplyTarget = null;
 function toggleComments(el){
   var post = el.closest('.post');
-  var panel = post.querySelector('.post-comments');
-  if(!panel) return;
-  panel.classList.toggle('hidden');
-  if(!panel.classList.contains('hidden')){
-    var input = panel.querySelector('input');
+  var list = post.querySelector('.comments-list');
+  var compose = post.querySelector('.comment-compose');
+  if(!list || !compose) return;
+  var isCollapsed = list.classList.contains('collapsed');
+  if(isCollapsed){
+    list.classList.remove('collapsed');
+    compose.classList.remove('hidden');
+    updateCommentsVisibility(post);
+    var input = compose.querySelector('input');
     if(input) input.focus();
+  } else {
+    list.classList.add('collapsed');
+    compose.classList.add('hidden');
+    cancelReply(post);
+    updateCommentsVisibility(post);
   }
+}
+function updateCommentsVisibility(post){
+  var list = post.querySelector('.comments-list');
+  var link = post.querySelector('.view-all-comments');
+  if(!list || !link) return;
+  var count = list.querySelectorAll('.comment-item').length;
+  if(list.classList.contains('collapsed') && count>3){
+    link.textContent = 'Ver todos os '+count+' comentários';
+    link.classList.remove('hidden');
+  } else {
+    link.classList.add('hidden');
+  }
+}
+function updateCommentCount(post){
+  var total = post.querySelectorAll('.comment-item').length;
+  var span = post.querySelector('.comment-toggle');
+  if(span) span.innerHTML = '💬 '+total+' comentário'+(total===1 ? '' : 's');
+}
+function buildCommentItemHtml(author, text){
+  return '<div class="comment-item">'
+    + '<div class="comment-body"><b class="comment-author">'+author+'</b> '+text+'</div>'
+    + '<div class="comment-actions">'
+    + '<span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">0</span></span>'
+    + '<span class="comment-reply-btn" onclick="startReply(this)">Responder</span>'
+    + '</div>'
+    + '<div class="comment-replies"></div>'
+    + '</div>';
+}
+function toggleCommentLike(el){
+  var liked = !el.classList.contains('liked');
+  var countEl = el.querySelector('.clikes');
+  var count = countEl ? (parseInt(countEl.textContent,10)||0) : 0;
+  count = liked ? count+1 : Math.max(0,count-1);
+  el.className = 'comment-like'+(liked ? ' liked' : '');
+  el.innerHTML = (liked ? '❤️' : '🤍')+' <span class="clikes">'+count+'</span>';
+}
+function startReply(el){
+  var commentItem = el.closest('.comment-item');
+  var post = el.closest('.post');
+  if(!commentItem || !post) return;
+  pendingReplyTarget = commentItem;
+  var nameEl = commentItem.querySelector('.comment-author');
+  var name = nameEl ? nameEl.textContent : 'comentário';
+  var banner = post.querySelector('.reply-banner');
+  if(banner){
+    banner.querySelector('.reply-target-name').textContent = name;
+    banner.classList.remove('hidden');
+  }
+  var input = post.querySelector('.comment-input-row input');
+  if(input){ input.placeholder = 'Respondendo a '+name+'...'; input.focus(); }
+}
+function cancelReply(post){
+  pendingReplyTarget = null;
+  var banner = post.querySelector('.reply-banner');
+  if(banner) banner.classList.add('hidden');
+  var input = post.querySelector('.comment-input-row input');
+  if(input) input.placeholder = 'Adicionar comentário...';
 }
 function addComment(inputEl){
   var text = inputEl.value.trim();
   if(!text) return;
   var post = inputEl.closest('.post');
-  var list = post.querySelector('.comments-list');
-  var item = document.createElement('div');
-  item.className = 'comment-item';
   var safeText = text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  item.innerHTML = '<b>Você:</b> '+safeText;
-  list.appendChild(item);
-  inputEl.value = '';
-  var commentSpan = post.querySelector('.comment-toggle');
-  if(commentSpan){
-    var m = commentSpan.textContent.match(/(\d+)/);
-    var c = (m ? parseInt(m[1],10) : 0) + 1;
-    commentSpan.innerHTML = '💬 '+c+' comentários';
+  var itemHtml = buildCommentItemHtml('Você', safeText);
+  var isReply = pendingReplyTarget && post.contains(pendingReplyTarget);
+  if(isReply){
+    var repliesWrap = pendingReplyTarget.querySelector('.comment-replies');
+    repliesWrap.insertAdjacentHTML('beforeend', itemHtml);
+  } else {
+    var list = post.querySelector('.comments-list');
+    list.insertAdjacentHTML('beforeend', itemHtml);
   }
+  inputEl.value = '';
+  cancelReply(post);
+  updateCommentCount(post);
+  updateCommentsVisibility(post);
   myCommentCount++;
   var statCommentsEl = document.getElementById('statComments');
   if(statCommentsEl) statCommentsEl.textContent = myCommentCount;
@@ -1778,12 +2072,14 @@ function buildPostInteractionsHtml(likeSpanHtml, commentCount){
   }).join('');
   return '<div class="post-actions">'
     + likeSpanHtml
-    + '<span class="comment-toggle" onclick="toggleComments(this)">💬 '+commentCount+' comentários</span>'
+    + '<span class="comment-toggle" onclick="toggleComments(this)">💬 '+commentCount+' comentário'+(commentCount===1 ? '' : 's')+'</span>'
     + '<span class="icon-action repost-btn" onclick="toggleRepost(this)">'+ICON_REPOST_SVG+'<b class="count">0</b></span>'
     + '<span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;">'+bookmarkSvg(false)+'</span>'
     + '</div>'
-    + '<div class="post-comments hidden">'
-    + '<div class="comments-list"></div>'
+    + '<div class="comments-list collapsed"></div>'
+    + '<div class="view-all-comments hidden" onclick="toggleComments(this)"></div>'
+    + '<div class="comment-compose hidden">'
+    + '<div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span onclick="cancelReply(this.closest(\'.post\'))">✕</span></div>'
     + '<div class="comment-emoji-row">'+emojiRow+'</div>'
     + '<div class="comment-input-row"><input type="text" placeholder="Adicionar comentário..." onkeypress="if(event.key===\'Enter\'){addComment(this); event.preventDefault();}"><button onclick="addComment(this.previousElementSibling)">Enviar</button></div>'
     + '</div>';
@@ -1835,7 +2131,7 @@ function toggleSave(el){
   toast(el.classList.contains('saved') ? 'Publicação salva.' : 'Removida dos salvos.');
 }
 function insertCommentEmoji(el, emoji){
-  var panel = el.closest('.post-comments');
+  var panel = el.closest('.comment-compose');
   var input = panel ? panel.querySelector('.comment-input-row input') : null;
   if(input){ input.value += emoji; input.focus(); }
 }
@@ -3109,6 +3405,28 @@ function makeEmptyTrimestres(){
   }
   return arr;
 }
+/* ---- Meta geral da Missão Piauiense (definida pela Administração) ---- */
+var missaoMetaAnual = { missionarios:0, estudos:0, batismos:0, enviados:0 };
+var missaoMetasTrimestrais = [
+  { missionarios:0, estudos:0, batismos:0, enviados:0 },
+  { missionarios:0, estudos:0, batismos:0, enviados:0 },
+  { missionarios:0, estudos:0, batismos:0, enviados:0 },
+  { missionarios:0, estudos:0, batismos:0, enviados:0 }
+];
+function aggregateAchievedTrimester(churches, i){
+  var out = { missionarios:0, estudos:0, batismos:0, enviados:0 };
+  churches.forEach(function(g){
+    var t = g.trimestres && g.trimestres[i];
+    if(t && t.alcancado){
+      out.missionarios += t.valores.missionarios;
+      out.estudos += t.valores.estudos;
+      out.batismos += t.valores.batismos;
+      out.enviados += t.valores.enviados;
+    }
+  });
+  return out;
+}
+function somaIndicadores(obj){ return obj.missionarios+obj.estudos+obj.batismos+obj.enviados; }
 function makeChurch(nome, distrito, membros, tipo){
   return {
     nome:nome, distrito:distrito, membros:membros, tipo:tipo||'Igreja',
