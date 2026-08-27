@@ -711,7 +711,7 @@
               <div class="card thermo-wrap" style="justify-content:space-between;">
                 <div class="thermo-legend" id="indicSummaryLegend">
                   <b>Termômetro de indicadores</b>
-                  0% da meta trimestral
+                  0% da meta anual
                 </div>
               </div>
 
@@ -754,7 +754,12 @@
 
               <div class="card thermo-wrap" style="justify-content:flex-start; gap:22px;">
                 <div class="thermo"><div class="fill" id="indicThermoFill" style="height:62%; background:linear-gradient(180deg,#5fd6b0,var(--green));"></div></div>
-                <div class="thermo-legend" id="indicThermoLegend"><b>Termômetro Missionário</b>62% da meta trimestral da igreja</div>
+                <div class="thermo-legend" id="indicThermoLegend"><b>Termômetro Missionário</b>62% da meta anual da igreja</div>
+              </div>
+              <div class="profile-card" id="indicMetaAnualCard" style="margin-top:12px;">
+                <div class="profile-card-title">🎯 Meta Anual</div>
+                <div class="profile-card-sub" style="margin-bottom:6px;">Alvo registrado: <b style="color:var(--navy);" id="indicMetaAnualValues">— · — · — · —</b></div>
+                <div class="profile-card-sub" id="indicMetaAnualProgresso" style="margin-bottom:0;">0% da meta anual alcançado até agora.</div>
               </div>
               <div class="stat-grid">
                 <div class="stat-card"><div class="n" id="ind-missionarios">84</div><div class="t">Missionários em Ação</div></div>
@@ -772,14 +777,8 @@
                 </div>
               </div>
               <button class="btn btn-solid hidden" id="editIndicBtn" style="margin-top:12px;" onclick="go('admin'); openAdmin('indicadores')">Editar indicadores</button>
-              <button class="btn btn-solid hidden" id="editOwnIndicBtn" style="margin-top:12px;" onclick="toggleOwnIndicForm()">Editar indicadores da minha igreja</button>
-              <div class="mini-form hidden" id="ownIndicForm" style="margin-top:12px;">
-                <div class="two-col"><div class="field"><label>Missionários em ação</label><input id="ownInd1" type="number"></div><div class="field"><label>Amigos estudando a Bíblia</label><input id="ownInd2" type="number"></div></div>
-                <div class="two-col"><div class="field"><label>Novos discípulos</label><input id="ownInd3" type="number"></div><div class="field"><label>Colportagem</label><input id="ownInd4" type="number"></div></div>
-                <div class="two-col"><div class="field"><label>Plantio de igrejas</label><input id="ownInd5" type="number"></div><div class="field"><label>SVA</label><input id="ownInd6" type="number"></div></div>
-                <div class="field"><label>OYiM</label><input id="ownInd7" type="number"></div>
-                <button class="btn btn-green" onclick="saveOwnIndicadores()">Salvar</button>
-              </div>
+              <button class="btn btn-solid hidden" id="editOwnIndicBtn" style="margin-top:12px;" onclick="toggleOwnIndicEditor()">Editar indicadores da minha igreja</button>
+              <div class="hidden" id="ownIndicEditorWrap" style="margin-top:12px;"></div>
             </div>
 
             <!-- ---- RANKING ---- -->
@@ -1115,7 +1114,7 @@
                 <div class="admin-banner" id="adminBanner">Acesso total — Administração da Missão Piauiense</div>
                 <div class="admin-menu-item" id="adminMenuUsuarios" onclick="openAdmin('usuarios')"><div class="ic">👤</div><div><b>Cadastrar usuários</b><span id="adminMenuUsuariosSub">Aprovar Pastores e Líderes</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuIgrejas" onclick="openAdmin('igrejas')"><div class="ic">⛪</div><div><b>Editar igrejas e distritos</b><span id="adminMenuIgrejasSub">Estrutura organizacional</span></div><div class="chevron-right">›</div></div>
-                <div class="admin-menu-item" id="adminMenuIndicadores" onclick="openAdmin('indicadores')"><div class="ic">📊</div><div><b>Alimentar indicadores</b><span id="adminMenuIndicadoresSub">Painel trimestral por igreja</span></div><div class="chevron-right">›</div></div>
+                <div class="admin-menu-item" id="adminMenuIndicadores" onclick="openAdmin('indicadores')"><div class="ic">📊</div><div><b>Alimentar indicadores</b><span id="adminMenuIndicadoresSub">Metas anuais e trimestrais por igreja</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuMateriais" onclick="openAdmin('materiais')"><div class="ic">📁</div><div><b>Publicar materiais</b><span>Biblioteca digital</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuRankings" onclick="openAdmin('rankings')"><div class="ic">🏆</div><div><b>Gerenciar rankings</b><span id="adminMenuRankingsSub">Igrejas, distritos, líderes, pastores</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuCampanhas" onclick="openAdmin('campanhas')"><div class="ic">📣</div><div><b>Liberar campanhas</b><span>Ações especiais da Missão</span></div><div class="chevron-right">›</div></div>
@@ -1484,19 +1483,18 @@ function renderQuarterTabs(){
 function calculateIndicSummary(){
   var valores, metas;
   if(currentUserRole==='pastor'){
-    valores = aggregateValores(churchesInDistrict(userDistrict));
+    valores = aggregateAchieved(churchesInDistrict(userDistrict));
     var d = getDistrict(userDistrict);
     metas = d ? d.metas : { missionarios:0, estudos:0, batismos:0, enviados:0 };
   } else if(currentUserRole==='adm'){
-    valores = aggregateValores(igrejasList);
+    valores = aggregateAchieved(igrejasList);
     metas = aggregateMetas(distritosList);
   } else {
     var g = getChurch(userChurch);
-    valores = g ? g.valores : { missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 };
+    valores = g ? computeAchievedForChurch(g) : { missionarios:0, estudos:0, batismos:0, enviados:0 };
     metas = g ? g.metas : { missionarios:0, estudos:0, batismos:0, enviados:0 };
   }
-  var enviados = valores.colp + valores.plant + valores.sva + valores.oyim;
-  var totalAtual = valores.missionarios + valores.estudos + valores.batismos + enviados;
+  var totalAtual = valores.missionarios + valores.estudos + valores.batismos + valores.enviados;
   var totalMeta = metas.missionarios + metas.estudos + metas.batismos + metas.enviados;
   var pct = totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
   pct = Math.max(0, Math.min(100, pct));
@@ -1507,7 +1505,7 @@ function calculateIndicSummary(){
   if(fillEl) fillEl.style.height = pct+'%';
   var legendEl = document.getElementById('indicSummaryLegend');
   var scopeWord = currentUserRole==='pastor' ? 'do distrito' : (currentUserRole==='adm' ? 'da Missão Piauiense' : 'da igreja');
-  if(legendEl) legendEl.innerHTML = '<b>Termômetro de indicadores</b>'+pct+'% da meta trimestral '+scopeWord;
+  if(legendEl) legendEl.innerHTML = '<b>Termômetro de indicadores</b>'+pct+'% da meta anual '+scopeWord;
 }
 
 /* ================= INDICADORES: ESCOPO IGREJA / DISTRITO / MISSÃO ================= */
@@ -1521,12 +1519,32 @@ function unitsSummary(distrito){
   var grupos = units.filter(function(g){ return g.tipo==='Grupo'; }).length;
   return igrejas+' igrejas · '+grupos+' grupos';
 }
-function aggregateValores(churches){
-  var out = { missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 };
+function computeAchievedForChurch(g){
+  var out = { missionarios:0, estudos:0, batismos:0, enviados:0 };
+  (g.trimestres||[]).forEach(function(t){
+    if(t.alcancado){
+      out.missionarios += t.valores.missionarios;
+      out.estudos += t.valores.estudos;
+      out.batismos += t.valores.batismos;
+      out.enviados += t.valores.enviados;
+    }
+  });
+  return out;
+}
+function aggregateAchieved(churches){
+  var out = { missionarios:0, estudos:0, batismos:0, enviados:0 };
   churches.forEach(function(g){
-    out.missionarios += g.valores.missionarios;
-    out.estudos += g.valores.estudos;
-    out.batismos += g.valores.batismos;
+    var a = computeAchievedForChurch(g);
+    out.missionarios += a.missionarios;
+    out.estudos += a.estudos;
+    out.batismos += a.batismos;
+    out.enviados += a.enviados;
+  });
+  return out;
+}
+function aggregateColpDetail(churches){
+  var out = { colp:0, plant:0, sva:0, oyim:0 };
+  churches.forEach(function(g){
     out.colp += g.valores.colp;
     out.plant += g.valores.plant;
     out.sva += g.valores.sva;
@@ -1545,32 +1563,36 @@ function aggregateMetas(list){
   return out;
 }
 function computeIndicData(){
-  var valores, metas, label, sublabel;
+  var valores, metas, label, sublabel, colpDetail, churchRef = null;
   if(indicScope.type==='igreja'){
     var g = getChurch(indicScope.name);
     if(!g) return null;
-    valores = g.valores;
+    if(!g.trimestres) g.trimestres = makeEmptyTrimestres();
+    valores = computeAchievedForChurch(g);
     metas = g.metas;
     label = g.nome;
     sublabel = g.distrito;
+    colpDetail = { colp:g.valores.colp, plant:g.valores.plant, sva:g.valores.sva, oyim:g.valores.oyim };
+    churchRef = g;
   } else if(indicScope.type==='distrito'){
     var d = getDistrict(indicScope.name);
     if(!d) return null;
     var churches = churchesInDistrict(d.nome);
-    valores = aggregateValores(churches);
+    valores = aggregateAchieved(churches);
     metas = d.metas;
     label = d.nome;
     sublabel = unitsSummary(d.nome);
+    colpDetail = aggregateColpDetail(churches);
   } else {
-    valores = aggregateValores(igrejasList);
+    valores = aggregateAchieved(igrejasList);
     metas = aggregateMetas(distritosList);
     label = 'Missão Piauiense';
     var totalIgrejas = igrejasList.filter(function(g){ return g.tipo!=='Grupo'; }).length;
     var totalGrupos = igrejasList.filter(function(g){ return g.tipo==='Grupo'; }).length;
     sublabel = totalIgrejas+' igrejas · '+totalGrupos+' grupos · '+distritosList.length+' distritos';
+    colpDetail = aggregateColpDetail(igrejasList);
   }
-  var enviados = valores.colp + valores.plant + valores.sva + valores.oyim;
-  return { valores:valores, metas:metas, enviados:enviados, label:label, sublabel:sublabel };
+  return { valores:valores, metas:metas, enviados:valores.enviados, label:label, sublabel:sublabel, colpDetail:colpDetail, church:churchRef };
 }
 function indicScopeTitleText(){
   if(indicScope.type==='igreja'){
@@ -1595,10 +1617,25 @@ function renderIndicadoresView(){
   document.getElementById('ind-estudos').textContent = data.valores.estudos;
   document.getElementById('ind-batismos').textContent = data.valores.batismos;
   document.getElementById('ind-enviados').textContent = data.enviados;
-  document.getElementById('ind-colp').textContent = 'Colportagem: '+data.valores.colp;
-  document.getElementById('ind-plant').textContent = 'Plantio de Igrejas: '+data.valores.plant;
-  document.getElementById('ind-sva').textContent = 'SVA: '+data.valores.sva;
-  document.getElementById('ind-oyim').textContent = 'OYiM: '+data.valores.oyim;
+  document.getElementById('ind-colp').textContent = 'Colportagem: '+data.colpDetail.colp;
+  document.getElementById('ind-plant').textContent = 'Plantio de Igrejas: '+data.colpDetail.plant;
+  document.getElementById('ind-sva').textContent = 'SVA: '+data.colpDetail.sva;
+  document.getElementById('ind-oyim').textContent = 'OYiM: '+data.colpDetail.oyim;
+
+  var metaAnualCard = document.getElementById('indicMetaAnualCard');
+  if(metaAnualCard){
+    var m = data.metas;
+    document.getElementById('indicMetaAnualValues').textContent = m.missionarios+' miss. · '+m.estudos+' est. · '+m.batismos+' bat. · '+m.enviados+' env.';
+    var totalMeta = m.missionarios+m.estudos+m.batismos+m.enviados;
+    var totalAtual = data.valores.missionarios+data.valores.estudos+data.valores.batismos+data.enviados;
+    var falta = Math.max(0, totalMeta-totalAtual);
+    var pct = totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
+    document.getElementById('indicMetaAnualProgresso').textContent = pct+'% da meta anual alcançado até agora (somando os trimestres já marcados como alcançados) · faltam '+falta+' pontos no total.';
+  }
+
+  if(ownIndicEditorOpen && indicScope.type==='igreja' && indicScope.name===userChurch){
+    renderIndicEditor(userChurch, 'ownIndicEditorWrap');
+  }
 
   recalcThermometer();
 }
@@ -1613,7 +1650,7 @@ function recalcThermometer(){
   if(fill) fill.style.height = pct+'%';
   var legend = document.getElementById('indicThermoLegend');
   var scopeText = indicScope.type==='igreja' ? 'da igreja' : (indicScope.type==='distrito' ? 'do distrito' : 'da Missão Piauiense');
-  if(legend) legend.innerHTML = '<b>Termômetro Missionário</b>'+pct+'% da meta trimestral '+scopeText;
+  if(legend) legend.innerHTML = '<b>Termômetro Missionário</b>'+pct+'% da meta anual '+scopeText;
 }
 function filterIndicSearch(){
   var term = document.getElementById('indicSearchInput').value.toLowerCase().trim();
@@ -2690,16 +2727,15 @@ function computeDesafiosScoreForDistrict(distrito){
   return Math.round((sum/churches.length)*100)/100;
 }
 function computeIndicPercentForChurch(g){
-  var enviados = g.valores.colp+g.valores.plant+g.valores.sva+g.valores.oyim;
-  var totalAtual = g.valores.missionarios+g.valores.estudos+g.valores.batismos+enviados;
+  var achieved = computeAchievedForChurch(g);
+  var totalAtual = achieved.missionarios+achieved.estudos+achieved.batismos+achieved.enviados;
   var totalMeta = g.metas.missionarios+g.metas.estudos+g.metas.batismos+g.metas.enviados;
   return totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
 }
 function computeIndicPercentForDistrict(distrito){
   var d = getDistrict(distrito);
-  var agg = aggregateValores(churchesInDistrict(distrito));
-  var enviados = agg.colp+agg.plant+agg.sva+agg.oyim;
-  var totalAtual = agg.missionarios+agg.estudos+agg.batismos+enviados;
+  var achieved = aggregateAchieved(churchesInDistrict(distrito));
+  var totalAtual = achieved.missionarios+achieved.estudos+achieved.batismos+achieved.enviados;
   var totalMeta = d ? (d.metas.missionarios+d.metas.estudos+d.metas.batismos+d.metas.enviados) : 0;
   return totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
 }
@@ -2902,8 +2938,9 @@ function switchRole(role){
   var ownIndicBtn = document.getElementById('editOwnIndicBtn');
   if(ownIndicBtn) ownIndicBtn.classList.toggle('hidden', role!=='lider');
   if(role!=='lider'){
-    var ownForm = document.getElementById('ownIndicForm');
-    if(ownForm) ownForm.classList.add('hidden');
+    var ownWrap = document.getElementById('ownIndicEditorWrap');
+    if(ownWrap) ownWrap.classList.add('hidden');
+    ownIndicEditorOpen = false;
   }
   if(typeof applyIndicRoleRestrictions==='function') applyIndicRoleRestrictions(role);
   if(typeof applyDesafiosRoleRestrictions==='function') applyDesafiosRoleRestrictions();
@@ -2912,35 +2949,128 @@ function switchRole(role){
   if(typeof calculateQuarterScore==='function') calculateQuarterScore();
   if(typeof calculateIndicSummary==='function') calculateIndicSummary();
 }
-function toggleOwnIndicForm(){
-  var form = document.getElementById('ownIndicForm');
-  var g = getChurch(userChurch);
-  if(!form || !g) return;
-  form.classList.toggle('hidden');
-  if(!form.classList.contains('hidden')){
-    document.getElementById('ownInd1').value = g.valores.missionarios;
-    document.getElementById('ownInd2').value = g.valores.estudos;
-    document.getElementById('ownInd3').value = g.valores.batismos;
-    document.getElementById('ownInd4').value = g.valores.colp;
-    document.getElementById('ownInd5').value = g.valores.plant;
-    document.getElementById('ownInd6').value = g.valores.sva;
-    document.getElementById('ownInd7').value = g.valores.oyim;
-  }
+var ownIndicEditorOpen = false;
+function toggleOwnIndicEditor(){
+  ownIndicEditorOpen = !ownIndicEditorOpen;
+  var wrap = document.getElementById('ownIndicEditorWrap');
+  if(!wrap) return;
+  wrap.classList.toggle('hidden', !ownIndicEditorOpen);
+  if(ownIndicEditorOpen) renderIndicEditor(userChurch, 'ownIndicEditorWrap');
 }
-function saveOwnIndicadores(){
-  var g = getChurch(userChurch);
-  if(!g) return;
-  g.valores.missionarios = Number(document.getElementById('ownInd1').value)||0;
-  g.valores.estudos = Number(document.getElementById('ownInd2').value)||0;
-  g.valores.batismos = Number(document.getElementById('ownInd3').value)||0;
-  g.valores.colp = Number(document.getElementById('ownInd4').value)||0;
-  g.valores.plant = Number(document.getElementById('ownInd5').value)||0;
-  g.valores.sva = Number(document.getElementById('ownInd6').value)||0;
-  g.valores.oyim = Number(document.getElementById('ownInd7').value)||0;
-  document.getElementById('ownIndicForm').classList.add('hidden');
+
+var currentIndicEditChurch = null;
+var currentIndicEditWrapId = null;
+function renderIndicEditor(nome, wrapId){
+  currentIndicEditChurch = nome;
+  currentIndicEditWrapId = wrapId;
+  var wrap = document.getElementById(wrapId);
+  var g = getChurch(nome);
+  if(!wrap) return;
+  if(!g){ wrap.innerHTML = '<div class="empty-note">Igreja não encontrada.</div>'; return; }
+  if(!g.trimestres) g.trimestres = makeEmptyTrimestres();
+
+  var html = '<div class="profile-card">'
+    + '<div class="profile-card-title">🎯 Meta Anual</div>'
+    + '<div class="profile-card-sub">Alvo do ano inteiro para esta igreja. Registre uma vez e ajuste sempre que precisar.</div>'
+    + '<div class="two-col"><div class="field"><label>Missionários em ação</label><input id="metaAnualMissionarios" type="number" value="'+g.metas.missionarios+'"></div><div class="field"><label>Estudos bíblicos</label><input id="metaAnualEstudos" type="number" value="'+g.metas.estudos+'"></div></div>'
+    + '<div class="two-col"><div class="field"><label>Batismos</label><input id="metaAnualBatismos" type="number" value="'+g.metas.batismos+'"></div><div class="field"><label>Enviados</label><input id="metaAnualEnviados" type="number" value="'+g.metas.enviados+'"></div></div>'
+    + '<button class="btn btn-solid" onclick="saveMetaAnual()">💾 Salvar Meta Anual</button>'
+    + '</div>';
+
+  var achieved = computeAchievedForChurch(g);
+  var totalMetaAnual = g.metas.missionarios+g.metas.estudos+g.metas.batismos+g.metas.enviados;
+  var totalAchieved = achieved.missionarios+achieved.estudos+achieved.batismos+achieved.enviados;
+  var pctAnual = totalMetaAnual>0 ? Math.round((totalAchieved/totalMetaAnual)*100) : 0;
+  var faltaAnual = Math.max(0, totalMetaAnual-totalAchieved);
+  html += '<div class="profile-card">'
+    + '<div class="profile-card-title">📈 Progresso do Ano</div>'
+    + '<div class="profile-card-sub" style="margin-bottom:0;">'+pctAnual+'% da meta anual já alcançado (somando os trimestres marcados como alcançados). Faltam <b style="color:var(--navy);">'+faltaAnual+'</b> pontos no total para bater a meta anual.</div>'
+    + '</div>';
+
+  g.trimestres.forEach(function(t, i){
+    var badge = t.alcancado
+      ? '<span class="tag" style="background:var(--green-light); color:var(--green);">✅ Alcançado</span>'
+      : '<span class="tag">Em andamento</span>';
+    html += '<div class="profile-card">'
+      + '<div class="profile-card-title">'+TRIMESTRE_LABELS[i]+' '+badge+'</div>'
+      + '<div class="profile-card-sub">Registre o alvo deste trimestre. Pode editar quantas vezes precisar, mesmo depois de marcado como alcançado.</div>'
+      + '<div class="two-col"><div class="field"><label>Meta · Missionários</label><input id="tri'+i+'MetaMissionarios" type="number" value="'+t.meta.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="tri'+i+'MetaEstudos" type="number" value="'+t.meta.estudos+'"></div></div>'
+      + '<div class="two-col"><div class="field"><label>Meta · Batismos</label><input id="tri'+i+'MetaBatismos" type="number" value="'+t.meta.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="tri'+i+'MetaEnviados" type="number" value="'+t.meta.enviados+'"></div></div>'
+      + '<button class="btn btn-ghost-dark" style="margin-bottom:14px;" onclick="saveTrimestreMeta('+i+')">Salvar meta do trimestre</button>'
+      + '<div class="toggle-row" style="margin-bottom:'+(t.alcancado ? '14px' : '0')+';"><div><b style="font-size:12.5px;">Marcar como alcançado</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Só marque quando o trimestre realmente terminar</div></div>'
+      + '<div class="switch'+(t.alcancado ? ' on' : '')+'" onclick="toggleTrimestreAlcancado('+i+')"><div class="knob"></div></div></div>';
+    if(t.alcancado){
+      html += '<div class="two-col"><div class="field"><label>Alcançado · Missionários</label><input id="tri'+i+'ValMissionarios" type="number" value="'+t.valores.missionarios+'"></div><div class="field"><label>Alcançado · Estudos</label><input id="tri'+i+'ValEstudos" type="number" value="'+t.valores.estudos+'"></div></div>'
+        + '<div class="two-col"><div class="field"><label>Alcançado · Batismos</label><input id="tri'+i+'ValBatismos" type="number" value="'+t.valores.batismos+'"></div><div class="field"><label>Alcançado · Enviados</label><input id="tri'+i+'ValEnviados" type="number" value="'+t.valores.enviados+'"></div></div>'
+        + '<button class="btn btn-green" style="margin-bottom:12px;" onclick="saveTrimestreValores('+i+')">Salvar números alcançados</button>'
+        + renderTrimestreResultHtml(t);
+    }
+    html += '</div>';
+  });
+
+  wrap.innerHTML = html;
+}
+function renderTrimestreResultHtml(t){
+  var itens = [
+    { label:'Missionários em ação', meta:t.meta.missionarios, val:t.valores.missionarios },
+    { label:'Estudos bíblicos', meta:t.meta.estudos, val:t.valores.estudos },
+    { label:'Batismos', meta:t.meta.batismos, val:t.valores.batismos },
+    { label:'Enviados', meta:t.meta.enviados, val:t.valores.enviados }
+  ];
+  var rows = itens.map(function(it){
+    var ok = it.val >= it.meta;
+    var falta = Math.max(0, it.meta-it.val);
+    return '<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; padding:6px 0; border-bottom:1px solid var(--line);">'
+      + '<span>'+it.label+'</span>'
+      + '<span style="font-weight:700; color:'+(ok ? 'var(--green)' : 'var(--red)')+';">'+(ok ? '✅ Meta alcançada' : '⚠️ Faltou '+falta)+'</span></div>';
+  }).join('');
+  return '<div style="margin-top:2px;">'+rows+'</div>';
+}
+function getEditingChurch(){ return getChurch(currentIndicEditChurch); }
+function refreshAfterIndicEdit(){
+  renderIndicEditor(currentIndicEditChurch, currentIndicEditWrapId);
   if(typeof renderIndicadoresView==='function') renderIndicadoresView();
   if(typeof calculateIndicSummary==='function') calculateIndicSummary();
-  toast('Indicadores da sua igreja atualizados.');
+}
+function saveMetaAnual(){
+  var g = getEditingChurch();
+  if(!g) return;
+  g.metas.missionarios = Number(document.getElementById('metaAnualMissionarios').value)||0;
+  g.metas.estudos = Number(document.getElementById('metaAnualEstudos').value)||0;
+  g.metas.batismos = Number(document.getElementById('metaAnualBatismos').value)||0;
+  g.metas.enviados = Number(document.getElementById('metaAnualEnviados').value)||0;
+  refreshAfterIndicEdit();
+  toast('Meta anual salva.');
+}
+function saveTrimestreMeta(i){
+  var g = getEditingChurch();
+  if(!g) return;
+  var t = g.trimestres[i];
+  t.meta.missionarios = Number(document.getElementById('tri'+i+'MetaMissionarios').value)||0;
+  t.meta.estudos = Number(document.getElementById('tri'+i+'MetaEstudos').value)||0;
+  t.meta.batismos = Number(document.getElementById('tri'+i+'MetaBatismos').value)||0;
+  t.meta.enviados = Number(document.getElementById('tri'+i+'MetaEnviados').value)||0;
+  refreshAfterIndicEdit();
+  toast((i+1)+'º trimestre: meta registrada.');
+}
+function toggleTrimestreAlcancado(i){
+  var g = getEditingChurch();
+  if(!g) return;
+  var t = g.trimestres[i];
+  t.alcancado = !t.alcancado;
+  refreshAfterIndicEdit();
+  toast(t.alcancado ? (i+1)+'º trimestre marcado como alcançado.' : (i+1)+'º trimestre desmarcado — volta a ficar "em andamento".');
+}
+function saveTrimestreValores(i){
+  var g = getEditingChurch();
+  if(!g) return;
+  var t = g.trimestres[i];
+  t.valores.missionarios = Number(document.getElementById('tri'+i+'ValMissionarios').value)||0;
+  t.valores.estudos = Number(document.getElementById('tri'+i+'ValEstudos').value)||0;
+  t.valores.batismos = Number(document.getElementById('tri'+i+'ValBatismos').value)||0;
+  t.valores.enviados = Number(document.getElementById('tri'+i+'ValEnviados').value)||0;
+  refreshAfterIndicEdit();
+  toast((i+1)+'º trimestre: números alcançados salvos.');
 }
 
 /* ================= ADMIN PANEL ================= */
@@ -2960,11 +3090,24 @@ function computeDefaultMetas(membros){
     enviados: Math.max(1, Math.round(membros*0.015))
   };
 }
+var TRIMESTRE_LABELS = ['1º Trimestre · Jan a Mar','2º Trimestre · Abr a Jun','3º Trimestre · Jul a Set','4º Trimestre · Out a Dez'];
+function makeEmptyTrimestres(){
+  var arr = [];
+  for(var i=0;i<4;i++){
+    arr.push({
+      meta:{ missionarios:0, estudos:0, batismos:0, enviados:0 },
+      alcancado:false,
+      valores:{ missionarios:0, estudos:0, batismos:0, enviados:0 }
+    });
+  }
+  return arr;
+}
 function makeChurch(nome, distrito, membros, tipo){
   return {
     nome:nome, distrito:distrito, membros:membros, tipo:tipo||'Igreja',
     metas: computeDefaultMetas(membros),
     valores: { missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 },
+    trimestres: makeEmptyTrimestres(),
     desafiosProgress: { sabado13:0, treinamento:0, professores:0, planoMissionario:0, sabadoTarde:0, bonus:0 }
   };
 }
@@ -3475,7 +3618,7 @@ function applyAdminMenuRoleRestrictions(){
   var igrejasSub = document.getElementById('adminMenuIgrejasSub');
   if(igrejasSub) igrejasSub.textContent = isPastor ? 'Igrejas do seu distrito' : 'Estrutura organizacional';
   var indicSub = document.getElementById('adminMenuIndicadoresSub');
-  if(indicSub) indicSub.textContent = isPastor ? 'Painel trimestral das igrejas do seu distrito' : 'Painel trimestral por igreja';
+  if(indicSub) indicSub.textContent = isPastor ? 'Metas anuais e trimestrais das igrejas do seu distrito' : 'Metas anuais e trimestrais por igreja';
   var rankSub = document.getElementById('adminMenuRankingsSub');
   if(rankSub) rankSub.textContent = isPastor ? 'Ranking do seu distrito' : 'Igrejas, distritos, líderes, pastores';
   var desafiosSub = document.getElementById('adminMenuDesafiosSub');
@@ -3639,13 +3782,13 @@ function renderIgrejas(){
   var distritoOpts = isPastor ? '<option>'+userDistrict+'</option>' : distritosList.map(function(d){ return '<option>'+d.nome+'</option>'; }).join('');
 
   var html = '<div class="detail-title">'+(isPastor ? 'Editar igrejas e grupos do meu distrito' : 'Editar igrejas, grupos e distritos')+'</div>'
-    + '<div class="section-sub">Cada igreja e distrito define seus próprios alvos trimestrais — eles servem de base para o Termômetro Missionário, independente da pontuação dos desafios.</div>'
+    + '<div class="section-sub">Cada igreja e distrito define sua própria meta anual — eles servem de base para o Termômetro Missionário, independente da pontuação dos desafios.</div>'
     + '<div class="section-title" style="margin-top:4px;">Nova igreja ou grupo</div>'
     + '<div class="mini-form">'
     + '<div class="field"><label>Nome</label><input id="newIgrejaNome" placeholder="Ex: Igreja Bom Pastor"></div>'
     + '<div class="two-col"><div class="field"><label>Tipo</label><select id="newIgrejaTipo"><option>Igreja</option><option>Grupo</option></select></div>'
     + '<div class="field"><label>Distrito</label><select id="newIgrejaDistrito"'+(isPastor ? ' disabled' : '')+'>'+distritoOpts+'</select></div></div>'
-    + '<div class="section-sub" style="margin:6px 0 4px;">Alvos trimestrais</div>'
+    + '<div class="section-sub" style="margin:6px 0 4px;">Meta anual</div>'
     + '<div class="two-col"><div class="field"><label>Alvo · Missionários em ação</label><input id="newIgrejaMetaMissionarios" type="number" value="80"></div><div class="field"><label>Alvo · Estudos bíblicos</label><input id="newIgrejaMetaEstudos" type="number" value="50"></div></div>'
     + '<div class="two-col"><div class="field"><label>Alvo · Batismos</label><input id="newIgrejaMetaBatismos" type="number" value="15"></div><div class="field"><label>Alvo · Enviados</label><input id="newIgrejaMetaEnviados" type="number" value="6"></div></div>'
     + '<button class="btn btn-solid" onclick="addIgreja()">+ Adicionar</button>'
@@ -3657,7 +3800,7 @@ function renderIgrejas(){
     var d = getDistrict(userDistrict) || { metas:{ missionarios:0, estudos:0, batismos:0, enviados:0 } };
     html += '<div class="section-title">Meu distrito · '+userDistrict+'</div>'
       + '<div class="mini-form">'
-      + '<div class="section-sub" style="margin:0 0 6px;">Ajuste os alvos trimestrais do seu distrito — usados no termômetro de indicadores e no ranking.</div>'
+      + '<div class="section-sub" style="margin:0 0 6px;">Ajuste a meta anual do seu distrito — usada no termômetro de indicadores e no ranking.</div>'
       + '<div class="two-col"><div class="field"><label>Alvo · Missionários em ação</label><input id="distMetaMissionarios" type="number" value="'+d.metas.missionarios+'"></div><div class="field"><label>Alvo · Estudos bíblicos</label><input id="distMetaEstudos" type="number" value="'+d.metas.estudos+'"></div></div>'
       + '<div class="two-col"><div class="field"><label>Alvo · Batismos</label><input id="distMetaBatismos" type="number" value="'+d.metas.batismos+'"></div><div class="field"><label>Alvo · Enviados</label><input id="distMetaEnviados" type="number" value="'+d.metas.enviados+'"></div></div>'
       + '<button class="btn btn-green" onclick="saveDistrictMetas()">Salvar alvos do distrito</button>'
@@ -3671,7 +3814,7 @@ function renderIgrejas(){
     html += '<div class="section-title">Novo distrito</div>'
       + '<div class="mini-form">'
       + '<div class="field"><label>Nome do distrito</label><input id="newDistritoNome" placeholder="Ex: Distrito Oeste"></div>'
-      + '<div class="section-sub" style="margin:6px 0 4px;">Alvos trimestrais do distrito</div>'
+      + '<div class="section-sub" style="margin:6px 0 4px;">Meta anual do distrito</div>'
       + '<div class="two-col"><div class="field"><label>Alvo · Missionários em ação</label><input id="newDistritoMetaMissionarios" type="number" value="200"></div><div class="field"><label>Alvo · Estudos bíblicos</label><input id="newDistritoMetaEstudos" type="number" value="120"></div></div>'
       + '<div class="two-col"><div class="field"><label>Alvo · Batismos</label><input id="newDistritoMetaBatismos" type="number" value="35"></div><div class="field"><label>Alvo · Enviados</label><input id="newDistritoMetaEnviados" type="number" value="16"></div></div>'
       + '<button class="btn btn-solid" onclick="addDistrito()">+ Adicionar distrito</button>'
@@ -3688,7 +3831,7 @@ function renderDistrictEditForm(d){
     + '<div class="section-sub" style="margin:0 0 6px;">Distrito: <b>'+d.nome+'</b></div>'
     + '<div class="two-col"><div class="field"><label>Nome do pastor</label><input id="editDistPastorNome" value="'+p.nome+'"></div><div class="field"><label>E-mail do pastor</label><input id="editDistPastorEmail" value="'+p.email+'"></div></div>'
     + '<div class="field"><label>Telefone do pastor</label><input id="editDistPastorTelefone" value="'+(p.telefone||'')+'" placeholder="(86) 9 0000-0000"></div>'
-    + '<div class="section-sub" style="margin:8px 0 4px;">Alvos trimestrais do distrito</div>'
+    + '<div class="section-sub" style="margin:8px 0 4px;">Meta anual do distrito</div>'
     + '<div class="two-col"><div class="field"><label>Alvo · Missionários</label><input id="editDistMetaMissionarios" type="number" value="'+d.metas.missionarios+'"></div><div class="field"><label>Alvo · Estudos</label><input id="editDistMetaEstudos" type="number" value="'+d.metas.estudos+'"></div></div>'
     + '<div class="two-col"><div class="field"><label>Alvo · Batismos</label><input id="editDistMetaBatismos" type="number" value="'+d.metas.batismos+'"></div><div class="field"><label>Alvo · Enviados</label><input id="editDistMetaEnviados" type="number" value="'+d.metas.enviados+'"></div></div>'
     + '<div class="pending-actions"><button class="btn-approve" onclick="saveDistrictEdit(\''+d.nome.replace(/'/g,"\\'")+'\')">Salvar</button><button class="btn-reject" onclick="cancelEditDistrict()">Cancelar</button></div>'
@@ -3738,7 +3881,7 @@ function addIgreja(){
     batismos: Number(document.getElementById('newIgrejaMetaBatismos').value)||0,
     enviados: Number(document.getElementById('newIgrejaMetaEnviados').value)||0
   };
-  igrejasList.unshift({ nome:nome, distrito:distrito, tipo:tipo, metas:metas, valores:{ missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 }, desafiosProgress:{ sabado13:0, treinamento:0, professores:0, planoMissionario:0, sabadoTarde:0, bonus:0 } });
+  igrejasList.unshift({ nome:nome, distrito:distrito, tipo:tipo, metas:metas, valores:{ missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 }, trimestres: makeEmptyTrimestres(), desafiosProgress:{ sabado13:0, treinamento:0, professores:0, planoMissionario:0, sabadoTarde:0, bonus:0 } });
   renderAdmin('igrejas');
   toast((tipo==='Grupo' ? 'Grupo "' : 'Igreja "')+nome+'" cadastrado(a) em '+distrito+' com alvos definidos.');
 }
@@ -3762,41 +3905,14 @@ function renderIndicAdmin(){
   var isPastor = currentUserRole==='pastor';
   var scopeChurches = isPastor ? churchesInDistrict(userDistrict) : igrejasList;
   var opts = scopeChurches.map(function(g){ return '<option>'+g.nome+'</option>'; }).join('');
-  return '<div class="detail-title">'+(isPastor ? 'Alimentar indicadores do meu distrito' : 'Alimentar indicadores')+'</div>'
-    + '<div class="section-sub">Selecione a igreja e atualize os números do trimestre. Os valores entram automaticamente no cálculo do termômetro dessa igreja, do seu distrito e da Missão Piauiense completa.</div>'
+  return '<div class="detail-title">'+(isPastor ? 'Metas do meu distrito' : 'Metas anuais e trimestrais')+'</div>'
+    + '<div class="section-sub">Selecione a igreja para registrar a meta anual, as metas trimestrais e marcar cada trimestre como alcançado. Isso alimenta automaticamente o termômetro dessa igreja, do seu distrito e da Missão Piauiense completa.</div>'
     + '<div class="field"><label>Igreja</label><select id="indigreja" onchange="loadIndicAdminValues()">'+opts+'</select></div>'
-    + '<div class="two-col"><div class="field"><label>Missionários em ação</label><input id="ind1" type="number"></div><div class="field"><label>Amigos estudando a Bíblia</label><input id="ind2" type="number"></div></div>'
-    + '<div class="two-col"><div class="field"><label>Novos discípulos</label><input id="ind3" type="number"></div><div class="field"><label>Colportagem</label><input id="ind4" type="number"></div></div>'
-    + '<div class="two-col"><div class="field"><label>Plantio de igrejas</label><input id="ind5" type="number"></div><div class="field"><label>SVA</label><input id="ind6" type="number"></div></div>'
-    + '<div class="field"><label>OYiM</label><input id="ind7" type="number"></div>'
-    + '<button class="btn btn-green" onclick="saveIndicadores()">Salvar indicadores</button>';
+    + '<div id="indicEditorWrapAdmin"></div>';
 }
 function loadIndicAdminValues(){
   var nome = document.getElementById('indigreja').value;
-  var g = getChurch(nome);
-  if(!g) return;
-  document.getElementById('ind1').value = g.valores.missionarios;
-  document.getElementById('ind2').value = g.valores.estudos;
-  document.getElementById('ind3').value = g.valores.batismos;
-  document.getElementById('ind4').value = g.valores.colp;
-  document.getElementById('ind5').value = g.valores.plant;
-  document.getElementById('ind6').value = g.valores.sva;
-  document.getElementById('ind7').value = g.valores.oyim;
-}
-function saveIndicadores(){
-  var nome = document.getElementById('indigreja').value;
-  var g = getChurch(nome);
-  if(!g){ toast('Igreja não encontrada.'); return; }
-  g.valores.missionarios = Number(document.getElementById('ind1').value)||0;
-  g.valores.estudos = Number(document.getElementById('ind2').value)||0;
-  g.valores.batismos = Number(document.getElementById('ind3').value)||0;
-  g.valores.colp = Number(document.getElementById('ind4').value)||0;
-  g.valores.plant = Number(document.getElementById('ind5').value)||0;
-  g.valores.sva = Number(document.getElementById('ind6').value)||0;
-  g.valores.oyim = Number(document.getElementById('ind7').value)||0;
-  if(typeof renderIndicadoresView==='function') renderIndicadoresView();
-  if(typeof calculateIndicSummary==='function') calculateIndicSummary();
-  toast('Indicadores de '+nome+' salvos com sucesso.');
+  renderIndicEditor(nome, 'indicEditorWrapAdmin');
 }
 
 /* ---- Materiais ---- */
