@@ -95,6 +95,13 @@
   .field input[readonly], .field select[disabled]{ background:#F3F5F7; color:var(--muted); cursor:not-allowed; }
   .profile-card{ background:#fff; border:1px solid #EEF2F6; border-radius:16px; padding:16px; margin-bottom:14px;}
   .profile-card-title{ display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:800; color:var(--navy); margin-bottom:14px;}
+  .edit-meta-btn{ margin-left:auto; border:none; background:var(--primary-light); color:var(--primary); font-size:11px; font-weight:700; padding:6px 12px; border-radius:20px; cursor:pointer; flex:none; }
+  .meta-readout{ display:grid; grid-template-columns:1fr 1fr; gap:8px; animation:metaFadeIn .3s ease; }
+  .meta-readout-item{ background:var(--bg); border-radius:10px; padding:10px 12px; }
+  .meta-readout-item span{ display:block; font-size:9.5px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.02em; margin-bottom:3px;}
+  .meta-readout-item b{ font-size:16px; color:var(--navy); }
+  @keyframes metaFadeIn{ from{ opacity:0; transform:translateY(-6px);} to{ opacity:1; transform:translateY(0);} }
+  .meta-form-anim{ animation:metaFadeIn .3s ease; }
   .profile-card-sub{ font-size:12px; color:var(--muted); margin:-8px 0 14px; line-height:1.5;}
   .radio-row{ display:flex; gap:10px; }
   .radio-chip{ flex:1; padding:11px; border:1.5px solid var(--line); border-radius:12px; text-align:center; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; background:#fff;}
@@ -1775,6 +1782,7 @@ function recalcThermometer(){
   var scopeText = indicScope.type==='igreja' ? 'da igreja' : (indicScope.type==='distrito' ? 'do distrito' : 'da Missão Piauiense');
   if(legend) legend.innerHTML = '<b>Termômetro Missionário</b>'+pct+'% da meta anual '+scopeText;
 }
+var missaoCardEditState = { metaAnual: true, tri: [true, true, true, true] };
 function renderMissaoAdminDashboard(){
   var wrap = document.getElementById('missaoAdminDashboard');
   if(!wrap) return;
@@ -1788,13 +1796,18 @@ function renderMissaoAdminDashboard(){
   var pctAnual = totalMetaAnual>0 ? Math.round((totalAchievedAnual/totalMetaAnual)*100) : 0;
   var faltaAnual = Math.max(0, totalMetaAnual-totalAchievedAnual);
 
-  var html = '<div class="profile-card" style="border:1.5px solid var(--primary);">'
-    + '<div class="profile-card-title">🏛️ Meta Geral da Missão Piauiense <span class="tag" style="background:var(--primary-light); color:var(--primary);">Só Administração</span></div>'
-    + '<div class="profile-card-sub">Defina o alvo anual da Missão inteira. O quanto já foi alcançado vem automaticamente da soma do que cada distrito/igreja já marcou como alcançado nos trimestres.</div>'
-    + '<div class="two-col"><div class="field"><label>Missionários em ação</label><input id="missaoMetaMissionarios" type="number" value="'+missaoMetaAnual.missionarios+'"></div><div class="field"><label>Estudos bíblicos</label><input id="missaoMetaEstudos" type="number" value="'+missaoMetaAnual.estudos+'"></div></div>'
-    + '<div class="two-col"><div class="field"><label>Batismos</label><input id="missaoMetaBatismos" type="number" value="'+missaoMetaAnual.batismos+'"></div><div class="field"><label>Enviados</label><input id="missaoMetaEnviados" type="number" value="'+missaoMetaAnual.enviados+'"></div></div>'
-    + '<button class="btn btn-solid" onclick="saveMissaoMetaAnual()">💾 Salvar Meta Anual da Missão</button>'
-    + '</div>';
+  var html = '<div class="profile-card" style="border:1.5px solid var(--primary);">';
+  if(missaoCardEditState.metaAnual){
+    html += '<div class="profile-card-title meta-form-anim">🏛️ Meta Geral da Missão Piauiense <span class="tag" style="background:var(--primary-light); color:var(--primary);">Só Administração</span></div>'
+      + '<div class="profile-card-sub meta-form-anim">Defina o alvo anual da Missão inteira. O quanto já foi alcançado vem automaticamente da soma do que cada distrito/igreja já marcou como alcançado nos trimestres.</div>'
+      + '<div class="two-col meta-form-anim"><div class="field"><label>Missionários em ação</label><input id="missaoMetaMissionarios" type="number" value="'+missaoMetaAnual.missionarios+'"></div><div class="field"><label>Estudos bíblicos</label><input id="missaoMetaEstudos" type="number" value="'+missaoMetaAnual.estudos+'"></div></div>'
+      + '<div class="two-col meta-form-anim"><div class="field"><label>Batismos</label><input id="missaoMetaBatismos" type="number" value="'+missaoMetaAnual.batismos+'"></div><div class="field"><label>Enviados</label><input id="missaoMetaEnviados" type="number" value="'+missaoMetaAnual.enviados+'"></div></div>'
+      + '<button class="btn btn-solid meta-form-anim" onclick="saveMissaoMetaAnual()">💾 Salvar Meta Anual da Missão</button>';
+  } else {
+    html += '<div class="profile-card-title">🏛️ Meta Geral da Missão <span class="tag" style="background:var(--primary-light); color:var(--primary);">Só Administração</span> <button class="edit-meta-btn" onclick="editMissaoMetaAnual()">✏️ Editar</button></div>'
+      + metaReadoutHtml(missaoMetaAnual);
+  }
+  html += '</div>';
 
   html += '<div class="profile-card">'
     + '<div class="profile-card-title">📈 Progresso Anual da Missão</div>'
@@ -1806,12 +1819,17 @@ function renderMissaoAdminDashboard(){
     var totalMetaT = somaIndicadores(m);
     var totalAchievedT = somaIndicadores(achievedT);
     var pctT = totalMetaT>0 ? Math.round((totalAchievedT/totalMetaT)*100) : 0;
-    html += '<div class="profile-card">'
-      + '<div class="profile-card-title">'+TRIMESTRE_LABELS[i]+' <span class="tag" style="background:var(--primary-light); color:var(--primary);">Missão</span></div>'
-      + '<div class="two-col"><div class="field"><label>Meta · Missionários</label><input id="missaoTri'+i+'Missionarios" type="number" value="'+m.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="missaoTri'+i+'Estudos" type="number" value="'+m.estudos+'"></div></div>'
-      + '<div class="two-col"><div class="field"><label>Meta · Batismos</label><input id="missaoTri'+i+'Batismos" type="number" value="'+m.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="missaoTri'+i+'Enviados" type="number" value="'+m.enviados+'"></div></div>'
-      + '<button class="btn btn-ghost-dark" style="margin-bottom:10px;" onclick="saveMissaoTrimestreMeta('+i+')">Salvar meta do trimestre</button>'
-      + '<div class="profile-card-sub" style="margin-bottom:0;">'+pctT+'% alcançado neste trimestre ('+totalAchievedT+' de '+totalMetaT+') — considerando o que já foi marcado como alcançado pelos distritos/igrejas.</div>'
+    html += '<div class="profile-card">';
+    if(missaoCardEditState.tri[i]){
+      html += '<div class="profile-card-title meta-form-anim">'+TRIMESTRE_LABELS[i]+' <span class="tag" style="background:var(--primary-light); color:var(--primary);">Missão</span></div>'
+        + '<div class="two-col meta-form-anim"><div class="field"><label>Meta · Missionários</label><input id="missaoTri'+i+'Missionarios" type="number" value="'+m.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="missaoTri'+i+'Estudos" type="number" value="'+m.estudos+'"></div></div>'
+        + '<div class="two-col meta-form-anim"><div class="field"><label>Meta · Batismos</label><input id="missaoTri'+i+'Batismos" type="number" value="'+m.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="missaoTri'+i+'Enviados" type="number" value="'+m.enviados+'"></div></div>'
+        + '<button class="btn btn-ghost-dark meta-form-anim" style="margin-bottom:10px;" onclick="saveMissaoTrimestreMeta('+i+')">Salvar meta do trimestre</button>';
+    } else {
+      html += '<div class="profile-card-title">'+TRIMESTRE_LABELS[i]+' <span class="tag" style="background:var(--primary-light); color:var(--primary);">Missão</span> <button class="edit-meta-btn" onclick="editMissaoTrimestreMeta('+i+')">✏️ Editar</button></div>'
+        + metaReadoutHtml(m);
+    }
+    html += '<div class="profile-card-sub" style="margin:10px 0 0;">'+pctT+'% alcançado neste trimestre ('+totalAchievedT+' de '+totalMetaT+') — considerando o que já foi marcado como alcançado pelos distritos/igrejas.</div>'
       + '</div>';
   });
 
@@ -1866,11 +1884,20 @@ function buildMissaoComparativoHtml(achievedAnual){
     + trimestreRows
     + '</div>';
 }
+function editMissaoMetaAnual(){
+  missaoCardEditState.metaAnual = true;
+  renderIndicadoresView();
+}
+function editMissaoTrimestreMeta(i){
+  missaoCardEditState.tri[i] = true;
+  renderIndicadoresView();
+}
 function saveMissaoMetaAnual(){
   missaoMetaAnual.missionarios = Number(document.getElementById('missaoMetaMissionarios').value)||0;
   missaoMetaAnual.estudos = Number(document.getElementById('missaoMetaEstudos').value)||0;
   missaoMetaAnual.batismos = Number(document.getElementById('missaoMetaBatismos').value)||0;
   missaoMetaAnual.enviados = Number(document.getElementById('missaoMetaEnviados').value)||0;
+  missaoCardEditState.metaAnual = false;
   renderIndicadoresView();
   toast('Meta anual da Missão salva.');
 }
@@ -1879,6 +1906,7 @@ function saveMissaoTrimestreMeta(i){
   missaoMetasTrimestrais[i].estudos = Number(document.getElementById('missaoTri'+i+'Estudos').value)||0;
   missaoMetasTrimestrais[i].batismos = Number(document.getElementById('missaoTri'+i+'Batismos').value)||0;
   missaoMetasTrimestrais[i].enviados = Number(document.getElementById('missaoTri'+i+'Enviados').value)||0;
+  missaoCardEditState.tri[i] = false;
   renderIndicadoresView();
   toast((i+1)+'º trimestre da Missão: meta salva.');
 }
@@ -3263,6 +3291,28 @@ function toggleOwnIndicEditor(){
 
 var currentIndicEditChurch = null;
 var currentIndicEditWrapId = null;
+var indicCardEditState = {};
+function getCardEditState(wrapId, nome, g){
+  var st = indicCardEditState[wrapId];
+  if(!st || st.church!==nome){
+    st = {
+      church: nome,
+      metaAnual: somaIndicadores(g.metas)===0,
+      tri: g.trimestres.map(function(t){ return somaIndicadores(t.meta)===0; }),
+      triVal: g.trimestres.map(function(t){ return !(t.alcancado && somaIndicadores(t.valores)>0); })
+    };
+    indicCardEditState[wrapId] = st;
+  }
+  return st;
+}
+function metaReadoutHtml(m){
+  return '<div class="meta-readout">'
+    + '<div class="meta-readout-item"><span>Missionários</span><b>'+m.missionarios+'</b></div>'
+    + '<div class="meta-readout-item"><span>Estudos</span><b>'+m.estudos+'</b></div>'
+    + '<div class="meta-readout-item"><span>Batismos</span><b>'+m.batismos+'</b></div>'
+    + '<div class="meta-readout-item"><span>Enviados</span><b>'+m.enviados+'</b></div>'
+    + '</div>';
+}
 function renderIndicEditor(nome, wrapId){
   currentIndicEditChurch = nome;
   currentIndicEditWrapId = wrapId;
@@ -3271,14 +3321,20 @@ function renderIndicEditor(nome, wrapId){
   if(!wrap) return;
   if(!g){ wrap.innerHTML = '<div class="empty-note">Igreja não encontrada.</div>'; return; }
   if(!g.trimestres) g.trimestres = makeEmptyTrimestres();
+  var st = getCardEditState(wrapId, nome, g);
 
-  var html = '<div class="profile-card">'
-    + '<div class="profile-card-title">🎯 Meta Anual</div>'
-    + '<div class="profile-card-sub">Alvo do ano inteiro para esta igreja. Registre uma vez e ajuste sempre que precisar.</div>'
-    + '<div class="two-col"><div class="field"><label>Missionários em ação</label><input id="metaAnualMissionarios" type="number" value="'+g.metas.missionarios+'"></div><div class="field"><label>Estudos bíblicos</label><input id="metaAnualEstudos" type="number" value="'+g.metas.estudos+'"></div></div>'
-    + '<div class="two-col"><div class="field"><label>Batismos</label><input id="metaAnualBatismos" type="number" value="'+g.metas.batismos+'"></div><div class="field"><label>Enviados</label><input id="metaAnualEnviados" type="number" value="'+g.metas.enviados+'"></div></div>'
-    + '<button class="btn btn-solid" onclick="saveMetaAnual()">💾 Salvar Meta Anual</button>'
-    + '</div>';
+  var html = '<div class="profile-card">';
+  if(st.metaAnual){
+    html += '<div class="profile-card-title meta-form-anim">🎯 Meta Anual</div>'
+      + '<div class="profile-card-sub meta-form-anim">Alvo do ano inteiro para esta igreja. Registre uma vez e ajuste sempre que precisar.</div>'
+      + '<div class="two-col meta-form-anim"><div class="field"><label>Missionários em ação</label><input id="metaAnualMissionarios" type="number" value="'+g.metas.missionarios+'"></div><div class="field"><label>Estudos bíblicos</label><input id="metaAnualEstudos" type="number" value="'+g.metas.estudos+'"></div></div>'
+      + '<div class="two-col meta-form-anim"><div class="field"><label>Batismos</label><input id="metaAnualBatismos" type="number" value="'+g.metas.batismos+'"></div><div class="field"><label>Enviados</label><input id="metaAnualEnviados" type="number" value="'+g.metas.enviados+'"></div></div>'
+      + '<button class="btn btn-solid meta-form-anim" onclick="saveMetaAnual()">💾 Salvar Meta Anual</button>';
+  } else {
+    html += '<div class="profile-card-title">🎯 Meta Anual <button class="edit-meta-btn" onclick="editMetaAnual()">✏️ Editar</button></div>'
+      + metaReadoutHtml(g.metas);
+  }
+  html += '</div>';
 
   var achieved = computeAchievedForChurch(g);
   var totalMetaAnual = g.metas.missionarios+g.metas.estudos+g.metas.batismos+g.metas.enviados;
@@ -3294,19 +3350,30 @@ function renderIndicEditor(nome, wrapId){
     var badge = t.alcancado
       ? '<span class="tag" style="background:var(--green-light); color:var(--green);">✅ Alcançado</span>'
       : '<span class="tag">Em andamento</span>';
-    html += '<div class="profile-card">'
-      + '<div class="profile-card-title">'+TRIMESTRE_LABELS[i]+' '+badge+'</div>'
-      + '<div class="profile-card-sub">Registre o alvo deste trimestre. Pode editar quantas vezes precisar, mesmo depois de marcado como alcançado.</div>'
-      + '<div class="two-col"><div class="field"><label>Meta · Missionários</label><input id="tri'+i+'MetaMissionarios" type="number" value="'+t.meta.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="tri'+i+'MetaEstudos" type="number" value="'+t.meta.estudos+'"></div></div>'
-      + '<div class="two-col"><div class="field"><label>Meta · Batismos</label><input id="tri'+i+'MetaBatismos" type="number" value="'+t.meta.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="tri'+i+'MetaEnviados" type="number" value="'+t.meta.enviados+'"></div></div>'
-      + '<button class="btn btn-ghost-dark" style="margin-bottom:14px;" onclick="saveTrimestreMeta('+i+')">Salvar meta do trimestre</button>'
-      + '<div class="toggle-row" style="margin-bottom:'+(t.alcancado ? '14px' : '0')+';"><div><b style="font-size:12.5px;">Marcar como alcançado</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Só marque quando o trimestre realmente terminar</div></div>'
+    html += '<div class="profile-card">';
+    if(st.tri[i]){
+      html += '<div class="profile-card-title meta-form-anim">'+TRIMESTRE_LABELS[i]+' '+badge+'</div>'
+        + '<div class="profile-card-sub meta-form-anim">Registre o alvo deste trimestre. Pode editar quantas vezes precisar, mesmo depois de marcado como alcançado.</div>'
+        + '<div class="two-col meta-form-anim"><div class="field"><label>Meta · Missionários</label><input id="tri'+i+'MetaMissionarios" type="number" value="'+t.meta.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="tri'+i+'MetaEstudos" type="number" value="'+t.meta.estudos+'"></div></div>'
+        + '<div class="two-col meta-form-anim"><div class="field"><label>Meta · Batismos</label><input id="tri'+i+'MetaBatismos" type="number" value="'+t.meta.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="tri'+i+'MetaEnviados" type="number" value="'+t.meta.enviados+'"></div></div>'
+        + '<button class="btn btn-ghost-dark meta-form-anim" style="margin-bottom:14px;" onclick="saveTrimestreMeta('+i+')">Salvar meta do trimestre</button>';
+    } else {
+      html += '<div class="profile-card-title">'+TRIMESTRE_LABELS[i]+' '+badge+' <button class="edit-meta-btn" onclick="editTrimestreMeta('+i+')">✏️ Editar meta</button></div>'
+        + metaReadoutHtml(t.meta)
+        + '<div style="margin-bottom:14px;"></div>';
+    }
+    html += '<div class="toggle-row" style="margin-bottom:'+(t.alcancado ? '14px' : '0')+';"><div><b style="font-size:12.5px;">Marcar como alcançado</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Só marque quando o trimestre realmente terminar</div></div>'
       + '<div class="switch'+(t.alcancado ? ' on' : '')+'" onclick="toggleTrimestreAlcancado('+i+')"><div class="knob"></div></div></div>';
     if(t.alcancado){
-      html += '<div class="two-col"><div class="field"><label>Alcançado · Missionários</label><input id="tri'+i+'ValMissionarios" type="number" value="'+t.valores.missionarios+'"></div><div class="field"><label>Alcançado · Estudos</label><input id="tri'+i+'ValEstudos" type="number" value="'+t.valores.estudos+'"></div></div>'
-        + '<div class="two-col"><div class="field"><label>Alcançado · Batismos</label><input id="tri'+i+'ValBatismos" type="number" value="'+t.valores.batismos+'"></div><div class="field"><label>Alcançado · Enviados</label><input id="tri'+i+'ValEnviados" type="number" value="'+t.valores.enviados+'"></div></div>'
-        + '<button class="btn btn-green" style="margin-bottom:12px;" onclick="saveTrimestreValores('+i+')">Salvar números alcançados</button>'
-        + renderTrimestreResultHtml(t);
+      if(st.triVal[i]){
+        html += '<div class="two-col meta-form-anim"><div class="field"><label>Alcançado · Missionários</label><input id="tri'+i+'ValMissionarios" type="number" value="'+t.valores.missionarios+'"></div><div class="field"><label>Alcançado · Estudos</label><input id="tri'+i+'ValEstudos" type="number" value="'+t.valores.estudos+'"></div></div>'
+          + '<div class="two-col meta-form-anim"><div class="field"><label>Alcançado · Batismos</label><input id="tri'+i+'ValBatismos" type="number" value="'+t.valores.batismos+'"></div><div class="field"><label>Alcançado · Enviados</label><input id="tri'+i+'ValEnviados" type="number" value="'+t.valores.enviados+'"></div></div>'
+          + '<button class="btn btn-green meta-form-anim" style="margin-bottom:12px;" onclick="saveTrimestreValores('+i+')">Salvar números alcançados</button>';
+      } else {
+        html += '<div class="profile-card-title" style="margin:12px 0 10px; font-size:12.5px;">Números alcançados <button class="edit-meta-btn" onclick="editTrimestreValores('+i+')">✏️ Editar</button></div>'
+          + metaReadoutHtml(t.valores)
+          + renderTrimestreResultHtml(t);
+      }
     }
     html += '</div>';
   });
@@ -3327,13 +3394,28 @@ function renderTrimestreResultHtml(t){
       + '<span>'+it.label+'</span>'
       + '<span style="font-weight:700; color:'+(ok ? 'var(--green)' : 'var(--red)')+';">'+(ok ? '✅ Meta alcançada' : '⚠️ Faltou '+falta)+'</span></div>';
   }).join('');
-  return '<div style="margin-top:2px;">'+rows+'</div>';
+  return '<div style="margin-top:8px;">'+rows+'</div>';
 }
 function getEditingChurch(){ return getChurch(currentIndicEditChurch); }
 function refreshAfterIndicEdit(){
   renderIndicEditor(currentIndicEditChurch, currentIndicEditWrapId);
   if(typeof renderIndicadoresView==='function') renderIndicadoresView();
   if(typeof calculateIndicSummary==='function') calculateIndicSummary();
+}
+function editMetaAnual(){
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st) st.metaAnual = true;
+  renderIndicEditor(currentIndicEditChurch, currentIndicEditWrapId);
+}
+function editTrimestreMeta(i){
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st) st.tri[i] = true;
+  renderIndicEditor(currentIndicEditChurch, currentIndicEditWrapId);
+}
+function editTrimestreValores(i){
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st) st.triVal[i] = true;
+  renderIndicEditor(currentIndicEditChurch, currentIndicEditWrapId);
 }
 function saveMetaAnual(){
   var g = getEditingChurch();
@@ -3342,6 +3424,8 @@ function saveMetaAnual(){
   g.metas.estudos = Number(document.getElementById('metaAnualEstudos').value)||0;
   g.metas.batismos = Number(document.getElementById('metaAnualBatismos').value)||0;
   g.metas.enviados = Number(document.getElementById('metaAnualEnviados').value)||0;
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st) st.metaAnual = false;
   refreshAfterIndicEdit();
   toast('Meta anual salva.');
 }
@@ -3353,6 +3437,8 @@ function saveTrimestreMeta(i){
   t.meta.estudos = Number(document.getElementById('tri'+i+'MetaEstudos').value)||0;
   t.meta.batismos = Number(document.getElementById('tri'+i+'MetaBatismos').value)||0;
   t.meta.enviados = Number(document.getElementById('tri'+i+'MetaEnviados').value)||0;
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st) st.tri[i] = false;
   refreshAfterIndicEdit();
   toast((i+1)+'º trimestre: meta registrada.');
 }
@@ -3361,6 +3447,8 @@ function toggleTrimestreAlcancado(i){
   if(!g) return;
   var t = g.trimestres[i];
   t.alcancado = !t.alcancado;
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st && t.alcancado) st.triVal[i] = true;
   refreshAfterIndicEdit();
   toast(t.alcancado ? (i+1)+'º trimestre marcado como alcançado.' : (i+1)+'º trimestre desmarcado — volta a ficar "em andamento".');
 }
@@ -3372,6 +3460,8 @@ function saveTrimestreValores(i){
   t.valores.estudos = Number(document.getElementById('tri'+i+'ValEstudos').value)||0;
   t.valores.batismos = Number(document.getElementById('tri'+i+'ValBatismos').value)||0;
   t.valores.enviados = Number(document.getElementById('tri'+i+'ValEnviados').value)||0;
+  var st = indicCardEditState[currentIndicEditWrapId];
+  if(st) st.triVal[i] = false;
   refreshAfterIndicEdit();
   toast((i+1)+'º trimestre: números alcançados salvos.');
 }
