@@ -140,7 +140,7 @@
   .church-info h3{ font-size:15px; font-weight:800; color:var(--navy); }
   .church-info span{ font-size:11.5px; color:var(--muted); }
 
-  .content{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:16px 18px 90px; -ms-overflow-style:none; scrollbar-width:none;}
+  .content{ flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:16px 18px 90px; -ms-overflow-style:none; scrollbar-width:none;}
   .content::-webkit-scrollbar{ display:none; }
 
   .section-title{ font-size:16.5px; font-weight:800; color:var(--navy); margin:18px 0 10px; }
@@ -154,7 +154,8 @@
   .score-card .num{ font-size:30px; font-weight:800; color:var(--primary); }
   .score-card .label{ font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
   .quarter-scores-row{ display:flex; gap:8px; margin:4px 0 4px; }
-  .quarter-chip{ flex:1; background:#fff; border:1px solid #EEF2F6; border-radius:12px; padding:10px 6px; text-align:center; }
+  .quarter-chip{ flex:1; background:#fff; border:1px solid #EEF2F6; border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; transition:transform .12s ease, background .12s ease; }
+  .quarter-chip:active{ transform:scale(0.96); }
   .quarter-chip b{ display:block; font-size:14px; font-weight:800; color:var(--navy); }
   .quarter-chip span{ font-size:9.5px; color:var(--muted); font-weight:600; }
   .quarter-chip.active{ border-color:var(--primary); background:var(--primary-light); }
@@ -203,6 +204,27 @@
   .tab{ flex:1; text-align:center; padding:8px 4px; font-size:11.5px; font-weight:700; color:var(--muted); border-radius:9px; cursor:pointer;}
   .tab.active{ background:var(--primary); color:#fff; }
   .filter-row{ display:flex; gap:6px; overflow-x:auto; margin-bottom:12px; padding-bottom:2px;}
+
+  /* ---------- Feed em largura total (sem margens laterais) ---------- */
+  .tabpane[data-pane="feed"]{ margin-left:-18px; margin-right:-18px; overflow-x:hidden; max-width:calc(100% + 36px); }
+  .tabpane[data-pane="feed"] > .section-title,
+  .tabpane[data-pane="feed"] > .friend-search-wrap,
+  .tabpane[data-pane="feed"] > .filter-row,
+  .tabpane[data-pane="feed"] > .btn,
+  .tabpane[data-pane="feed"] > .feed-new-post-row{ margin-left:0; margin-right:0; }
+  .tabpane[data-pane="feed"] .suggestions-row{ padding-left:18px; padding-right:18px; }
+  .tabpane[data-pane="feed"] .stories-row{ padding-left:18px; padding-right:18px; }
+  .tabpane[data-pane="feed"] .post{ border-radius:0; }
+
+  .feed-new-post-row{ margin:0; }
+  .feed-new-post-wrap{ position:fixed; right:20px; bottom:calc(84px + env(safe-area-inset-bottom, 0px)); z-index:40; }
+  @media (min-width:900px){ .feed-new-post-wrap{ bottom:24px; } }
+  .fab-new-post{ width:50px; height:50px; border-radius:50%; background:var(--primary); color:#fff; border:none; font-size:26px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; box-shadow:0 6px 18px rgba(19,123,174,.45); }
+  .fab-new-post:active{ transform:scale(0.94); }
+  .new-post-menu{ position:absolute; bottom:60px; right:0; background:#fff; border:1px solid var(--line); border-radius:14px; box-shadow:0 10px 26px rgba(20,40,60,.18); overflow:hidden; z-index:6; min-width:180px; }
+  .new-post-menu.hidden{ display:none; }
+  .new-post-menu-item{ display:flex; align-items:center; gap:10px; padding:14px 16px; font-size:13px; font-weight:700; color:var(--ink); cursor:pointer; white-space:nowrap; }
+  .new-post-menu-item:active{ background:var(--bg); }
   .filter-row::-webkit-scrollbar{ display:none;}
   .chip{ flex:none; font-size:11px; font-weight:700; padding:7px 12px; border-radius:20px; background:#fff; border:1px solid var(--line); color:var(--muted); cursor:pointer;}
   .chip.active{ background:var(--navy); border-color:var(--navy); color:#fff;}
@@ -859,7 +881,15 @@
                 <div class="chip" onclick="selectFilterChip(this); toast('Filtrando pela sua igreja.')">Minha igreja</div>
               </div>
               <input type="file" id="feedFileInput" accept="image/*,video/*" multiple style="display:none;">
-              <button class="btn btn-solid" style="margin-bottom:14px;" onclick="toast('Abrindo seletor de fotos...'); document.getElementById('feedFileInput').click()">＋ Nova publicação</button>
+              <div class="feed-new-post-row">
+                <div class="feed-new-post-wrap">
+                  <button class="fab-new-post" onclick="toggleNewPostMenu()">+</button>
+                  <div class="new-post-menu hidden" id="newPostMenu">
+                    <div class="new-post-menu-item" onclick="closeNewPostMenu(); document.getElementById('feedFileInput').click();">📷 <span>Post no Feed</span></div>
+                    <div class="new-post-menu-item" onclick="closeNewPostMenu(); document.getElementById('storyFileInput').click();">⭐ <span>Story</span></div>
+                  </div>
+                </div>
+              </div>
               <div id="feedPosts">
                 <div class="post">
                   <div class="post-head"><div class="post-av">A</div><div style="flex:1;"><b>Líder de Central Teresina</b><span>há 2 horas</span></div><span class="post-tag">Estudo Bíblico</span>
@@ -1186,9 +1216,9 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
               <span>Desafios</span>
             </div>
-            <div class="navitem" data-nav="ranking" onclick="go('ranking')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4z"/></svg>
-              <span>Ranking</span>
+            <div class="navitem" data-nav="feed" onclick="go('feed')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <span>Feed</span>
             </div>
             <div class="navitem" data-nav="indicadores" onclick="go('indicadores')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
@@ -1215,7 +1245,6 @@
               </div>
               <div class="sheet-item" onclick="alert('Notificações: Novo desafio disponível · Reunião de líderes dia 15.'); closeMore()"><div class="ic">🔔</div><div><b>Notificações</b><span>Avisos e lembretes da Missão</span></div></div>
               <div class="sheet-title">Comunidade</div>
-              <div class="sheet-item" onclick="go('feed'); closeMore()"><div class="ic">📣</div><div><b>Feed Missionário</b><span>Publicações, fotos e relatos</span></div></div>
               <div class="sheet-item" onclick="go('galeria'); closeMore()"><div class="ic">🖼️</div><div><b>Galeria</b><span>Fotos por distrito, igreja e evento</span></div></div>
               <div class="sheet-title">Recursos</div>
               <div class="sheet-item" onclick="go('materiais'); closeMore()"><div class="ic">📁</div><div><b>Materiais</b><span>PDFs, slides, vídeos e guias</span></div></div>
@@ -1570,6 +1599,8 @@ function markDone(btn){ toggleDone(btn); }
 /* ================= PONTUAÇÃO DO TRIMESTRE (calculada a partir dos desafios) ================= */
 var currentQuarter = 2;
 var quarterlyScores = { 1: 24.6, 2: 0, 3: 0, 4: 0 };
+var quarterlyBonus = { 1: false, 2: false, 3: false, 4: false };
+var selectedQuarterView = currentQuarter;
 function calculateQuarterScore(){
   var scoreChurches;
   if(currentUserRole==='pastor'){
@@ -1595,6 +1626,18 @@ function calculateQuarterScore(){
   var total = count>0 ? totalSum/count : 0;
   total = Math.round(total*100)/100;
   quarterlyScores[currentQuarter] = total;
+  quarterlyBonus[currentQuarter] = bonusEarned;
+
+  updateQuarterScoreDisplay(selectedQuarterView);
+}
+function selectQuarterTab(q){
+  selectedQuarterView = q;
+  updateQuarterScoreDisplay(q);
+}
+function updateQuarterScoreDisplay(q){
+  var labels = {1:'1º Trimestre',2:'2º Trimestre',3:'3º Trimestre',4:'4º Trimestre'};
+  var total = quarterlyScores[q] || 0;
+  var bonusEarned = quarterlyBonus[q] || false;
 
   var scoreEl = document.getElementById('quarterScoreNum');
   if(scoreEl) scoreEl.textContent = total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
@@ -1604,8 +1647,8 @@ function calculateQuarterScore(){
   var scopeWord = currentUserRole==='pastor' ? 'do distrito' : (currentUserRole==='adm' ? 'da Missão (média)' : 'da igreja');
   if(legend){
     legend.innerHTML = '<b>Termômetro de progresso</b>'
-      + total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% de 25% '+scopeWord
-      + (bonusEarned ? ' (+5% bônus conquistado!)' : ' (+5% bônus disponível)');
+      + total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% de 25% '+scopeWord+' · '+labels[q]
+      + (bonusEarned ? ' (+5% bônus conquistado!)' : (q===currentQuarter ? ' (+5% bônus disponível)' : ''));
   }
   renderQuarterTabs();
 }
@@ -1615,8 +1658,8 @@ function renderQuarterTabs(){
   var labels = {1:'1º Trimestre',2:'2º Trimestre',3:'3º Trimestre',4:'4º Trimestre'};
   wrap.innerHTML = [1,2,3,4].map(function(q){
     var val = quarterlyScores[q] || 0;
-    var cls = q===currentQuarter ? 'quarter-chip active' : 'quarter-chip';
-    return '<div class="'+cls+'"><b>'+val.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</b><span>'+labels[q]+'</span></div>';
+    var cls = q===selectedQuarterView ? 'quarter-chip active' : 'quarter-chip';
+    return '<div class="'+cls+'" onclick="selectQuarterTab('+q+')"><b>'+val.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</b><span>'+labels[q]+'</span></div>';
   }).join('');
 }
 function calculateIndicSummary(){
@@ -2148,6 +2191,20 @@ function deletePost(el){
 document.addEventListener('click', function(e){
   if(!e.target.closest || !e.target.closest('.post-menu-wrap')){
     document.querySelectorAll('.post-menu').forEach(function(m){ m.classList.add('hidden'); });
+  }
+});
+function toggleNewPostMenu(){
+  var menu = document.getElementById('newPostMenu');
+  if(!menu) return;
+  menu.classList.toggle('hidden');
+}
+function closeNewPostMenu(){
+  var menu = document.getElementById('newPostMenu');
+  if(menu) menu.classList.add('hidden');
+}
+document.addEventListener('click', function(e){
+  if(!e.target.closest || !e.target.closest('.feed-new-post-wrap')){
+    closeNewPostMenu();
   }
 });
 function toggleRepost(el){
@@ -3287,6 +3344,7 @@ function switchRole(role){
   if(typeof applyDesafiosRoleRestrictions==='function') applyDesafiosRoleRestrictions();
   if(typeof applyRankingRoleRestrictions==='function') applyRankingRoleRestrictions();
   if(typeof applyAdminMenuRoleRestrictions==='function') applyAdminMenuRoleRestrictions();
+  selectedQuarterView = currentQuarter;
   if(typeof calculateQuarterScore==='function') calculateQuarterScore();
   if(typeof calculateIndicSummary==='function') calculateIndicSummary();
 }
