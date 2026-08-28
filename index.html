@@ -1934,7 +1934,7 @@ function buildMissaoComparativoHtml(achievedAnual){
     var metaT = somaIndicadores(m);
     var alcT = somaIndicadores(achievedT);
     var pctT = metaT>0 ? Math.round((alcT/metaT)*100) : 0;
-    var status = metaT===0 ? '—' : (pctT>=100 ? '✅ Alcançado' : '⚠️ Faltou '+Math.max(0,metaT-alcT));
+    var status = metaT===0 ? '—' : (pctT>=100 ? '✅ Alcançado totalmente' : '🔶 Alcançado parcialmente · '+pctT+'%');
     return '<div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; padding:7px 0; border-bottom:1px solid var(--line);">'
       + '<span style="flex:1;">'+TRIMESTRE_LABELS[i].split(' · ')[0]+'</span>'
       + '<span style="width:48px; text-align:right; color:var(--muted);">'+metaT+'</span>'
@@ -3436,13 +3436,21 @@ function renderIndicEditor(nome, wrapId){
     + '</div>';
 
   g.trimestres.forEach(function(t, i){
-    var badge = t.alcancado
-      ? '<span class="tag" style="background:var(--green-light); color:var(--green);">✅ Alcançado</span>'
-      : '<span class="tag">Em andamento</span>';
+    var totalMetaT = somaIndicadores(t.meta);
+    var totalAchievedT = somaIndicadores(t.valores);
+    var pctT = totalMetaT>0 ? Math.round((totalAchievedT/totalMetaT)*100) : 0;
+    var badge;
+    if(!t.alcancado){
+      badge = '<span class="tag">Em andamento</span>';
+    } else if(pctT>=100){
+      badge = '<span class="tag" style="background:var(--green-light); color:var(--green);">✅ Alcançado totalmente</span>';
+    } else {
+      badge = '<span class="tag" style="background:var(--amber-light); color:var(--amber);">🔶 Alcançado parcialmente · '+pctT+'%</span>';
+    }
     html += '<div class="profile-card">';
     if(st.tri[i]){
       html += '<div class="profile-card-title meta-form-anim">'+TRIMESTRE_LABELS[i]+' '+badge+'</div>'
-        + '<div class="profile-card-sub meta-form-anim">Registre o alvo deste trimestre. Pode editar quantas vezes precisar, mesmo depois de marcado como alcançado.</div>'
+        + '<div class="profile-card-sub meta-form-anim">Registre o alvo deste trimestre. Pode editar quantas vezes precisar, mesmo depois de registrar o que foi alcançado.</div>'
         + '<div class="two-col meta-form-anim"><div class="field"><label>Meta · Missionários</label><input id="tri'+i+'MetaMissionarios" type="number" value="'+t.meta.missionarios+'"></div><div class="field"><label>Meta · Estudos</label><input id="tri'+i+'MetaEstudos" type="number" value="'+t.meta.estudos+'"></div></div>'
         + '<div class="two-col meta-form-anim"><div class="field"><label>Meta · Batismos</label><input id="tri'+i+'MetaBatismos" type="number" value="'+t.meta.batismos+'"></div><div class="field"><label>Meta · Enviados</label><input id="tri'+i+'MetaEnviados" type="number" value="'+t.meta.enviados+'"></div></div>'
         + '<button class="btn btn-ghost-dark meta-form-anim" style="margin-bottom:14px;" onclick="saveTrimestreMeta('+i+')">Salvar meta do trimestre</button>';
@@ -3451,18 +3459,17 @@ function renderIndicEditor(nome, wrapId){
         + metaReadoutHtml(t.meta)
         + '<div style="margin-bottom:14px;"></div>';
     }
-    html += '<div class="toggle-row" style="margin-bottom:'+(t.alcancado ? '14px' : '0')+';"><div><b style="font-size:12.5px;">Marcar como alcançado</b><div style="font-size:10.5px; color:var(--muted); margin-top:2px;">Só marque quando o trimestre realmente terminar</div></div>'
-      + '<div class="switch'+(t.alcancado ? ' on' : '')+'" onclick="toggleTrimestreAlcancado('+i+')"><div class="knob"></div></div></div>';
-    if(t.alcancado){
-      if(st.triVal[i]){
-        html += '<div class="two-col meta-form-anim"><div class="field"><label>Alcançado · Missionários</label><input id="tri'+i+'ValMissionarios" type="number" value="'+t.valores.missionarios+'"></div><div class="field"><label>Alcançado · Estudos</label><input id="tri'+i+'ValEstudos" type="number" value="'+t.valores.estudos+'"></div></div>'
-          + '<div class="two-col meta-form-anim"><div class="field"><label>Alcançado · Batismos</label><input id="tri'+i+'ValBatismos" type="number" value="'+t.valores.batismos+'"></div><div class="field"><label>Alcançado · Enviados</label><input id="tri'+i+'ValEnviados" type="number" value="'+t.valores.enviados+'"></div></div>'
-          + '<button class="btn btn-green meta-form-anim" style="margin-bottom:12px;" onclick="saveTrimestreValores('+i+')">Salvar números alcançados</button>';
-      } else {
-        html += '<div class="profile-card-title" style="margin:12px 0 10px; font-size:12.5px;">Números alcançados <button class="edit-meta-btn" onclick="editTrimestreValores('+i+')">✏️ Editar</button></div>'
-          + metaReadoutHtml(t.valores)
-          + renderTrimestreResultHtml(t);
-      }
+    if(st.triVal[i]){
+      html += '<div class="profile-card-title meta-form-anim" style="margin:4px 0 8px; font-size:12.5px;">Números alcançados neste trimestre</div>'
+        + '<div class="profile-card-sub meta-form-anim">Registre o que realmente foi alcançado. Ao salvar, isso já conta como o resultado do trimestre — não existe uma etapa separada de "marcar".</div>'
+        + '<div class="two-col meta-form-anim"><div class="field"><label>Alcançado · Missionários</label><input id="tri'+i+'ValMissionarios" type="number" value="'+t.valores.missionarios+'"></div><div class="field"><label>Alcançado · Estudos</label><input id="tri'+i+'ValEstudos" type="number" value="'+t.valores.estudos+'"></div></div>'
+        + '<div class="two-col meta-form-anim"><div class="field"><label>Alcançado · Batismos</label><input id="tri'+i+'ValBatismos" type="number" value="'+t.valores.batismos+'"></div><div class="field"><label>Alcançado · Enviados</label><input id="tri'+i+'ValEnviados" type="number" value="'+t.valores.enviados+'"></div></div>'
+        + '<button class="btn btn-green meta-form-anim" onclick="saveTrimestreValores('+i+')">💾 Salvar como alcançado</button>';
+    } else {
+      html += '<div class="profile-card-title" style="margin:12px 0 10px; font-size:12.5px;">Números alcançados <button class="edit-meta-btn" onclick="editTrimestreValores('+i+')">✏️ Editar</button></div>'
+        + metaReadoutHtml(t.valores)
+        + '<div class="profile-card-sub" style="margin:10px 0 0;">'+(totalMetaT>0 ? pctT : 0)+'% da meta deste trimestre '+(pctT>=100 ? 'alcançada — parabéns!' : 'alcançada até agora.')+'</div>'
+        + renderTrimestreResultHtml(t);
     }
     html += '</div>';
   });
@@ -3531,16 +3538,6 @@ function saveTrimestreMeta(i){
   refreshAfterIndicEdit();
   toast((i+1)+'º trimestre: meta registrada.');
 }
-function toggleTrimestreAlcancado(i){
-  var g = getEditingChurch();
-  if(!g) return;
-  var t = g.trimestres[i];
-  t.alcancado = !t.alcancado;
-  var st = indicCardEditState[currentIndicEditWrapId];
-  if(st && t.alcancado) st.triVal[i] = true;
-  refreshAfterIndicEdit();
-  toast(t.alcancado ? (i+1)+'º trimestre marcado como alcançado.' : (i+1)+'º trimestre desmarcado — volta a ficar "em andamento".');
-}
 function saveTrimestreValores(i){
   var g = getEditingChurch();
   if(!g) return;
@@ -3549,10 +3546,19 @@ function saveTrimestreValores(i){
   t.valores.estudos = Number(document.getElementById('tri'+i+'ValEstudos').value)||0;
   t.valores.batismos = Number(document.getElementById('tri'+i+'ValBatismos').value)||0;
   t.valores.enviados = Number(document.getElementById('tri'+i+'ValEnviados').value)||0;
+  t.alcancado = somaIndicadores(t.valores) > 0;
   var st = indicCardEditState[currentIndicEditWrapId];
   if(st) st.triVal[i] = false;
   refreshAfterIndicEdit();
-  toast((i+1)+'º trimestre: números alcançados salvos.');
+  var totalMeta = somaIndicadores(t.meta);
+  var pct = totalMeta>0 ? Math.round((somaIndicadores(t.valores)/totalMeta)*100) : 0;
+  if(!t.alcancado){
+    toast((i+1)+'º trimestre: números zerados — volta a ficar "em andamento".');
+  } else if(pct>=100){
+    toast((i+1)+'º trimestre: alcançado totalmente ('+pct+'%)! 🎉');
+  } else {
+    toast((i+1)+'º trimestre: alcançado parcialmente ('+pct+'% da meta).');
+  }
 }
 
 /* ================= ADMIN PANEL ================= */
