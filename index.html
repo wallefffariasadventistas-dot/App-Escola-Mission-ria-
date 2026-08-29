@@ -812,6 +812,8 @@
                 <label>Selecionar igreja</label>
                 <select id="desafiosChurchSelect" onchange="selectDesafiosChurch(this.value)"></select>
               </div>
+              <div class="section-sub" style="margin-top:2px;">Selecione o trimestre para marcar ou consultar os desafios cumpridos:</div>
+              <div class="quarter-scores-row" id="desafiosQuarterRow" style="margin-bottom:14px;"></div>
               <div id="desafiosList"></div>
             </div>
 
@@ -1619,7 +1621,7 @@ function markDone(btn){ toggleDone(btn); }
 
 /* ================= PONTUAÇÃO DO TRIMESTRE (calculada a partir dos desafios) ================= */
 var currentQuarter = 2;
-var quarterlyScores = { 1: 24.6, 2: 0, 3: 0, 4: 0 };
+var quarterlyScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
 var quarterlyBonus = { 1: false, 2: false, 3: false, 4: false };
 var selectedQuarterView = currentQuarter;
 function calculateQuarterScore(){
@@ -1632,22 +1634,24 @@ function calculateQuarterScore(){
     var own = getChurch(userChurch);
     scoreChurches = own ? [own] : [];
   }
-  var totalSum = 0, count = 0, bonusEarned = false;
-  scoreChurches.forEach(function(g){
-    if(!g.desafiosProgress) return;
-    var churchTotal = 0;
-    desafiosDefs.forEach(function(d){
-      var pct = g.desafiosProgress[d.key] || 0;
-      if(d.bonus){ if(pct>=100) bonusEarned = true; }
-      else { churchTotal += d.peso * (pct/100); }
+  [1,2,3,4].forEach(function(q){
+    var totalSum = 0, count = 0, bonusEarned = false;
+    scoreChurches.forEach(function(g){
+      if(!g.desafiosTrimestres) return;
+      var progress = g.desafiosTrimestres[q-1] || {};
+      var churchTotal = 0;
+      desafiosDefs.forEach(function(d){
+        var pct = progress[d.key] || 0;
+        if(d.bonus){ if(pct>=100) bonusEarned = true; }
+        else { churchTotal += d.peso * (pct/100); }
+      });
+      totalSum += churchTotal;
+      count++;
     });
-    totalSum += churchTotal;
-    count++;
+    var total = count>0 ? totalSum/count : 0;
+    quarterlyScores[q] = Math.round(total*100)/100;
+    quarterlyBonus[q] = bonusEarned;
   });
-  var total = count>0 ? totalSum/count : 0;
-  total = Math.round(total*100)/100;
-  quarterlyScores[currentQuarter] = total;
-  quarterlyBonus[currentQuarter] = bonusEarned;
 
   updateQuarterScoreDisplay(selectedQuarterView);
 }
@@ -3129,12 +3133,14 @@ function selectFilterChip(el){
 
 /* ================= RANKING ================= */
 var rankMode = 'desafios';
-function computeDesafiosScoreForChurch(g){
-  if(!g.desafiosProgress) return 0;
+function computeDesafiosScoreForChurch(g, q){
+  q = q || currentQuarter;
+  if(!g.desafiosTrimestres) return 0;
+  var progress = g.desafiosTrimestres[q-1] || {};
   var total = 0;
   desafiosDefs.forEach(function(d){
     if(d.bonus) return;
-    total += d.peso * ((g.desafiosProgress[d.key]||0)/100);
+    total += d.peso * ((progress[d.key]||0)/100);
   });
   return Math.round(total*100)/100;
 }
@@ -3612,13 +3618,19 @@ function aggregateAchievedTrimester(churches, i){
   return out;
 }
 function somaIndicadores(obj){ return obj.missionarios+obj.estudos+obj.batismos+obj.enviados; }
+function makeEmptyDesafiosProgress(){
+  return { sabado13:0, treinamento:0, professores:0, planoMissionario:0, sabadoTarde:0, bonus:0 };
+}
+function makeEmptyDesafiosTrimestres(){
+  return [makeEmptyDesafiosProgress(), makeEmptyDesafiosProgress(), makeEmptyDesafiosProgress(), makeEmptyDesafiosProgress()];
+}
 function makeChurch(nome, distrito, membros, tipo){
   return {
     nome:nome, distrito:distrito, membros:membros, tipo:tipo||'Igreja',
     metas: computeDefaultMetas(membros),
     valores: { missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 },
     trimestres: makeEmptyTrimestres(),
-    desafiosProgress: { sabado13:0, treinamento:0, professores:0, planoMissionario:0, sabadoTarde:0, bonus:0 }
+    desafiosTrimestres: makeEmptyDesafiosTrimestres()
   };
 }
 var igrejasList = [
@@ -4039,9 +4051,11 @@ function renderDesafiosList(){
   var g = getChurch(desafiosScopeChurch);
   var wrap = document.getElementById('desafiosList');
   if(!g || !wrap) return;
+  if(!g.desafiosTrimestres) g.desafiosTrimestres = makeEmptyDesafiosTrimestres();
+  var progress = g.desafiosTrimestres[desafiosViewQuarter-1];
   var canEdit = (currentUserRole==='lider' && desafiosScopeChurch===userChurch) || currentUserRole==='adm';
   wrap.innerHTML = desafiosDefs.map(function(d){
-    var pct = (g.desafiosProgress && g.desafiosProgress[d.key]) || 0;
+    var pct = progress[d.key] || 0;
     var done = pct>=100;
     var statusClass = done ? 'status-done' : (pct>0 ? 'status-prog' : 'status-pend');
     var statusText = done ? 'Concluído' : (pct>0 ? 'Em andamento · '+pct+'%' : 'Pendente');
@@ -4058,23 +4072,42 @@ function renderDesafiosList(){
       + '</div></div>';
   }).join('');
 }
+var desafiosViewQuarter = 2;
+function renderDesafiosQuarterTabs(){
+  var wrap = document.getElementById('desafiosQuarterRow');
+  if(!wrap) return;
+  var labels = {1:'1º Trimestre',2:'2º Trimestre',3:'3º Trimestre',4:'4º Trimestre'};
+  wrap.innerHTML = [1,2,3,4].map(function(q){
+    var val = quarterlyScores[q] || 0;
+    var cls = q===desafiosViewQuarter ? 'quarter-chip active' : 'quarter-chip';
+    return '<div class="'+cls+'" onclick="selectDesafiosQuarter('+q+')"><b>'+val.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</b><span>'+labels[q]+'</span></div>';
+  }).join('');
+}
+function selectDesafiosQuarter(q){
+  desafiosViewQuarter = q;
+  renderDesafiosQuarterTabs();
+  renderDesafiosList();
+}
 function toggleChalDone(key){
   var g = getChurch(desafiosScopeChurch);
   if(!g) return;
   var canEdit = (currentUserRole==='lider' && desafiosScopeChurch===userChurch) || currentUserRole==='adm';
   if(!canEdit) return;
-  if(!g.desafiosProgress) g.desafiosProgress = {};
+  if(!g.desafiosTrimestres) g.desafiosTrimestres = makeEmptyDesafiosTrimestres();
+  var progress = g.desafiosTrimestres[desafiosViewQuarter-1];
   if(!g.desafiosProgressOriginal) g.desafiosProgressOriginal = {};
-  var current = g.desafiosProgress[key] || 0;
+  var origKey = desafiosViewQuarter+'_'+key;
+  var current = progress[key] || 0;
   if(current>=100){
-    g.desafiosProgress[key] = g.desafiosProgressOriginal[key]!==undefined ? g.desafiosProgressOriginal[key] : 0;
-    toast('Registro desfeito — desafio voltou a pendente.');
+    progress[key] = g.desafiosProgressOriginal[origKey]!==undefined ? g.desafiosProgressOriginal[origKey] : 0;
+    toast('Registro desfeito — desafio voltou a pendente no '+desafiosViewQuarter+'º trimestre.');
   } else {
-    g.desafiosProgressOriginal[key] = current;
-    g.desafiosProgress[key] = 100;
-    toast('Desafio marcado como realizado.');
+    g.desafiosProgressOriginal[origKey] = current;
+    progress[key] = 100;
+    toast('Desafio marcado como realizado no '+desafiosViewQuarter+'º trimestre.');
   }
   renderDesafiosList();
+  renderDesafiosQuarterTabs();
   if(typeof calculateQuarterScore==='function') calculateQuarterScore();
 }
 function selectDesafiosChurch(nome){
@@ -4108,6 +4141,7 @@ function applyDesafiosRoleRestrictions(){
   var g = getChurch(desafiosScopeChurch);
   var note = document.getElementById('desafiosScopeNote');
   if(note) note.textContent = desafiosScopeChurch+(g ? ' · '+g.distrito : '');
+  renderDesafiosQuarterTabs();
   renderDesafiosList();
 }
 function applyAdminMenuRoleRestrictions(){
@@ -4391,7 +4425,7 @@ function addIgreja(){
     batismos: Number(document.getElementById('newIgrejaMetaBatismos').value)||0,
     enviados: Number(document.getElementById('newIgrejaMetaEnviados').value)||0
   };
-  igrejasList.unshift({ nome:nome, distrito:distrito, tipo:tipo, metas:metas, valores:{ missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 }, trimestres: makeEmptyTrimestres(), desafiosProgress:{ sabado13:0, treinamento:0, professores:0, planoMissionario:0, sabadoTarde:0, bonus:0 } });
+  igrejasList.unshift({ nome:nome, distrito:distrito, tipo:tipo, metas:metas, valores:{ missionarios:0, estudos:0, batismos:0, colp:0, plant:0, sva:0, oyim:0 }, trimestres: makeEmptyTrimestres(), desafiosTrimestres: makeEmptyDesafiosTrimestres() });
   renderAdmin('igrejas');
   toast((tipo==='Grupo' ? 'Grupo "' : 'Igreja "')+nome+'" cadastrado(a) em '+distrito+' com alvos definidos.');
 }
@@ -4593,6 +4627,12 @@ function updateCadIgrejaOptions(){
 }
 
 // init
+(function seedDemoQ1(){
+  var demo = getChurch('Aeroporto - Teresina');
+  if(demo && demo.desafiosTrimestres){
+    demo.desafiosTrimestres[0] = { sabado13:100, treinamento:100, professores:100, planoMissionario:84, sabadoTarde:100, bonus:0 };
+  }
+})();
 populateCadastroSelects();
 switchRole('lider');
 (function bindFeedFileInputBackup(){
