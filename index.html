@@ -173,6 +173,14 @@
   .score-card .label{ font-size:11.5px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em;}
   .quarter-scores-row{ display:flex; gap:8px; margin:4px 0 4px; }
   .quarter-chip{ flex:1; background:#fff; border:1px solid #EEF2F6; border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; transition:transform .12s ease, background .12s ease; }
+  .period-row{ display:flex; gap:8px; margin:4px 0 12px; overflow-x:auto; -ms-overflow-style:none; scrollbar-width:none; }
+  .period-row::-webkit-scrollbar{ display:none; }
+  .period-chip{ flex:none; min-width:84px; background:#fff; border:1px solid #EEF2F6; border-radius:12px; padding:10px 8px; text-align:center; cursor:pointer; transition:transform .12s ease, background .12s ease; }
+  .period-chip:active{ transform:scale(0.96); }
+  .period-chip b{ display:block; font-size:11.5px; font-weight:800; color:var(--navy); white-space:nowrap; }
+  .period-chip span{ display:block; font-size:9px; color:var(--muted); font-weight:700; margin-top:2px; white-space:nowrap; }
+  .period-chip.active{ border-color:var(--primary); background:var(--primary-light); }
+  .period-chip.active b, .period-chip.active span{ color:var(--primary); }
   .quarter-chip:active{ transform:scale(0.96); }
   .quarter-chip b{ display:block; font-size:14px; font-weight:800; color:var(--navy); }
   .quarter-chip span{ font-size:9.5px; color:var(--muted); font-weight:600; }
@@ -775,7 +783,7 @@
                   0% de 25% (+5% bônus disponível)
                 </div>
               </div>
-              <div class="quarter-scores-row" id="quarterScoresRow"></div>
+              <div class="period-row" id="quarterScoresRow"></div>
 
               <div class="card score-card" style="margin-top:12px;">
                 <div>
@@ -792,6 +800,7 @@
                   0% da meta anual
                 </div>
               </div>
+              <div class="period-row" id="indicSummaryPeriodRow"></div>
 
               <div class="section-title" style="margin-top:16px;">Acesso rápido</div>
               <div class="quick-grid">
@@ -870,6 +879,8 @@
                 <button type="button" class="rank-mode-btn active" id="rankModeDesafios" onclick="setRankMode('desafios')">🎯 Desafios</button>
                 <button type="button" class="rank-mode-btn" id="rankModeIndicadores" onclick="setRankMode('indicadores')">📊 Indicadores</button>
               </div>
+              <div class="section-sub" style="margin-top:10px;">Ver o ranking de qual período:</div>
+              <div class="period-row" id="rankPeriodRow"></div>
               <div class="tabs" id="rankingTabs">
                 <div class="tab active" onclick="selectRankTab(this,'igrejas')">Igrejas</div>
                 <div class="tab" onclick="selectRankTab(this,'distritos')">Distritos</div>
@@ -881,7 +892,6 @@
                 <div class="chip" onclick="selectFilterChip(this)">Aeroporto - PI</div>
                 <div class="chip" onclick="selectFilterChip(this)">Central Teresina</div>
                 <div class="chip" onclick="selectFilterChip(this)">Parnaíba</div>
-                <div class="chip" onclick="selectFilterChip(this)">2º Trimestre 2026</div>
               </div>
               <div id="rankingRows"></div>
             </div>
@@ -1661,50 +1671,117 @@ function selectQuarterTab(q){
 }
 function updateQuarterScoreDisplay(q){
   var labels = {1:'1º Trimestre',2:'2º Trimestre',3:'3º Trimestre',4:'4º Trimestre'};
-  var total = quarterlyScores[q] || 0;
-  var bonusEarned = quarterlyBonus[q] || false;
+  var total, bonusEarned;
+  if(q==='anual'){
+    total = (quarterlyScores[1]||0)+(quarterlyScores[2]||0)+(quarterlyScores[3]||0)+(quarterlyScores[4]||0);
+    total = Math.round(total*100)/100;
+    bonusEarned = quarterlyBonus[1]||quarterlyBonus[2]||quarterlyBonus[3]||quarterlyBonus[4];
+  } else {
+    total = quarterlyScores[q] || 0;
+    bonusEarned = quarterlyBonus[q] || false;
+  }
 
   var scoreEl = document.getElementById('quarterScoreNum');
   if(scoreEl) scoreEl.textContent = total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
   var thermo = document.getElementById('thermoFill');
-  if(thermo) thermo.style.height = Math.max(0, Math.min(100, (total/25*100)))+'%';
+  var maxRef = q==='anual' ? 100 : 25;
+  if(thermo) thermo.style.height = Math.max(0, Math.min(100, (total/maxRef*100)))+'%';
   var legend = document.getElementById('quarterScoreLegend');
   var scopeWord = currentUserRole==='pastor' ? 'do distrito' : (currentUserRole==='adm' ? 'da Missão (média)' : 'da igreja');
   if(legend){
-    legend.innerHTML = '<b>Termômetro de progresso</b>'
-      + total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% de 25% '+scopeWord+' · '+labels[q]
-      + (bonusEarned ? ' (+5% bônus conquistado!)' : (q===currentQuarter ? ' (+5% bônus disponível)' : ''));
+    if(q==='anual'){
+      legend.innerHTML = '<b>Termômetro de progresso</b>'
+        + total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% de 100% '+scopeWord+' · Ano completo (acumulado)'
+        + (bonusEarned ? ' (bônus conquistado em algum trimestre!)' : '');
+    } else {
+      legend.innerHTML = '<b>Termômetro de progresso</b>'
+        + total.toLocaleString('pt-BR',{maximumFractionDigits:2})+'% de 25% '+scopeWord+' · '+labels[q]
+        + (bonusEarned ? ' (+5% bônus conquistado!)' : (q===currentQuarter ? ' (+5% bônus disponível)' : ''));
+    }
   }
   renderQuarterTabs();
 }
 function renderQuarterTabs(){
   var wrap = document.getElementById('quarterScoresRow');
   if(!wrap) return;
-  var labels = {1:'1º Trimestre',2:'2º Trimestre',3:'3º Trimestre',4:'4º Trimestre'};
-  wrap.innerHTML = [1,2,3,4].map(function(q){
-    var val = quarterlyScores[q] || 0;
-    var cls = q===selectedQuarterView ? 'quarter-chip active' : 'quarter-chip';
-    return '<div class="'+cls+'" onclick="selectQuarterTab('+q+')"><b>'+val.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</b><span>'+labels[q]+'</span></div>';
+  var anualTotal = (quarterlyScores[1]||0)+(quarterlyScores[2]||0)+(quarterlyScores[3]||0)+(quarterlyScores[4]||0);
+  var periods = [
+    ['anual', 'Ano completo', anualTotal],
+    [1, '1º Trimestre', quarterlyScores[1]||0],
+    [2, '2º Trimestre', quarterlyScores[2]||0],
+    [3, '3º Trimestre', quarterlyScores[3]||0],
+    [4, '4º Trimestre', quarterlyScores[4]||0]
+  ];
+  wrap.innerHTML = periods.map(function(p){
+    var cls = p[0]===selectedQuarterView ? 'period-chip active' : 'period-chip';
+    var onclickArg = typeof p[0]==='number' ? p[0] : "'"+p[0]+"'";
+    return '<div class="'+cls+'" onclick="selectQuarterTab('+onclickArg+')"><b>'+p[2].toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</b><span>'+p[1]+'</span></div>';
   }).join('');
 }
-function calculateIndicSummary(){
+var indicSummaryPeriod = 'anual';
+function computeIndicSummaryForPeriod(period){
   var valores, metas;
+  var churches, allChurches;
   if(currentUserRole==='pastor'){
-    valores = aggregateAchieved(churchesInDistrict(userDistrict));
-    var d = getDistrict(userDistrict);
-    metas = d ? d.metas : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+    churches = churchesInDistrict(userDistrict);
+    if(period==='anual'){
+      valores = aggregateAchieved(churches);
+      var d = getDistrict(userDistrict);
+      metas = d ? d.metas : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+    } else {
+      valores = aggregateAchievedTrimester(churches, period);
+      metas = { missionarios:0, estudos:0, batismos:0, enviados:0 };
+      churches.forEach(function(g){
+        var t = g.trimestres && g.trimestres[period-1];
+        if(t){ metas.missionarios+=t.meta.missionarios; metas.estudos+=t.meta.estudos; metas.batismos+=t.meta.batismos; metas.enviados+=t.meta.enviados; }
+      });
+    }
   } else if(currentUserRole==='adm'){
-    valores = aggregateAchieved(igrejasList);
-    metas = aggregateMetas(distritosList);
+    allChurches = igrejasList;
+    if(period==='anual'){
+      valores = aggregateAchieved(allChurches);
+      metas = aggregateMetas(distritosList);
+    } else {
+      valores = aggregateAchievedTrimester(allChurches, period);
+      metas = { missionarios:0, estudos:0, batismos:0, enviados:0 };
+      allChurches.forEach(function(g){
+        var t = g.trimestres && g.trimestres[period-1];
+        if(t){ metas.missionarios+=t.meta.missionarios; metas.estudos+=t.meta.estudos; metas.batismos+=t.meta.batismos; metas.enviados+=t.meta.enviados; }
+      });
+    }
   } else {
     var g = getChurch(userChurch);
-    valores = g ? computeAchievedForChurch(g) : { missionarios:0, estudos:0, batismos:0, enviados:0 };
-    metas = g ? g.metas : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+    if(period==='anual'){
+      valores = g ? computeAchievedForChurch(g) : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+      metas = g ? g.metas : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+    } else {
+      var t = g && g.trimestres && g.trimestres[period-1];
+      valores = t ? t.valores : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+      metas = t ? t.meta : { missionarios:0, estudos:0, batismos:0, enviados:0 };
+    }
   }
   var totalAtual = valores.missionarios + valores.estudos + valores.batismos + valores.enviados;
   var totalMeta = metas.missionarios + metas.estudos + metas.batismos + metas.enviados;
   var pct = totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
-  pct = Math.max(0, Math.min(100, pct));
+  return Math.max(0, Math.min(100, pct));
+}
+function selectIndicSummaryPeriod(p){
+  indicSummaryPeriod = p;
+  calculateIndicSummary();
+}
+function renderIndicSummaryPeriodTabs(){
+  var wrap = document.getElementById('indicSummaryPeriodRow');
+  if(!wrap) return;
+  var labels = [['anual','Ano completo'],[1,'1º Trimestre'],[2,'2º Trimestre'],[3,'3º Trimestre'],[4,'4º Trimestre']];
+  wrap.innerHTML = labels.map(function(p){
+    var pct = computeIndicSummaryForPeriod(p[0]);
+    var cls = p[0]===indicSummaryPeriod ? 'period-chip active' : 'period-chip';
+    var onclickArg = typeof p[0]==='number' ? p[0] : "'"+p[0]+"'";
+    return '<div class="'+cls+'" onclick="selectIndicSummaryPeriod('+onclickArg+')"><b>'+pct+'%</b><span>'+p[1]+'</span></div>';
+  }).join('');
+}
+function calculateIndicSummary(){
+  var pct = computeIndicSummaryForPeriod(indicSummaryPeriod);
 
   var numEl = document.getElementById('indicSummaryNum');
   if(numEl) numEl.textContent = pct+'%';
@@ -1712,7 +1789,9 @@ function calculateIndicSummary(){
   if(fillEl) fillEl.style.height = pct+'%';
   var legendEl = document.getElementById('indicSummaryLegend');
   var scopeWord = currentUserRole==='pastor' ? 'do distrito' : (currentUserRole==='adm' ? 'da Missão Piauiense' : 'da igreja');
-  if(legendEl) legendEl.innerHTML = '<b>Termômetro de indicadores</b>'+pct+'% da meta anual '+scopeWord;
+  var periodLabels = {anual:'da meta anual', 1:'da meta do 1º trimestre', 2:'da meta do 2º trimestre', 3:'da meta do 3º trimestre', 4:'da meta do 4º trimestre'};
+  if(legendEl) legendEl.innerHTML = '<b>Termômetro de indicadores</b>'+pct+'% '+periodLabels[indicSummaryPeriod]+' '+scopeWord;
+  renderIndicSummaryPeriodTabs();
 }
 
 /* ================= INDICADORES: ESCOPO IGREJA / DISTRITO / MISSÃO ================= */
@@ -3144,11 +3223,11 @@ function computeDesafiosScoreForChurch(g, q){
   });
   return Math.round(total*100)/100;
 }
-function computeDesafiosScoreForDistrict(distrito){
+function computeDesafiosScoreForDistrict(distrito, q){
   var churches = churchesInDistrict(distrito);
   if(!churches.length) return 0;
   var sum = 0;
-  churches.forEach(function(g){ sum += computeDesafiosScoreForChurch(g); });
+  churches.forEach(function(g){ sum += computeDesafiosScoreForChurch(g, q); });
   return Math.round((sum/churches.length)*100)/100;
 }
 function computeIndicPercentForChurch(g){
@@ -3157,6 +3236,13 @@ function computeIndicPercentForChurch(g){
   var totalMeta = g.metas.missionarios+g.metas.estudos+g.metas.batismos+g.metas.enviados;
   return totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
 }
+function computeIndicPercentForChurchQuarter(g, q){
+  var t = g.trimestres && g.trimestres[q-1];
+  if(!t) return 0;
+  var totalMeta = somaIndicadores(t.meta);
+  var totalAchieved = somaIndicadores(t.valores);
+  return totalMeta>0 ? Math.round((totalAchieved/totalMeta)*100) : 0;
+}
 function computeIndicPercentForDistrict(distrito){
   var d = getDistrict(distrito);
   var achieved = aggregateAchieved(churchesInDistrict(distrito));
@@ -3164,34 +3250,98 @@ function computeIndicPercentForDistrict(distrito){
   var totalMeta = d ? (d.metas.missionarios+d.metas.estudos+d.metas.batismos+d.metas.enviados) : 0;
   return totalMeta>0 ? Math.round((totalAtual/totalMeta)*100) : 0;
 }
+function computeIndicPercentForDistrictQuarter(distrito, q){
+  var churches = churchesInDistrict(distrito);
+  var totalMeta = 0, totalAchieved = 0;
+  churches.forEach(function(g){
+    var t = g.trimestres && g.trimestres[q-1];
+    if(!t) return;
+    totalMeta += somaIndicadores(t.meta);
+    totalAchieved += somaIndicadores(t.valores);
+  });
+  return totalMeta>0 ? Math.round((totalAchieved/totalMeta)*100) : 0;
+}
+var rankPeriod = 'anual';
+function computeScoreForChurch(mode, g){
+  if(mode==='indicadores'){
+    return rankPeriod==='anual' ? computeIndicPercentForChurch(g) : computeIndicPercentForChurchQuarter(g, rankPeriod);
+  }
+  if(rankPeriod==='anual'){
+    var sum = 0;
+    for(var q=1;q<=4;q++) sum += computeDesafiosScoreForChurch(g, q);
+    return Math.round(sum*100)/100;
+  }
+  return computeDesafiosScoreForChurch(g, rankPeriod);
+}
+function computeScoreForDistrict(mode, distrito){
+  if(mode==='indicadores'){
+    return rankPeriod==='anual' ? computeIndicPercentForDistrict(distrito) : computeIndicPercentForDistrictQuarter(distrito, rankPeriod);
+  }
+  if(rankPeriod==='anual'){
+    var sum = 0;
+    for(var q=1;q<=4;q++) sum += computeDesafiosScoreForDistrict(distrito, q);
+    return Math.round(sum*100)/100;
+  }
+  return computeDesafiosScoreForDistrict(distrito, rankPeriod);
+}
+function renderRankPeriodCards(){
+  var wrap = document.getElementById('rankPeriodRow');
+  if(!wrap) return;
+  var periods = [
+    ['anual','Ano completo','Acumulado'],
+    [1,'1º Trimestre','Jan-Mar'],
+    [2,'2º Trimestre','Abr-Jun'],
+    [3,'3º Trimestre','Jul-Set'],
+    [4,'4º Trimestre','Out-Dez']
+  ];
+  wrap.innerHTML = periods.map(function(p){
+    var cls = p[0]===rankPeriod ? 'period-chip active' : 'period-chip';
+    return '<div class="'+cls+'" onclick="selectRankPeriod('+(typeof p[0]==='number' ? p[0] : "'"+p[0]+"'")+')"><b>'+p[1]+'</b><span>'+p[2]+'</span></div>';
+  }).join('');
+}
+function selectRankPeriod(p){
+  rankPeriod = p;
+  renderRankPeriodCards();
+  refreshRankingRows();
+}
+function refreshRankingRows(){
+  var activeTab = document.querySelector('#rankingTabs .tab.active');
+  var key = 'igrejas';
+  if(activeTab){
+    var m = activeTab.getAttribute('onclick').match(/'([a-z]+)'/);
+    if(m) key = m[1];
+  }
+  var rowsEl = document.getElementById('rankingRows');
+  if(rowsEl) rowsEl.innerHTML = renderRankRows(getScopedRankingList(rankMode, key));
+}
 function buildRankingList(mode, key){
   if(mode==='indicadores'){
     if(key==='igrejas'){
       return igrejasList.map(function(g){
-        return { nome:g.nome, sub:g.distrito+(g.tipo==='Grupo' ? ' · Grupo' : ''), distrito:g.distrito, pts:computeIndicPercentForChurch(g) };
+        return { nome:g.nome, sub:g.distrito+(g.tipo==='Grupo' ? ' · Grupo' : ''), distrito:g.distrito, pts:computeScoreForChurch('indicadores', g) };
       }).sort(function(a,b){ return b.pts-a.pts; });
     }
     if(key==='distritos'){
       return distritosList.map(function(d){
-        return { nome:d.nome, sub:unitsSummary(d.nome), distrito:d.nome, pts:computeIndicPercentForDistrict(d.nome) };
+        return { nome:d.nome, sub:unitsSummary(d.nome), distrito:d.nome, pts:computeScoreForDistrict('indicadores', d.nome) };
       }).sort(function(a,b){ return b.pts-a.pts; });
     }
     return [];
   }
   if(key==='igrejas'){
     return igrejasList.map(function(g){
-      return { nome:g.nome, sub:g.distrito+(g.tipo==='Grupo' ? ' · Grupo' : ''), distrito:g.distrito, pts:computeDesafiosScoreForChurch(g) };
+      return { nome:g.nome, sub:g.distrito+(g.tipo==='Grupo' ? ' · Grupo' : ''), distrito:g.distrito, pts:computeScoreForChurch('desafios', g) };
     }).sort(function(a,b){ return b.pts-a.pts; });
   }
   if(key==='distritos'){
     return distritosList.map(function(d){
-      return { nome:d.nome, sub:unitsSummary(d.nome), distrito:d.nome, pts:computeDesafiosScoreForDistrict(d.nome) };
+      return { nome:d.nome, sub:unitsSummary(d.nome), distrito:d.nome, pts:computeScoreForDistrict('desafios', d.nome) };
     }).sort(function(a,b){ return b.pts-a.pts; });
   }
   if(key==='lideres') return [];
   if(key==='pastores'){
     return distritosList.map(function(d){
-      return { nome:(d.pastor && d.pastor.nome) ? d.pastor.nome : '(sem pastor)', sub:d.nome, distrito:d.nome, pts:computeDesafiosScoreForDistrict(d.nome) };
+      return { nome:(d.pastor && d.pastor.nome) ? d.pastor.nome : '(sem pastor)', sub:d.nome, distrito:d.nome, pts:computeScoreForDistrict('desafios', d.nome) };
     }).sort(function(a,b){ return b.pts-a.pts; });
   }
   return [];
@@ -3227,6 +3377,7 @@ function renderRankingTabs(){
 }
 function applyRankingRoleRestrictions(){
   renderRankingTabs();
+  renderRankPeriodCards();
   var filterRow = document.getElementById('rankingFilters');
   var scopeNote = document.getElementById('rankingScopeNote');
   var isAdmin = currentUserRole==='adm';
