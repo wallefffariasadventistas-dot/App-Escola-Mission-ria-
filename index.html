@@ -452,6 +452,8 @@
   .person-modal-actions .btn{ flex:1; padding:10px; font-size:12.5px; }
   .btn-ghost-dark{ background:var(--bg); color:var(--ink); border:1px solid var(--line); }
   .btn-danger-solid{ flex:1; padding:10px; font-size:12.5px; border:none; border-radius:12px; cursor:pointer; background:var(--red); color:#fff; font-weight:700; }
+  .report-reason-chip{ border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; font-size:12.5px; font-weight:600; color:var(--ink); cursor:pointer; }
+  .report-reason-chip.active{ border-color:var(--red); background:var(--red-light); color:var(--red); font-weight:700; }
   .person-modal-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
   .person-modal-grid div{ aspect-ratio:1/1; border-radius:6px; }
 
@@ -745,12 +747,12 @@
               <div class="sidebar-item" data-nav-d="desafios" onclick="go('desafios')"><span class="ic">🎯</span>Desafios</div>
               <div class="sidebar-item" data-nav-d="ranking" onclick="go('ranking')"><span class="ic">🏆</span>Ranking</div>
               <div class="sidebar-item" data-nav-d="indicadores" onclick="go('indicadores')"><span class="ic">📊</span>Indicadores</div>
-              <div class="sidebar-sep"></div>
               <div class="sidebar-item" data-nav-d="feed" onclick="go('feed')"><span class="ic">📣</span>Feed Missionário</div>
+              <div class="sidebar-item" data-nav-d="together" onclick="go('together')"><span class="ic">🧑‍🤝‍🧑</span>Together (Jovens)</div>
+              <div class="sidebar-sep"></div>
               <div class="sidebar-item" data-nav-d="galeria" onclick="go('galeria')"><span class="ic">🖼️</span>Galeria</div>
               <div class="sidebar-item" data-nav-d="materiais" onclick="go('materiais')"><span class="ic">📁</span>Materiais</div>
-              <div class="sidebar-item" data-nav-d="instrucoes" onclick="go('instrucoes')"><span class="ic">❓</span>Instruções</div>
-              <div class="sidebar-item" data-nav-d="together" onclick="go('together')"><span class="ic">✨</span>Together (Jovens)</div>
+              <div class="sidebar-item" data-nav-d="instrucoes" onclick="go('instrucoes')"><span class="ic">📋</span>Instruções</div>
               <div class="sidebar-item" data-nav-d="perfil" onclick="go('perfil')"><span class="ic">🙂</span>Meu Perfil</div>
               <div class="sidebar-item" id="adminSidebarItem" data-nav-d="admin" onclick="go('admin')"><span class="ic">⚙️</span>Administração</div>
               <div class="sidebar-sep"></div>
@@ -809,7 +811,7 @@
                 <div class="quick-item" onclick="go('indicadores')"><div class="ic" style="background:var(--primary-light); color:var(--primary);">📊</div><span>Indicadores</span></div>
                 <div class="quick-item" onclick="go('feed')"><div class="ic" style="background:var(--red-light); color:var(--red);">📣</div><span>Feed</span></div>
                 <div class="quick-item" onclick="go('materiais')"><div class="ic" style="background:#e9f5fc; color:var(--primary);">📁</div><span>Materiais</span></div>
-                <div class="quick-item" onclick="go('together')"><div class="ic" style="background:#F1EBFB; color:var(--purple);">✨</div><span>Together</span></div>
+                <div class="quick-item" onclick="go('together')"><div class="ic" style="background:#F1EBFB; color:var(--purple);">🧑‍🤝‍🧑</div><span>Together</span></div>
               </div>
             </div>
 
@@ -926,7 +928,7 @@
               <div id="feedPosts">
                 <div class="post">
                   <div class="post-head"><div class="post-av">A</div><div style="flex:1;"><b>Líder de Central Teresina</b><span>há 2 horas</span></div><span class="post-tag">Estudo Bíblico</span>
-                    <div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
+                    <div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
                   </div>
                   <div class="post-media">📷 foto do estudo bíblico</div>
                   <div class="post-text">Mais uma família recebendo o estudo da Bíblia hoje! Glória a Deus pela abertura de corações. 🙏</div>
@@ -963,7 +965,7 @@
                 </div>
                 <div class="post">
                   <div class="post-head"><div class="post-av" style="background:var(--primary);">J</div><div style="flex:1;"><b>Pastor Eduardo Chateaubriand · Central Teresina</b><span>ontem</span></div><span class="post-tag">Sábado Missionário</span>
-                    <div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
+                    <div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
                   </div>
                   <div class="post-media carousel">
                     <div class="carousel-track" onscroll="updateCarouselUI(this)">
@@ -1225,6 +1227,7 @@
                 <div class="section-title">Painel de Administração</div>
                 <div class="admin-banner" id="adminBanner">Acesso total — Administração da Missão Piauiense</div>
                 <div class="admin-menu-item" id="adminMenuUsuarios" onclick="openAdmin('usuarios')"><div class="ic">👤</div><div><b>Cadastrar usuários</b><span id="adminMenuUsuariosSub">Aprovar Pastores e Líderes</span></div><div class="chevron-right">›</div></div>
+                <div class="admin-menu-item" id="adminMenuDenuncias" onclick="openAdmin('denuncias')"><div class="ic" style="background:var(--red-light); color:var(--red);">🚩</div><div><b>Denúncias</b><span id="adminMenuDenunciasSub">Publicações denunciadas pela comunidade</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuIgrejas" onclick="openAdmin('igrejas')"><div class="ic">⛪</div><div><b>Editar igrejas e distritos</b><span id="adminMenuIgrejasSub">Estrutura organizacional</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuIndicadores" onclick="openAdmin('indicadores')"><div class="ic">📊</div><div><b>Alimentar indicadores</b><span id="adminMenuIndicadoresSub">Metas anuais e trimestrais por igreja</span></div><div class="chevron-right">›</div></div>
                 <div class="admin-menu-item" id="adminMenuMateriais" onclick="openAdmin('materiais')"><div class="ic">📁</div><div><b>Publicar materiais</b><span>Biblioteca digital</span></div><div class="chevron-right">›</div></div>
@@ -1281,8 +1284,8 @@
               <div class="sheet-item" onclick="go('galeria'); closeMore()"><div class="ic">🖼️</div><div><b>Galeria</b><span>Fotos por distrito, igreja e evento</span></div></div>
               <div class="sheet-title">Recursos</div>
               <div class="sheet-item" onclick="go('materiais'); closeMore()"><div class="ic">📁</div><div><b>Materiais</b><span>PDFs, slides, vídeos e guias</span></div></div>
-              <div class="sheet-item" onclick="go('instrucoes'); closeMore()"><div class="ic">❓</div><div><b>Instruções</b><span>Como funciona, FAQ e vídeos</span></div></div>
-              <div class="sheet-item" onclick="go('together'); closeMore()"><div class="ic">✨</div><div><b>Together (Jovens)</b><span>Desafios do ministério jovem</span></div></div>
+              <div class="sheet-item" onclick="go('instrucoes'); closeMore()"><div class="ic">📋</div><div><b>Instruções</b><span>Como funciona, FAQ e vídeos</span></div></div>
+              <div class="sheet-item" onclick="go('together'); closeMore()"><div class="ic">🧑‍🤝‍🧑</div><div><b>Together (Jovens)</b><span>Desafios do ministério jovem</span></div></div>
               <div class="sheet-title" id="adminSheetTitle">Administração</div>
               <div class="sheet-item" id="adminSheetItem" onclick="go('admin'); closeMore()"><div class="ic" style="background:var(--red-light); color:var(--red);">⚙️</div><div><b>Painel Administrativo</b><span>Usuários, igrejas, desafios e campanhas</span></div></div>
               <div class="sheet-title">Conta</div>
@@ -1474,6 +1477,63 @@
             <button class="btn btn-ghost-dark" onclick="closeDeleteAccountConfirm()">Cancelar</button>
             <button class="btn btn-danger-solid" onclick="confirmDeleteAccount()">Excluir</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Bloquear usuário -->
+      <div class="person-modal" id="blockUserModal" onclick="if(event.target===this) closeBlockUserModal()">
+        <div class="person-modal-card" style="text-align:left;">
+          <span class="person-modal-close" onclick="closeBlockUserModal()">✕</span>
+          <div class="detail-title" style="text-align:center;">Bloquear <span id="blockUserName">usuário</span>?</div>
+          <div class="profile-card-sub" style="margin-top:10px;">A pessoa deixa de conseguir acessar o app até ser desbloqueada. Descreva o motivo (fica registrado no histórico do usuário):</div>
+          <div class="field" style="margin-top:10px;"><textarea id="blockUserReason" rows="3" placeholder="Ex: Publicou conteúdo ofensivo repetidas vezes"></textarea></div>
+          <div class="person-modal-actions" style="margin-top:14px;">
+            <button class="btn btn-ghost-dark" onclick="closeBlockUserModal()">Cancelar</button>
+            <button class="btn btn-danger-solid" onclick="confirmBlockUser()">Bloquear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Denunciar publicação -->
+      <div class="person-modal" id="reportPostModal" onclick="if(event.target===this) closeReportModal()">
+        <div class="person-modal-card" style="text-align:left;">
+          <span class="person-modal-close" onclick="closeReportModal()">✕</span>
+          <div class="detail-title" style="text-align:center;">Denunciar publicação</div>
+          <div class="profile-card-sub" style="margin-top:6px;">Por que você está denunciando esta publicação?</div>
+          <div class="report-reason-list" id="reportReasonList" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
+            <div class="report-reason-chip" data-reason="Spam ou propaganda indevida" onclick="selectReportReason(this)">Spam ou propaganda indevida</div>
+            <div class="report-reason-chip" data-reason="Conteúdo ofensivo ou discurso de ódio" onclick="selectReportReason(this)">Conteúdo ofensivo ou discurso de ódio</div>
+            <div class="report-reason-chip" data-reason="Conteúdo impróprio ou sensível" onclick="selectReportReason(this)">Conteúdo impróprio ou sensível</div>
+            <div class="report-reason-chip" data-reason="Informação falsa" onclick="selectReportReason(this)">Informação falsa</div>
+            <div class="report-reason-chip" data-reason="Outro motivo" onclick="selectReportReason(this)">Outro motivo</div>
+          </div>
+          <div class="field" style="margin-top:12px;"><label>Comentário (opcional)</label><textarea id="reportComment" rows="2" placeholder="Detalhe o que aconteceu, se quiser"></textarea></div>
+          <div class="person-modal-actions" style="margin-top:14px;">
+            <button class="btn btn-ghost-dark" onclick="closeReportModal()">Cancelar</button>
+            <button class="btn btn-danger-solid" onclick="submitReport()">Enviar denúncia</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recuperar acesso -->
+      <div class="person-modal" id="recoverAccessModal" onclick="if(event.target===this) closeRecoverAccessModal()">
+        <div class="person-modal-card" style="text-align:left;">
+          <span class="person-modal-close" onclick="closeRecoverAccessModal()">✕</span>
+          <div class="detail-title" style="text-align:center;">Recuperar acesso</div>
+          <div class="profile-card-sub" style="margin-top:6px;">Como prefere receber as instruções de recuperação?</div>
+          <div class="filter-row" style="margin-top:10px;">
+            <div class="chip active" id="recoverMethodEmail" onclick="selectRecoverMethod('email')">📧 E-mail</div>
+            <div class="chip" id="recoverMethodPhone" onclick="selectRecoverMethod('celular')">📱 Celular</div>
+          </div>
+          <div class="field" style="margin-top:12px;">
+            <label id="recoverFieldLabel">E-mail cadastrado</label>
+            <input id="recoverInput" type="email" placeholder="seuemail@missao.org">
+          </div>
+          <div class="person-modal-actions" style="margin-top:14px;">
+            <button class="btn btn-ghost-dark" onclick="closeRecoverAccessModal()">Cancelar</button>
+            <button class="btn btn-solid" style="flex:1;" onclick="submitRecoverAccess()">Enviar instruções</button>
+          </div>
+          <div class="profile-card-sub" style="margin-top:12px; text-align:center; font-size:11px;">Esta tela já está pronta para uso — o envio de verdade por e-mail/SMS será ativado assim que conectarmos o banco de dados.</div>
         </div>
       </div>
 
@@ -2273,7 +2333,7 @@ function buildPostHeadHtml(avatarHtml, name, time, tag, avatarBg){
   return '<div class="post-head"><div class="post-av"'+(avatarBg ? ' style="background:'+avatarBg+';"' : '')+'>'+avatarHtml+'</div><div style="flex:1;"><b>'+name+'</b><span>'+time+'</span></div>'
     + (tag ? '<span class="post-tag">'+tag+'</span>' : '')
     + '<div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span>'
-    + '<div class="post-menu hidden"><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>'
+    + '<div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>'
     + '</div>';
 }
 function togglePostMenu(btn){
@@ -2291,6 +2351,48 @@ function deletePost(el){
   }
   post.remove();
   toast('Publicação excluída.');
+}
+/* ---- Denúncias de publicações ---- */
+var reportedPosts = [];
+var nextReportId = 1;
+var pendingReportPostEl = null;
+function openReportModal(el){
+  var post = el.closest('.post');
+  if(!post) return;
+  pendingReportPostEl = post;
+  document.querySelectorAll('.post-menu').forEach(function(m){ m.classList.add('hidden'); });
+  document.querySelectorAll('.report-reason-chip').forEach(function(c){ c.classList.remove('active'); });
+  document.getElementById('reportComment').value = '';
+  document.getElementById('reportPostModal').classList.add('show');
+}
+function closeReportModal(){
+  document.getElementById('reportPostModal').classList.remove('show');
+  pendingReportPostEl = null;
+}
+function selectReportReason(el){
+  document.querySelectorAll('.report-reason-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+}
+function submitReport(){
+  var reasonEl = document.querySelector('.report-reason-chip.active');
+  if(!reasonEl){ toast('Selecione um motivo para a denúncia.'); return; }
+  var post = pendingReportPostEl;
+  if(!post){ closeReportModal(); return; }
+  var authorEl = post.querySelector('.post-head b');
+  var textEl = post.querySelector('.post-text');
+  var comentario = document.getElementById('reportComment').value.trim();
+  reportedPosts.unshift({
+    id: nextReportId++,
+    autor: authorEl ? authorEl.textContent : 'Desconhecido',
+    texto: textEl ? textEl.textContent : '(publicação sem legenda)',
+    motivo: reasonEl.dataset.reason,
+    comentario: comentario,
+    reportedBy: (myProfileInfo && myProfileInfo.nome) ? myProfileInfo.nome : 'Você',
+    data: new Date().toLocaleString('pt-BR'),
+    status: 'pendente'
+  });
+  closeReportModal();
+  toast('Denúncia enviada. A Administração vai revisar.');
 }
 document.addEventListener('click', function(e){
   if(!e.target.closest || !e.target.closest('.post-menu-wrap')){
@@ -3159,11 +3261,43 @@ function toggleFaq(el){
   if(!wasOpen) el.classList.add('open');
 }
 
+var recoverMethod = 'email';
 function recoverAccess(){
-  var email = prompt('Digite seu e-mail cadastrado para receber o link de recuperação:');
-  if(email && email.trim()){
-    toast('Link de recuperação enviado para '+email.trim()+' (simulado).');
+  openRecoverAccessModal();
+}
+function openRecoverAccessModal(){
+  selectRecoverMethod('email');
+  document.getElementById('recoverAccessModal').classList.add('show');
+}
+function closeRecoverAccessModal(){
+  document.getElementById('recoverAccessModal').classList.remove('show');
+}
+function selectRecoverMethod(method){
+  recoverMethod = method;
+  document.getElementById('recoverMethodEmail').classList.toggle('active', method==='email');
+  document.getElementById('recoverMethodPhone').classList.toggle('active', method==='celular');
+  var input = document.getElementById('recoverInput');
+  var label = document.getElementById('recoverFieldLabel');
+  if(method==='email'){
+    label.textContent = 'E-mail cadastrado';
+    input.type = 'email';
+    input.placeholder = 'seuemail@missao.org';
+  } else {
+    label.textContent = 'Celular cadastrado';
+    input.type = 'tel';
+    input.placeholder = '(86) 9 9999-0000';
   }
+  input.value = '';
+}
+function submitRecoverAccess(){
+  var value = document.getElementById('recoverInput').value.trim();
+  var meioLabel = recoverMethod==='email' ? 'e-mail' : 'celular';
+  if(!value){
+    toast('Digite seu '+meioLabel+' cadastrado.');
+    return;
+  }
+  closeRecoverAccessModal();
+  toast('Se este '+meioLabel+' estiver cadastrado, você receberá as instruções em breve (simulado).');
 }
 
 function submitCadastro(){
@@ -3186,7 +3320,7 @@ function submitCadastro(){
   var destino = perfil==='Pastor' ? distrito : (igreja+' · '+distrito);
 
   if(perfil==='Membro'){
-    activeUsers.unshift({ id:nextUserId++, nome:nome, perfil:'Membro', destino:destino, email:email, telefone:telefone, senha:senha });
+    activeUsers.unshift({ id:nextUserId++, nome:nome, perfil:'Membro', destino:destino, email:email, telefone:telefone, senha:senha, status:'ativo' });
     userChurch = igreja;
     userDistrict = distrito;
     mySignupEmail = email;
@@ -4305,8 +4439,15 @@ function applyAdminMenuRoleRestrictions(){
   }
   var materiaisItem = document.getElementById('adminMenuMateriais');
   var campanhasItem = document.getElementById('adminMenuCampanhas');
+  var denunciasItem = document.getElementById('adminMenuDenuncias');
   if(materiaisItem) materiaisItem.classList.toggle('hidden', isPastor);
   if(campanhasItem) campanhasItem.classList.toggle('hidden', isPastor);
+  if(denunciasItem) denunciasItem.classList.toggle('hidden', isPastor);
+  var denunciasSub = document.getElementById('adminMenuDenunciasSub');
+  if(denunciasSub){
+    var pendCount = reportedPosts.filter(function(r){ return r.status==='pendente'; }).length;
+    denunciasSub.textContent = pendCount>0 ? pendCount+' pendente'+(pendCount===1?'':'s')+' de revisão' : 'Nenhuma denúncia pendente';
+  }
 
   var usuariosSub = document.getElementById('adminMenuUsuariosSub');
   if(usuariosSub) usuariosSub.textContent = isPastor ? 'Aprovar Líderes do seu distrito' : 'Aprovar Pastores e Líderes';
@@ -4345,6 +4486,7 @@ function backAdmin(){
 function renderAdmin(section){
   var body = document.getElementById('adminDetailBody');
   if(section==='usuarios') body.innerHTML = renderUsuarios();
+  else if(section==='denuncias') body.innerHTML = renderReportsAdmin();
   else if(section==='igrejas') body.innerHTML = renderIgrejas();
   else if(section==='indicadores'){ body.innerHTML = renderIndicAdmin(); loadIndicAdminValues(); }
   else if(section==='materiais') body.innerHTML = renderMateriaisAdmin();
@@ -4388,24 +4530,33 @@ function renderUsuarios(){
       + '</div></div>';
   }).join('') || '<div class="empty-note">Nenhuma solicitação pendente 🎉</div>';
 
+  var blockedCount = scopedActive.filter(function(u){ return u.status==='bloqueado'; }).length;
+
   var active = scopedActive.map(function(u){
     if(editingUserId===u.id) return renderUserEditForm(u);
-    return '<div class="active-user-row">'
+    var isBlocked = u.status==='bloqueado';
+    var rowStyle = isBlocked ? ' style="opacity:.7; background:var(--red-light);"' : '';
+    var badge = isBlocked ? '<span class="status-pill status-pend" style="background:var(--red-light); color:var(--red); margin-left:6px;">🚫 Bloqueado</span>' : '';
+    var contactLine = [u.email, u.telefone].filter(Boolean).join(' · ');
+    return '<div class="active-user-row"'+rowStyle+'>'
       + '<div class="pav">'+initials(u.nome)+'</div>'
-      + '<div style="flex:1;"><b>'+u.nome+'</b><span>'+u.perfil+' &middot; '+u.destino+'</span></div>'
+      + '<div style="flex:1;"><b>'+u.nome+'</b>'+badge+'<span>'+u.perfil+' &middot; '+u.destino+'</span>'+(contactLine ? '<span style="display:block; font-size:10.5px; color:var(--muted); margin-top:2px;">'+contactLine+'</span>' : '')+(isBlocked && u.blockReason ? '<span style="display:block; font-size:10.5px; color:var(--red); margin-top:2px;">Motivo: '+u.blockReason+'</span>' : '')+'</div>'
       + '<div class="row-actions">'
       + '<button class="btn-approve" onclick="editUser('+u.id+')">Editar</button>'
-      + '<button class="btn-reject" onclick="revokeUser('+u.id+')">Recusar</button>'
+      + (isBlocked
+          ? '<button class="btn-approve" style="background:var(--green-light); color:var(--green);" onclick="unblockUser('+u.id+')">Desbloquear</button>'
+          : '<button class="btn-reject" style="background:var(--red-light); color:var(--red);" onclick="openBlockUserModal('+u.id+')">Bloquear</button>')
+      + '<button class="btn-reject" onclick="revokeUser('+u.id+')">Remover</button>'
       + '</div></div>';
   }).join('');
 
-  return '<div class="detail-title">'+(isPastor ? 'Cadastrar líderes do meu distrito' : 'Cadastrar usuários')+'</div>'
+  return '<div class="detail-title">'+(isPastor ? 'Gerenciar usuários do meu distrito' : 'Gerenciar usuários')+'</div>'
     + '<div class="section-sub">'+(isPastor
-        ? 'Aprove ou gerencie os Líderes solicitando acesso no seu distrito ('+userDistrict+').'
-        : 'A Administração cadastra e aprova os Pastores; cada Pastor aprovado passa a poder cadastrar e aprovar os Líderes do seu distrito.')+'</div>'
+        ? 'Aprove, edite ou bloqueie os Líderes solicitando acesso no seu distrito ('+userDistrict+').'
+        : 'A Administração cadastra e aprova os Pastores; cada Pastor aprovado passa a poder cadastrar e aprovar os Líderes do seu distrito. Usuários que violarem as regras podem ser bloqueados aqui.')+'</div>'
     + '<div class="section-title" style="margin-top:6px;">Pendentes de aprovação ('+scopedPending.length+')</div>'
     + pend
-    + '<div class="section-title">Usuários ativos ('+scopedActive.length+')</div>'
+    + '<div class="section-title">Usuários ativos ('+scopedActive.length+')'+(blockedCount ? ' · '+blockedCount+' bloqueado(s)' : '')+'</div>'
     + active;
 }
 function renderUserEditForm(u){
@@ -4439,11 +4590,45 @@ function saveUserEdit(id){
   renderAdmin('usuarios');
   toast('Dados de '+u.nome+' atualizados.');
 }
+var blockingUserId = null;
+function openBlockUserModal(id){
+  blockingUserId = id;
+  var u = activeUsers.find(function(x){ return x.id===id; });
+  if(!u) return;
+  document.getElementById('blockUserName').textContent = u.nome;
+  document.getElementById('blockUserReason').value = '';
+  document.getElementById('blockUserModal').classList.add('show');
+}
+function closeBlockUserModal(){
+  document.getElementById('blockUserModal').classList.remove('show');
+  blockingUserId = null;
+}
+function confirmBlockUser(){
+  var u = activeUsers.find(function(x){ return x.id===blockingUserId; });
+  if(!u) return;
+  var motivo = document.getElementById('blockUserReason').value.trim();
+  u.status = 'bloqueado';
+  u.blockReason = motivo || 'Não especificado';
+  u.blockedAt = new Date().toLocaleString('pt-BR');
+  closeBlockUserModal();
+  var body = document.getElementById('adminDetailBody');
+  var currentSection = (body && body.dataset.section) || 'usuarios';
+  renderAdmin(currentSection);
+  toast(u.nome+' foi bloqueado(a).');
+}
+function unblockUser(id){
+  var u = activeUsers.find(function(x){ return x.id===id; });
+  if(!u) return;
+  u.status = 'ativo';
+  u.blockReason = '';
+  renderAdmin('usuarios');
+  toast(u.nome+' foi desbloqueado(a).');
+}
 function revokeUser(id){
   var idx = activeUsers.findIndex(function(u){ return u.id===id; });
   if(idx===-1) return;
   var u = activeUsers[idx];
-  if(!confirm('Recusar/remover o acesso de '+u.nome+'? O usuário sairá da lista de ativos.')) return;
+  if(!confirm('Remover o acesso de '+u.nome+' definitivamente? O usuário sairá da lista de ativos.')) return;
   activeUsers.splice(idx,1);
   renderAdmin('usuarios');
   toast('Acesso de '+u.nome+' removido.');
@@ -4452,7 +4637,7 @@ function approveUser(id){
   var idx = pendingRequests.findIndex(function(r){ return r.id===id; });
   if(idx===-1) return;
   var r = pendingRequests.splice(idx,1)[0];
-  activeUsers.unshift({ id:nextUserId++, nome:r.nome, perfil:r.perfil, destino:r.destino, email:r.email||'', telefone:r.telefone||'', senha:r.senha||'' });
+  activeUsers.unshift({ id:nextUserId++, nome:r.nome, perfil:r.perfil, destino:r.destino, email:r.email||'', telefone:r.telefone||'', senha:r.senha||'', status:'ativo' });
   renderAdmin('usuarios');
   toast(r.nome+' aprovado(a) como '+r.perfil+'!');
 }
@@ -4462,6 +4647,59 @@ function rejectUser(id){
   var r = pendingRequests.splice(idx,1)[0];
   renderAdmin('usuarios');
   toast('Solicitação de '+r.nome+' recusada.');
+}
+
+/* ---- Denúncias (moderação) ---- */
+function renderReportsAdmin(){
+  var pending = reportedPosts.filter(function(r){ return r.status==='pendente'; });
+  var resolved = reportedPosts.filter(function(r){ return r.status!=='pendente'; });
+
+  function reportCard(r){
+    var statusBadge = r.status==='pendente'
+      ? '<span class="status-pill status-pend">Pendente</span>'
+      : (r.status==='removido' ? '<span class="status-pill status-done">Conteúdo removido</span>' : '<span class="status-pill status-prog">Arquivada</span>');
+    var actions = r.status==='pendente'
+      ? '<div class="pending-actions">'
+        + '<button class="btn-approve" onclick="resolveReport('+r.id+',\'removido\')">Remover conteúdo</button>'
+        + '<button class="btn-reject" onclick="resolveReport('+r.id+',\'arquivada\')">Arquivar (sem violação)</button>'
+        + '<button class="btn-reject" style="background:var(--red-light); color:var(--red);" onclick="blockReportedAuthor(\''+r.autor.replace(/'/g,"\\'")+'\')">Bloquear autor</button>'
+        + '</div>'
+      : '';
+    return '<div class="pending-card">'
+      + '<div class="top"><div class="pav">🚩</div><div><b>Denúncia de '+r.reportedBy+'</b><div class="role-tag">'+r.motivo+' · '+r.data+'</div></div></div>'
+      + '<div style="font-size:12px; color:var(--ink); margin:8px 0;"><b>Autor da publicação:</b> '+r.autor+'</div>'
+      + '<div style="font-size:12px; color:var(--muted); margin-bottom:8px; font-style:italic;">"'+r.texto+'"</div>'
+      + (r.comentario ? '<div style="font-size:12px; color:var(--ink); margin-bottom:8px;"><b>Comentário de quem denunciou:</b> '+r.comentario+'</div>' : '')
+      + statusBadge
+      + actions
+      + '</div>';
+  }
+
+  var pendHtml = pending.map(reportCard).join('') || '<div class="empty-note">Nenhuma denúncia pendente 🎉</div>';
+  var resolvedHtml = resolved.map(reportCard).join('') || '<div class="empty-note">Nenhuma denúncia revisada ainda.</div>';
+
+  return '<div class="detail-title">Denúncias de publicações</div>'
+    + '<div class="section-sub">Revise as publicações denunciadas pela comunidade e decida a ação: remover o conteúdo, arquivar (se não houver violação) ou bloquear o autor.</div>'
+    + '<div class="section-title" style="margin-top:6px;">Pendentes ('+pending.length+')</div>'
+    + pendHtml
+    + '<div class="section-title">Já revisadas ('+resolved.length+')</div>'
+    + resolvedHtml;
+}
+function resolveReport(id, status){
+  var r = reportedPosts.find(function(x){ return x.id===id; });
+  if(!r) return;
+  r.status = status;
+  renderAdmin('denuncias');
+  applyAdminMenuRoleRestrictions();
+  toast(status==='removido' ? 'Denúncia resolvida: conteúdo marcado como removido.' : 'Denúncia arquivada — nenhuma violação encontrada.');
+}
+function blockReportedAuthor(autorNome){
+  var u = activeUsers.find(function(x){ return x.nome===autorNome; });
+  if(!u){
+    toast('"'+autorNome+'" não foi encontrado(a) no cadastro de usuários (pode ser um perfil de demonstração).');
+    return;
+  }
+  openBlockUserModal(u.id);
 }
 
 /* ---- Igrejas e distritos ---- */
