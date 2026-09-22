@@ -59,7 +59,7 @@ function renderUserEditForm(u){
     + '<div class="two-col"><div class="field"><label>Telefone</label><input id="editTelefone_'+u.id+'" value="'+escapeHtml(u.telefone||'')+'"></div><div class="field"><label>E-mail</label><input id="editEmail_'+u.id+'" value="'+escapeHtml(u.email||'')+'"></div></div>'
     + '<div class="two-col"><div class="field"><label>Perfil</label><select id="editPerfil_'+u.id+'"><option'+(u.perfil==='Líder'?' selected':'')+'>Líder</option><option'+(u.perfil==='Pastor'?' selected':'')+'>Pastor</option></select></div>'
     + '<div class="field"><label>Igreja / Distrito</label><input id="editDestino_'+u.id+'" value="'+escapeHtml(u.destino)+'"></div></div>'
-    + '<div class="field"><label>Senha</label><div style="display:flex; gap:8px;"><input id="editSenha_'+u.id+'" type="password" value="'+escapeHtml(u.senha||'')+'" style="flex:1;"><button type="button" class="mini-btn" onclick="toggleSenhaVisibility('+u.id+')">👁</button></div></div>'
+    + '<div class="field"><label>Senha</label><div style="display:flex; gap:8px;"><input id="editSenha_'+u.id+'" type="password" value="'+escapeHtml(u.senha||'')+'" style="flex:1;"><button type="button" class="mini-btn" aria-label="Mostrar ou ocultar senha" onclick="toggleSenhaVisibility('+u.id+')">👁</button></div></div>'
     + '<div class="pending-actions"><button class="btn-approve" onclick="saveUserEdit('+u.id+')">Salvar</button><button class="btn-reject" onclick="cancelEditUser()">Cancelar</button></div>'
     + '</div>';
 }

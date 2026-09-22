@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Escola Missionária — Missão Piauiense</title>
 
 <!-- PWA: faz o app cobrir a tela toda (sem barra do navegador) quando adicionado à tela inicial -->
@@ -294,7 +294,7 @@
               <input type="file" id="feedFileInput" accept="image/*,video/*" multiple style="display:none;">
               <div class="feed-new-post-row">
                 <div class="feed-new-post-wrap">
-                  <button class="fab-new-post" onclick="toggleNewPostMenu()">+</button>
+                  <button class="fab-new-post" aria-label="Criar nova publicação" onclick="toggleNewPostMenu()">+</button>
                   <div class="new-post-menu hidden" id="newPostMenu">
                     <div class="new-post-menu-item" onclick="closeNewPostMenu(); document.getElementById('feedFileInput').click();">📷 <span>Post no Feed</span></div>
                     <div class="new-post-menu-item" onclick="closeNewPostMenu(); document.getElementById('storyFileInput').click();">⭐ <span>Story</span></div>
@@ -304,15 +304,15 @@
               <div id="feedPosts">
                 <div class="post">
                   <div class="post-head"><div class="post-av">A</div><div style="flex:1;"><b>Líder de Central Teresina</b><span>há 2 horas</span></div><span class="post-tag">Estudo Bíblico</span>
-                    <div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
+                    <div class="post-menu-wrap"><span class="post-menu-btn" aria-label="Mais opções" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
                   </div>
                   <div class="post-media">📷 foto do estudo bíblico</div>
                   <div class="post-text">Mais uma família recebendo o estudo da Bíblia hoje! Glória a Deus pela abertura de corações. 🙏</div>
                   <div class="post-actions">
                     <span class="liked" onclick="toggleLike(this)">❤ 24 curtidas</span>
                     <span class="comment-toggle" onclick="toggleComments(this)">💬 4 comentários</span>
-                    <span class="icon-action repost-btn" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
-                    <span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+                    <span class="icon-action repost-btn" aria-label="Repostar" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
+                    <span class="icon-action save-btn" aria-label="Salvar publicação" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
                   </div>
                   <div class="comments-list collapsed">
                     <div class="comment-item"><div class="comment-body"><b class="comment-author">Maria Fernandes</b> Que alegria! Deus está trabalhando muito nessa região 🙌</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">3</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
@@ -322,7 +322,7 @@
                   </div>
                   <div class="view-all-comments" onclick="toggleComments(this)">Ver todos os 4 comentários</div>
                   <div class="comment-compose hidden">
-                    <div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span onclick="cancelReply(this.closest('.post'))">✕</span></div>
+                    <div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span aria-label="Cancelar resposta" onclick="cancelReply(this.closest('.post'))">✕</span></div>
                     <div class="comment-emoji-row">
                       <span onclick="insertCommentEmoji(this,'❤️')">❤️</span>
                       <span onclick="insertCommentEmoji(this,'🙌')">🙌</span>
@@ -341,7 +341,7 @@
                 </div>
                 <div class="post">
                   <div class="post-head"><div class="post-av" style="background:var(--primary);">J</div><div style="flex:1;"><b>Pastor Eduardo Chateaubriand · Central Teresina</b><span>ontem</span></div><span class="post-tag">Sábado Missionário</span>
-                    <div class="post-menu-wrap"><span class="post-menu-btn" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
+                    <div class="post-menu-wrap"><span class="post-menu-btn" aria-label="Mais opções" onclick="togglePostMenu(this)">⋮</span><div class="post-menu hidden"><div class="post-menu-item" onclick="openReportModal(this)">🚩 Denunciar publicação</div><div class="post-menu-item danger" onclick="deletePost(this)">🗑️ Excluir publicação</div></div></div>
                   </div>
                   <div class="post-media carousel">
                     <div class="carousel-track" onscroll="updateCarouselUI(this)">
@@ -356,8 +356,8 @@
                   <div class="post-actions">
                     <span onclick="toggleLike(this)">🤍 41 curtidas</span>
                     <span class="comment-toggle" onclick="toggleComments(this)">💬 5 comentários</span>
-                    <span class="icon-action repost-btn" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
-                    <span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+                    <span class="icon-action repost-btn" aria-label="Repostar" onclick="toggleRepost(this)"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><b class="count">0</b></span>
+                    <span class="icon-action save-btn" aria-label="Salvar publicação" onclick="toggleSave(this)" style="margin-left:auto;"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
                   </div>
                   <div class="comments-list collapsed">
                     <div class="comment-item"><div class="comment-body"><b class="comment-author">Líder Fernanda</b> Tarde maravilhosa! Deus abençoe a todos envolvidos.</div><div class="comment-actions"><span class="comment-like" onclick="toggleCommentLike(this)">🤍 <span class="clikes">4</span></span><span class="comment-reply-btn" onclick="startReply(this)">Responder</span></div><div class="comment-replies"></div></div>
@@ -368,7 +368,7 @@
                   </div>
                   <div class="view-all-comments" onclick="toggleComments(this)">Ver todos os 5 comentários</div>
                   <div class="comment-compose hidden">
-                    <div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span onclick="cancelReply(this.closest('.post'))">✕</span></div>
+                    <div class="reply-banner hidden">Respondendo a <b class="reply-target-name"></b> <span aria-label="Cancelar resposta" onclick="cancelReply(this.closest('.post'))">✕</span></div>
                     <div class="comment-emoji-row">
                       <span onclick="insertCommentEmoji(this,'❤️')">❤️</span>
                       <span onclick="insertCommentEmoji(this,'🙌')">🙌</span>
@@ -414,10 +414,10 @@
                 <div class="chip" onclick="selectFilterChip(this); filterMateriais()" data-cat="guia">Guias</div>
               </div>
               <div id="materiais-list">
-                <div class="mat-row" data-cat="pdf guia"><div class="mat-ic" style="background:var(--red);">PDF</div><div class="mat-name">Guia do Líder 2026<span>Guias · 2,4 MB</span></div><div class="dl-btn" onclick="downloadMaterial('Guia do Líder 2026')">⬇</div></div>
-                <div class="mat-row" data-cat="ppt treinamento"><div class="mat-ic" style="background:#D9822B;">PPT</div><div class="mat-name">Treinamento Formativo — Módulo 1<span>Treinamentos · 8,1 MB</span></div><div class="dl-btn" onclick="downloadMaterial('Treinamento Formativo — Módulo 1')">⬇</div></div>
-                <div class="mat-row" data-cat="vídeo"><div class="mat-ic" style="background:var(--primary);">▶</div><div class="mat-name">Vídeo — Sábado Missionário à Tarde<span>Vídeos · 12 min</span></div><div class="dl-btn" onclick="downloadMaterial('Vídeo — Sábado Missionário à Tarde')">⬇</div></div>
-                <div class="mat-row" data-cat="manual guia"><div class="mat-ic" style="background:var(--green);">DOC</div><div class="mat-name">Manual de Indicadores<span>Manuais · 1,1 MB</span></div><div class="dl-btn" onclick="downloadMaterial('Manual de Indicadores')">⬇</div></div>
+                <div class="mat-row" data-cat="pdf guia"><div class="mat-ic" style="background:var(--red);">PDF</div><div class="mat-name">Guia do Líder 2026<span>Guias · 2,4 MB</span></div><div class="dl-btn" aria-label="Baixar material" onclick="downloadMaterial('Guia do Líder 2026')">⬇</div></div>
+                <div class="mat-row" data-cat="ppt treinamento"><div class="mat-ic" style="background:#D9822B;">PPT</div><div class="mat-name">Treinamento Formativo — Módulo 1<span>Treinamentos · 8,1 MB</span></div><div class="dl-btn" aria-label="Baixar material" onclick="downloadMaterial('Treinamento Formativo — Módulo 1')">⬇</div></div>
+                <div class="mat-row" data-cat="vídeo"><div class="mat-ic" style="background:var(--primary);">▶</div><div class="mat-name">Vídeo — Sábado Missionário à Tarde<span>Vídeos · 12 min</span></div><div class="dl-btn" aria-label="Baixar material" onclick="downloadMaterial('Vídeo — Sábado Missionário à Tarde')">⬇</div></div>
+                <div class="mat-row" data-cat="manual guia"><div class="mat-ic" style="background:var(--green);">DOC</div><div class="mat-name">Manual de Indicadores<span>Manuais · 1,1 MB</span></div><div class="dl-btn" aria-label="Baixar material" onclick="downloadMaterial('Manual de Indicadores')">⬇</div></div>
               </div>
               <div class="empty-note hidden" id="materiaisEmpty">Nenhum material encontrado.</div>
             </div>
@@ -684,8 +684,8 @@
               <span id="storyViewerName">Nome</span>
             </div>
             <div style="display:flex; align-items:center; gap:4px;">
-              <span class="story-menu-btn hidden" id="storyMenuBtn" onclick="toggleStoryMenu(event)">⋮</span>
-              <span class="close" onclick="closeStoryViewer()">✕</span>
+              <span class="story-menu-btn hidden" id="storyMenuBtn" aria-label="Mais opções" onclick="toggleStoryMenu(event)">⋮</span>
+              <span class="close" aria-label="Fechar" onclick="closeStoryViewer()">✕</span>
             </div>
           </div>
           <div class="post-menu hidden" id="storyMenu" style="top:52px; right:44px;">
@@ -703,7 +703,7 @@
       <!-- Perfil de outra pessoa (busca / sugestões / seguidores) -->
       <div class="person-modal" id="personModal" onclick="if(event.target===this) closePersonProfile()">
         <div class="person-modal-card">
-          <span class="person-modal-close" onclick="closePersonProfile()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closePersonProfile()">✕</span>
           <div class="person-modal-avatar" id="personModalAvatar"></div>
           <div class="person-modal-name" id="personModalName"></div>
           <div class="person-modal-sub" id="personModalSub"></div>
@@ -723,7 +723,7 @@
       <!-- Prévia do meu perfil -->
       <div class="person-modal" id="myProfilePreviewModal" onclick="if(event.target===this) closeMyProfilePreview()">
         <div class="person-modal-card">
-          <span class="person-modal-close" onclick="closeMyProfilePreview()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeMyProfilePreview()">✕</span>
           <div class="detail-title" style="text-align:center; margin-bottom:14px;">Perfil Missionário</div>
           <div class="person-modal-avatar" id="previewAvatar"><span>EU</span></div>
           <div class="person-modal-name" id="previewName">Você</div>
@@ -744,7 +744,7 @@
       <!-- Termos e Privacidade -->
       <div class="person-modal" id="legalModal" onclick="if(event.target===this) closeLegalModal()">
         <div class="person-modal-card" style="text-align:left;">
-          <span class="person-modal-close" onclick="closeLegalModal()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeLegalModal()">✕</span>
           <div class="detail-title" style="text-align:center;">Termos de Uso e Política de Privacidade</div>
           <div class="profile-card-sub" style="text-align:center; margin-top:2px;">Última atualização: 27/08/2026</div>
           <div class="profile-card-sub" id="legalTextBody" style="margin-top:14px; max-height:56vh; overflow-y:auto; font-size:12px; line-height:1.55;">
@@ -846,7 +846,7 @@
       <!-- Excluir conta -->
       <div class="person-modal" id="deleteAccountModal" onclick="if(event.target===this) closeDeleteAccountConfirm()">
         <div class="person-modal-card">
-          <span class="person-modal-close" onclick="closeDeleteAccountConfirm()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeDeleteAccountConfirm()">✕</span>
           <div class="detail-title" style="text-align:center;">Excluir conta?</div>
           <div class="profile-card-sub" style="margin-top:10px; text-align:center;">Isso vai apagar seus dados salvos neste protótipo (perfil, publicações e stories). Essa ação não pode ser desfeita.</div>
           <div class="person-modal-actions" style="margin-top:18px;">
@@ -859,7 +859,7 @@
       <!-- Bloquear usuário -->
       <div class="person-modal" id="blockUserModal" onclick="if(event.target===this) closeBlockUserModal()">
         <div class="person-modal-card" style="text-align:left;">
-          <span class="person-modal-close" onclick="closeBlockUserModal()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeBlockUserModal()">✕</span>
           <div class="detail-title" style="text-align:center;">Bloquear <span id="blockUserName">usuário</span>?</div>
           <div class="profile-card-sub" style="margin-top:10px;">A pessoa deixa de conseguir acessar o app até ser desbloqueada. Descreva o motivo (fica registrado no histórico do usuário):</div>
           <div class="field" style="margin-top:10px;"><textarea id="blockUserReason" rows="3" placeholder="Ex: Publicou conteúdo ofensivo repetidas vezes"></textarea></div>
@@ -873,7 +873,7 @@
       <!-- Denunciar publicação -->
       <div class="person-modal" id="reportPostModal" onclick="if(event.target===this) closeReportModal()">
         <div class="person-modal-card" style="text-align:left;">
-          <span class="person-modal-close" onclick="closeReportModal()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeReportModal()">✕</span>
           <div class="detail-title" style="text-align:center;">Denunciar publicação</div>
           <div class="profile-card-sub" style="margin-top:6px;">Por que você está denunciando esta publicação?</div>
           <div class="report-reason-list" id="reportReasonList" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
@@ -894,7 +894,7 @@
       <!-- Recuperar acesso -->
       <div class="person-modal" id="recoverAccessModal" onclick="if(event.target===this) closeRecoverAccessModal()">
         <div class="person-modal-card" style="text-align:left;">
-          <span class="person-modal-close" onclick="closeRecoverAccessModal()">✕</span>
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeRecoverAccessModal()">✕</span>
           <div class="detail-title" style="text-align:center;">Recuperar acesso</div>
           <div class="profile-card-sub" style="margin-top:6px;">Como prefere receber as instruções de recuperação?</div>
           <div class="filter-row" style="margin-top:10px;">
@@ -917,7 +917,7 @@
       <!-- Novo Post: fotos, texto e categoria -->
       <div class="newpost-modal" id="newPostModal">
         <div class="newpost-topbar">
-          <span class="cancel-btn" onclick="cancelNewPost()">✕</span>
+          <span class="cancel-btn" aria-label="Fechar" onclick="cancelNewPost()">✕</span>
           <div style="text-align:center;">
             <b>Novo Post</b>
             <div style="font-size:11px; opacity:.85;">Compartilhe com a comunidade</div>
@@ -953,7 +953,7 @@
 
       <div class="editor-modal" id="editorModal">
         <div class="editor-topbar">
-          <span class="cancel-btn" onclick="cancelEditor()">✕</span>
+          <span class="cancel-btn" aria-label="Fechar" onclick="cancelEditor()">✕</span>
           <b id="editorTitle">Ajustar foto</b>
           <span class="topbar-spacer"></span>
         </div>

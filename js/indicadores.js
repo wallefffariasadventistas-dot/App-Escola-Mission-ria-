@@ -462,8 +462,8 @@ function buildPostInteractionsHtml(likeSpanHtml, commentCount){
   return '<div class="post-actions">'
     + likeSpanHtml
     + '<span class="comment-toggle" onclick="toggleComments(this)">💬 '+commentCount+' comentário'+(commentCount===1 ? '' : 's')+'</span>'
-    + '<span class="icon-action repost-btn" onclick="toggleRepost(this)">'+ICON_REPOST_SVG+'<b class="count">0</b></span>'
-    + '<span class="icon-action save-btn" onclick="toggleSave(this)" style="margin-left:auto;">'+bookmarkSvg(false)+'</span>'
+    + '<span class="icon-action repost-btn" aria-label="Repostar" onclick="toggleRepost(this)">'+ICON_REPOST_SVG+'<b class="count">0</b></span>'
+    + '<span class="icon-action save-btn" aria-label="Salvar publicação" onclick="toggleSave(this)" style="margin-left:auto;">'+bookmarkSvg(false)+'</span>'
     + '</div>'
     + '<div class="comments-list collapsed"></div>'
     + '<div class="view-all-comments hidden" onclick="toggleComments(this)"></div>'
