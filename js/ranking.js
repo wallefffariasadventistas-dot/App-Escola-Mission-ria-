@@ -184,7 +184,10 @@ function applyRankingRoleRestrictions(){
   var filterRow = document.getElementById('rankingFilters');
   var scopeNote = document.getElementById('rankingScopeNote');
   var isAdmin = currentUserRole==='adm';
-  if(filterRow) filterRow.classList.toggle('hidden', !isAdmin);
+  if(filterRow){
+    filterRow.classList.toggle('hidden', !isAdmin);
+    if(isAdmin) renderDistrictCards();
+  }
   if(scopeNote){
     scopeNote.classList.toggle('hidden', isAdmin);
     if(!isAdmin){
@@ -234,10 +237,31 @@ function openDistrictDetail(nome){
   } else {
     pastorEl.textContent = 'Nenhum pastor designado ainda.';
   }
+  var listEl = document.getElementById('districtDetailChurchList');
+  if(listEl){
+    listEl.innerHTML = units.length
+      ? units.map(function(g){
+          var tag = g.tipo==='Grupo' ? ' <span class="tag" style="background:#F1EBFB; color:var(--purple);">Grupo</span>' : '';
+          return '<div style="padding:7px 0; border-bottom:1px solid var(--line); font-size:12.5px; color:var(--ink);">'+escapeHtml(g.nome)+tag+'</div>';
+        }).join('')
+      : '<div class="empty-note">Nenhuma igreja cadastrada neste distrito ainda.</div>';
+  }
   document.getElementById('districtDetailModal').classList.add('show');
 }
 function closeDistrictDetail(){
   document.getElementById('districtDetailModal').classList.remove('show');
+}
+function renderDistrictCards(){
+  var wrap = document.getElementById('districtCardsList');
+  if(!wrap) return;
+  wrap.innerHTML = distritosList.map(function(d){
+    var units = churchesInDistrict(d.nome);
+    var pastorNome = (d.pastor && d.pastor.nome) ? d.pastor.nome : 'Sem pastor definido';
+    return '<div class="igreja-row" style="cursor:pointer;" onclick="openDistrictDetail(\''+d.nome.replace(/'/g,"\\'")+'\')">'
+      + '<div class="ic">🗺️</div>'
+      + '<div style="flex:1"><b>'+escapeHtml(d.nome)+'</b><span>'+units.length+' igreja'+(units.length===1 ? '' : 's')+' · Pastor: '+escapeHtml(pastorNome)+'</span></div>'
+      + '</div>';
+  }).join('');
 }
 function selectRankTab(el,key){
   el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));

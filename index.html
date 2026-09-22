@@ -265,11 +265,9 @@
                 <div class="tab" onclick="selectRankTab(this,'lideres')">Líderes</div>
                 <div class="tab" onclick="selectRankTab(this,'pastores')">Pastores</div>
               </div>
-              <div class="filter-row" id="rankingFilters">
-                <div class="chip active" onclick="selectFilterChip(this)">Todos distritos</div>
-                <div class="chip" onclick="selectFilterChip(this)">Aeroporto - PI</div>
-                <div class="chip" onclick="selectFilterChip(this)">Central Teresina</div>
-                <div class="chip" onclick="selectFilterChip(this)">Parnaíba</div>
+              <div id="rankingFilters">
+                <div class="section-sub" style="margin-top:2px;">Distritos da Missão — toque para ver as igrejas de cada um:</div>
+                <div id="districtCardsList" style="margin-top:8px;"></div>
               </div>
               <div id="rankingRows"></div>
             </div>
@@ -927,6 +925,10 @@
           <div class="profile-card" style="text-align:left; margin-top:2px;">
             <div class="profile-card-title" style="font-size:13px;">🕊️ Pastor responsável</div>
             <div class="profile-card-sub" id="districtDetailPastor" style="margin:0;">—</div>
+          </div>
+          <div class="profile-card" style="text-align:left; margin-top:10px; max-height:240px; overflow-y:auto;">
+            <div class="profile-card-title" style="font-size:13px;">⛪ Igrejas do distrito</div>
+            <div id="districtDetailChurchList"></div>
           </div>
         </div>
       </div>
