@@ -913,6 +913,24 @@
         </div>
       </div>
 
+      <!-- Detalhe do distrito (ranking por Nº de igrejas) -->
+      <div class="person-modal" id="districtDetailModal" onclick="if(event.target===this) closeDistrictDetail()">
+        <div class="person-modal-card">
+          <span class="person-modal-close" aria-label="Fechar" onclick="closeDistrictDetail()">✕</span>
+          <div class="person-modal-avatar" style="background:var(--primary);">🗺️</div>
+          <div class="person-modal-name" id="districtDetailName">Distrito</div>
+          <div class="person-modal-sub">Distrito Missionário</div>
+          <div class="person-modal-stats">
+            <div><b id="districtDetailIgrejas">0</b><span>Igrejas</span></div>
+            <div><b id="districtDetailGrupos">0</b><span>Grupos</span></div>
+          </div>
+          <div class="profile-card" style="text-align:left; margin-top:2px;">
+            <div class="profile-card-title" style="font-size:13px;">🕊️ Pastor responsável</div>
+            <div class="profile-card-sub" id="districtDetailPastor" style="margin:0;">—</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Photo editor (crop / move / zoom) -->
       <!-- Novo Post: fotos, texto e categoria -->
       <div class="newpost-modal" id="newPostModal">
