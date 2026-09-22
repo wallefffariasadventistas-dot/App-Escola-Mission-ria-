@@ -100,9 +100,24 @@ function refreshRankingRows(){
     if(m) key = m[1];
   }
   var rowsEl = document.getElementById('rankingRows');
-  if(rowsEl) rowsEl.innerHTML = renderRankRows(getScopedRankingList(rankMode, key));
+  if(rowsEl) rowsEl.innerHTML = renderRankRows(getScopedRankingList(rankMode, key), key);
 }
 function buildRankingList(mode, key){
+  if(key==='estrutura'){
+    return distritosList.map(function(d){
+      var units = churchesInDistrict(d.nome);
+      var igrejas = units.filter(function(g){ return g.tipo!=='Grupo'; }).length;
+      var grupos = units.filter(function(g){ return g.tipo==='Grupo'; }).length;
+      return {
+        nome: d.nome,
+        sub: (d.pastor && d.pastor.nome) ? 'Pastor: '+d.pastor.nome : 'Sem pastor definido',
+        distrito: d.nome,
+        pts: igrejas,
+        igrejas: igrejas,
+        grupos: grupos
+      };
+    }).sort(function(a,b){ return b.pts-a.pts; });
+  }
   if(mode==='indicadores'){
     if(key==='igrejas'){
       return igrejasList.map(function(g){
@@ -153,10 +168,10 @@ function renderRankingTabs(){
   var isAdmin = currentUserRole==='adm';
   var tabs;
   if(rankMode==='indicadores'){
-    tabs = isAdmin ? [['igrejas','Igrejas'],['distritos','Distritos']] : [['igrejas','Igrejas']];
+    tabs = isAdmin ? [['igrejas','Igrejas'],['distritos','Distritos'],['estrutura','Nº de Igrejas']] : [['igrejas','Igrejas']];
   } else {
     tabs = isAdmin
-      ? [['igrejas','Igrejas'],['distritos','Distritos'],['lideres','Líderes'],['pastores','Pastores']]
+      ? [['igrejas','Igrejas'],['distritos','Distritos'],['lideres','Líderes'],['pastores','Pastores'],['estrutura','Nº de Igrejas']]
       : [['igrejas','Igrejas'],['lideres','Líderes']];
   }
   tabsWrap.innerHTML = tabs.map(function(t,i){
@@ -169,7 +184,10 @@ function applyRankingRoleRestrictions(){
   var filterRow = document.getElementById('rankingFilters');
   var scopeNote = document.getElementById('rankingScopeNote');
   var isAdmin = currentUserRole==='adm';
-  if(filterRow) filterRow.classList.toggle('hidden', !isAdmin);
+  if(filterRow){
+    filterRow.classList.toggle('hidden', !isAdmin);
+    if(isAdmin) renderDistrictCards();
+  }
   if(scopeNote){
     scopeNote.classList.toggle('hidden', isAdmin);
     if(!isAdmin){
@@ -179,23 +197,75 @@ function applyRankingRoleRestrictions(){
     }
   }
   var rowsEl = document.getElementById('rankingRows');
-  if(rowsEl) rowsEl.innerHTML = renderRankRows(getScopedRankingList(rankMode, 'igrejas'));
+  if(rowsEl) rowsEl.innerHTML = renderRankRows(getScopedRankingList(rankMode, 'igrejas'), 'igrejas');
 }
 function formatPts(pts){
   if(typeof pts === 'number') return pts.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
   return pts;
 }
-function renderRankRows(list){
+function isDistrictLevelKey(key){
+  return key==='distritos' || key==='pastores' || key==='estrutura';
+}
+function renderRankRows(list, key){
   if(!list.length) return '<div class="empty-note">Nenhum dado disponível ainda.</div>';
   var medalClasses = ['gold','silver','bronze'];
+  var clickable = isDistrictLevelKey(key);
+  var isEstrutura = key==='estrutura';
   return list.map(function(r,i){
     var cls = medalClasses[i] ? ' '+medalClasses[i] : '';
-    return '<div class="rank-row'+cls+'"><div class="rank-pos">'+(i+1)+'º</div><div class="rank-name">'+escapeHtml(r.nome)+'<span>'+escapeHtml(r.sub)+'</span></div><div class="rank-pts">'+formatPts(r.pts)+'</div></div>';
+    var ptsText = isEstrutura ? (r.pts+' igreja'+(r.pts===1 ? '' : 's')) : formatPts(r.pts);
+    var rowAttrs = clickable
+      ? ' onclick="openDistrictDetail(\''+r.distrito.replace(/'/g,"\\'")+'\')" style="cursor:pointer;"'
+      : '';
+    return '<div class="rank-row'+cls+'"'+rowAttrs+'><div class="rank-pos">'+(i+1)+'º</div><div class="rank-name">'+escapeHtml(r.nome)+'<span>'+escapeHtml(r.sub)+'</span></div><div class="rank-pts">'+ptsText+'</div></div>';
+  }).join('');
+}
+function openDistrictDetail(nome){
+  var d = getDistrict(nome);
+  if(!d) return;
+  var units = churchesInDistrict(nome);
+  var igrejas = units.filter(function(g){ return g.tipo!=='Grupo'; }).length;
+  var grupos = units.filter(function(g){ return g.tipo==='Grupo'; }).length;
+  document.getElementById('districtDetailName').textContent = nome;
+  document.getElementById('districtDetailIgrejas').textContent = igrejas;
+  document.getElementById('districtDetailGrupos').textContent = grupos;
+  var pastorEl = document.getElementById('districtDetailPastor');
+  if(d.pastor && d.pastor.nome){
+    pastorEl.innerHTML = '<b>'+escapeHtml(d.pastor.nome)+'</b>'
+      + (d.pastor.email ? '<br>📧 '+escapeHtml(d.pastor.email) : '')
+      + (d.pastor.telefone ? '<br>📞 '+escapeHtml(d.pastor.telefone) : '');
+  } else {
+    pastorEl.textContent = 'Nenhum pastor designado ainda.';
+  }
+  var listEl = document.getElementById('districtDetailChurchList');
+  if(listEl){
+    listEl.innerHTML = units.length
+      ? units.map(function(g){
+          var tag = g.tipo==='Grupo' ? ' <span class="tag" style="background:#F1EBFB; color:var(--purple);">Grupo</span>' : '';
+          return '<div style="padding:7px 0; border-bottom:1px solid var(--line); font-size:12.5px; color:var(--ink);">'+escapeHtml(g.nome)+tag+'</div>';
+        }).join('')
+      : '<div class="empty-note">Nenhuma igreja cadastrada neste distrito ainda.</div>';
+  }
+  document.getElementById('districtDetailModal').classList.add('show');
+}
+function closeDistrictDetail(){
+  document.getElementById('districtDetailModal').classList.remove('show');
+}
+function renderDistrictCards(){
+  var wrap = document.getElementById('districtCardsList');
+  if(!wrap) return;
+  wrap.innerHTML = distritosList.map(function(d){
+    var units = churchesInDistrict(d.nome);
+    var pastorNome = (d.pastor && d.pastor.nome) ? d.pastor.nome : 'Sem pastor definido';
+    return '<div class="igreja-row" style="cursor:pointer;" onclick="openDistrictDetail(\''+d.nome.replace(/'/g,"\\'")+'\')">'
+      + '<div class="ic">🗺️</div>'
+      + '<div style="flex:1"><b>'+escapeHtml(d.nome)+'</b><span>'+units.length+' igreja'+(units.length===1 ? '' : 's')+' · Pastor: '+escapeHtml(pastorNome)+'</span></div>'
+      + '</div>';
   }).join('');
 }
 function selectRankTab(el,key){
   el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('rankingRows').innerHTML = renderRankRows(getScopedRankingList(rankMode, key));
+  document.getElementById('rankingRows').innerHTML = renderRankRows(getScopedRankingList(rankMode, key), key);
 }
 
