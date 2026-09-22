@@ -15,10 +15,10 @@ function renderReportsAdmin(){
         + '</div>'
       : '';
     return '<div class="pending-card">'
-      + '<div class="top"><div class="pav">🚩</div><div><b>Denúncia de '+r.reportedBy+'</b><div class="role-tag">'+r.motivo+' · '+r.data+'</div></div></div>'
-      + '<div style="font-size:12px; color:var(--ink); margin:8px 0;"><b>Autor da publicação:</b> '+r.autor+'</div>'
-      + '<div style="font-size:12px; color:var(--muted); margin-bottom:8px; font-style:italic;">"'+r.texto+'"</div>'
-      + (r.comentario ? '<div style="font-size:12px; color:var(--ink); margin-bottom:8px;"><b>Comentário de quem denunciou:</b> '+r.comentario+'</div>' : '')
+      + '<div class="top"><div class="pav">🚩</div><div><b>Denúncia de '+escapeHtml(r.reportedBy)+'</b><div class="role-tag">'+escapeHtml(r.motivo)+' · '+escapeHtml(r.data)+'</div></div></div>'
+      + '<div style="font-size:12px; color:var(--ink); margin:8px 0;"><b>Autor da publicação:</b> '+escapeHtml(r.autor)+'</div>'
+      + '<div style="font-size:12px; color:var(--muted); margin-bottom:8px; font-style:italic;">"'+escapeHtml(r.texto)+'"</div>'
+      + (r.comentario ? '<div style="font-size:12px; color:var(--ink); margin-bottom:8px;"><b>Comentário de quem denunciou:</b> '+escapeHtml(r.comentario)+'</div>' : '')
       + statusBadge
       + actions
       + '</div>';

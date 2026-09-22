@@ -297,7 +297,7 @@ function filterIndicSearch(){
     resultsEl.innerHTML = matches.map(function(m){
       return '<div class="indic-search-row" onclick="selectIndicScope(\''+m.type+'\',\''+m.name.replace(/'/g,"\\'")+'\')">'
         + '<div class="ic">'+(m.type==='igreja' ? '⛪' : '🗺️')+'</div>'
-        + '<div style="flex:1;"><b>'+m.name+'</b><span>'+m.sub+'</span></div>'
+        + '<div style="flex:1;"><b>'+escapeHtml(m.name)+'</b><span>'+escapeHtml(m.sub)+'</span></div>'
         + '<span class="tag">'+(m.type==='igreja' ? 'Igreja' : 'Distrito')+'</span></div>';
     }).join('');
   }
@@ -433,7 +433,7 @@ function addComment(inputEl){
   var text = inputEl.value.trim();
   if(!text) return;
   var post = inputEl.closest('.post');
-  var safeText = text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var safeText = escapeHtml(text);
   var itemHtml = buildCommentItemHtml('Você', safeText);
   var isReply = pendingReplyTarget && post.contains(pendingReplyTarget);
   if(isReply){
@@ -601,7 +601,7 @@ function createFeedPost(src, isVideo, legenda, tag){
   post.dataset.mine = '1';
   post.innerHTML = buildPostHeadHtml(avatarHtml, 'Você', 'agora mesmo', tag)
     + '<div class="post-media">'+mediaHtml+'</div>'
-    + (legenda ? '<div class="post-text">'+legenda+'</div>' : '')
+    + (legenda ? '<div class="post-text">'+escapeHtml(legenda)+'</div>' : '')
     + buildPostInteractionsHtml('<span onclick="toggleLike(this)">🤍 0 curtidas</span>', 0);
   document.getElementById('feedPosts').prepend(post);
   myPostCount++;
@@ -618,7 +618,7 @@ function createFeedPostCarousel(urls, legenda, tag){
   post.innerHTML = buildPostHeadHtml(avatarHtml, 'Você', 'agora mesmo', tag)
     + '<div class="post-media carousel"><div class="carousel-track" onscroll="updateCarouselUI(this)">'+imgsHtml+'</div><div class="carousel-counter">1/'+urls.length+'</div></div>'
     + '<div class="carousel-dots">'+dotsHtml+'</div>'
-    + (legenda ? '<div class="post-text">'+legenda+'</div>' : '')
+    + (legenda ? '<div class="post-text">'+escapeHtml(legenda)+'</div>' : '')
     + buildPostInteractionsHtml('<span onclick="toggleLike(this)">🤍 0 curtidas</span>', 0);
   document.getElementById('feedPosts').prepend(post);
   myPostCount++;

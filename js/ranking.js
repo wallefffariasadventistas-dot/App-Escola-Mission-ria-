@@ -190,7 +190,7 @@ function renderRankRows(list){
   var medalClasses = ['gold','silver','bronze'];
   return list.map(function(r,i){
     var cls = medalClasses[i] ? ' '+medalClasses[i] : '';
-    return '<div class="rank-row'+cls+'"><div class="rank-pos">'+(i+1)+'º</div><div class="rank-name">'+r.nome+'<span>'+r.sub+'</span></div><div class="rank-pts">'+formatPts(r.pts)+'</div></div>';
+    return '<div class="rank-row'+cls+'"><div class="rank-pos">'+(i+1)+'º</div><div class="rank-name">'+escapeHtml(r.nome)+'<span>'+escapeHtml(r.sub)+'</span></div><div class="rank-pts">'+formatPts(r.pts)+'</div></div>';
   }).join('');
 }
 function selectRankTab(el,key){

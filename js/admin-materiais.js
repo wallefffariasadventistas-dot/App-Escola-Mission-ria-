@@ -32,7 +32,7 @@ function addMaterial(){
     row.dataset.cat = cat.toLowerCase();
     var tituloEscapado = titulo.replace(/'/g,"\\'");
     row.innerHTML = '<div class="mat-ic" style="background:'+(colorMap[cat]||'var(--primary)')+';">'+(tagMap[cat]||cat)+'</div>'
-      + '<div class="mat-name">'+titulo+'<span>'+cat+' &middot; '+tam+'</span></div><div class="dl-btn" onclick="downloadMaterial(\''+tituloEscapado+'\', \''+fileUrl+'\', \''+file.name.replace(/'/g,"\\'")+'\')">⬇</div>';
+      + '<div class="mat-name">'+escapeHtml(titulo)+'<span>'+cat+' &middot; '+tam+'</span></div><div class="dl-btn" onclick="downloadMaterial(\''+tituloEscapado+'\', \''+fileUrl+'\', \''+file.name.replace(/'/g,"\\'")+'\')">⬇</div>';
     document.getElementById('materiais-list').prepend(row);
     tituloEl.value = '';
     fileEl.value = '';

@@ -1,3 +1,13 @@
+/* Escapa texto vindo de usuários antes de inseri-lo via innerHTML,
+   prevenindo XSS (ex: nome de cadastro, legenda de post, motivo de denúncia). */
+function escapeHtml(str){
+  return String(str==null ? '' : str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
 function showView(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
   document.getElementById('view-'+id).classList.remove('hidden');

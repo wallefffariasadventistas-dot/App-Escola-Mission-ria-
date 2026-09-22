@@ -6,9 +6,9 @@ function renderIgrejas(){
   var totalGruposScope = scopeChurches.filter(function(g){ return g.tipo==='Grupo'; }).length;
   var rows = scopeChurches.map(function(g){
     var isGrupo = g.tipo==='Grupo';
-    return '<div class="igreja-row"><div class="ic">'+(isGrupo ? '👥' : '⛪')+'</div><div style="flex:1"><b>'+g.nome+(isGrupo ? ' <span class="badge-role" style="background:#F1EBFB; color:var(--purple);">Grupo</span>' : '')+'</b><span>'+g.distrito+' · Alvos: '+g.metas.missionarios+' miss. / '+g.metas.estudos+' est. / '+g.metas.batismos+' bat. / '+g.metas.enviados+' env.</span></div></div>';
+    return '<div class="igreja-row"><div class="ic">'+(isGrupo ? '👥' : '⛪')+'</div><div style="flex:1"><b>'+escapeHtml(g.nome)+(isGrupo ? ' <span class="badge-role" style="background:#F1EBFB; color:var(--purple);">Grupo</span>' : '')+'</b><span>'+escapeHtml(g.distrito)+' · Alvos: '+g.metas.missionarios+' miss. / '+g.metas.estudos+' est. / '+g.metas.batismos+' bat. / '+g.metas.enviados+' env.</span></div></div>';
   }).join('');
-  var distritoOpts = isPastor ? '<option>'+userDistrict+'</option>' : distritosList.map(function(d){ return '<option>'+d.nome+'</option>'; }).join('');
+  var distritoOpts = isPastor ? '<option>'+escapeHtml(userDistrict)+'</option>' : distritosList.map(function(d){ return '<option>'+escapeHtml(d.nome)+'</option>'; }).join('');
 
   var html = '<div class="detail-title">'+(isPastor ? 'Editar igrejas e grupos do meu distrito' : 'Editar igrejas, grupos e distritos')+'</div>'
     + '<div class="section-sub">Cada igreja e distrito define sua própria meta anual — eles servem de base para o Termômetro Missionário, independente da pontuação dos desafios.</div>'
@@ -27,7 +27,7 @@ function renderIgrejas(){
 
   if(isPastor){
     var d = getDistrict(userDistrict) || { metas:{ missionarios:0, estudos:0, batismos:0, enviados:0 } };
-    html += '<div class="section-title">Meu distrito · '+userDistrict+'</div>'
+    html += '<div class="section-title">Meu distrito · '+escapeHtml(userDistrict)+'</div>'
       + '<div class="mini-form">'
       + '<div class="section-sub" style="margin:0 0 6px;">Ajuste a meta anual do seu distrito — usada no termômetro de indicadores e no ranking.</div>'
       + '<div class="two-col"><div class="field"><label>Alvo · Missionários em ação</label><input id="distMetaMissionarios" type="number" value="'+d.metas.missionarios+'"></div><div class="field"><label>Alvo · Estudos bíblicos</label><input id="distMetaEstudos" type="number" value="'+d.metas.estudos+'"></div></div>'
@@ -37,7 +37,7 @@ function renderIgrejas(){
   } else {
     var distritoRows = distritosList.map(function(dd){
       if(editingDistrictName===dd.nome) return renderDistrictEditForm(dd);
-      return '<div class="igreja-row"><div class="ic">🗺️</div><div style="flex:1"><b>'+dd.nome+'</b><span>Pastor: '+(dd.pastor ? dd.pastor.nome : '—')+' · Alvos: '+dd.metas.missionarios+' miss. / '+dd.metas.estudos+' est. / '+dd.metas.batismos+' bat. / '+dd.metas.enviados+' env.</span></div>'
+      return '<div class="igreja-row"><div class="ic">🗺️</div><div style="flex:1"><b>'+escapeHtml(dd.nome)+'</b><span>Pastor: '+escapeHtml(dd.pastor ? dd.pastor.nome : '—')+' · Alvos: '+dd.metas.missionarios+' miss. / '+dd.metas.estudos+' est. / '+dd.metas.batismos+' bat. / '+dd.metas.enviados+' env.</span></div>'
         + '<div class="row-actions"><button class="btn-approve" onclick="editDistrict(\''+dd.nome.replace(/'/g,"\\'")+'\')">Editar</button></div></div>';
     }).join('');
     html += '<div class="section-title">Novo distrito</div>'
@@ -57,9 +57,9 @@ var editingDistrictName = null;
 function renderDistrictEditForm(d){
   var p = d.pastor || { nome:'', email:'', telefone:'' };
   return '<div class="mini-form">'
-    + '<div class="section-sub" style="margin:0 0 6px;">Distrito: <b>'+d.nome+'</b></div>'
-    + '<div class="two-col"><div class="field"><label>Nome do pastor</label><input id="editDistPastorNome" value="'+p.nome+'"></div><div class="field"><label>E-mail do pastor</label><input id="editDistPastorEmail" value="'+p.email+'"></div></div>'
-    + '<div class="field"><label>Telefone do pastor</label><input id="editDistPastorTelefone" value="'+(p.telefone||'')+'" placeholder="(86) 9 0000-0000"></div>'
+    + '<div class="section-sub" style="margin:0 0 6px;">Distrito: <b>'+escapeHtml(d.nome)+'</b></div>'
+    + '<div class="two-col"><div class="field"><label>Nome do pastor</label><input id="editDistPastorNome" value="'+escapeHtml(p.nome)+'"></div><div class="field"><label>E-mail do pastor</label><input id="editDistPastorEmail" value="'+escapeHtml(p.email)+'"></div></div>'
+    + '<div class="field"><label>Telefone do pastor</label><input id="editDistPastorTelefone" value="'+escapeHtml(p.telefone||'')+'" placeholder="(86) 9 0000-0000"></div>'
     + '<div class="section-sub" style="margin:8px 0 4px;">Meta anual do distrito</div>'
     + '<div class="two-col"><div class="field"><label>Alvo · Missionários</label><input id="editDistMetaMissionarios" type="number" value="'+d.metas.missionarios+'"></div><div class="field"><label>Alvo · Estudos</label><input id="editDistMetaEstudos" type="number" value="'+d.metas.estudos+'"></div></div>'
     + '<div class="two-col"><div class="field"><label>Alvo · Batismos</label><input id="editDistMetaBatismos" type="number" value="'+d.metas.batismos+'"></div><div class="field"><label>Alvo · Enviados</label><input id="editDistMetaEnviados" type="number" value="'+d.metas.enviados+'"></div></div>'

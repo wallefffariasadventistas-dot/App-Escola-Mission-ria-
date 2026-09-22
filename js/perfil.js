@@ -67,7 +67,7 @@ function openMyProfilePreview(){
     var idade = calcAge(myProfileInfo.dataNascimento);
     if(idade!=null) metaParts.push('🎂 '+idade+' anos');
   }
-  document.getElementById('previewMetaRow').innerHTML = metaParts.map(function(p){ return '<span>'+p+'</span>'; }).join('');
+  document.getElementById('previewMetaRow').innerHTML = metaParts.map(function(p){ return '<span>'+escapeHtml(p)+'</span>'; }).join('');
   document.getElementById('previewLikesCount').textContent = myProfileLikes;
   document.getElementById('previewLikesBtn').classList.toggle('liked', myProfileLiked);
   document.getElementById('myProfilePreviewModal').classList.add('show');

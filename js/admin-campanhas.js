@@ -2,7 +2,7 @@
 function renderCampanhas(){
   var rows = campanhasList.map(function(c,i){
     var ativa = c.status==='ativa';
-    return '<div class="campaign-row"><div style="flex:1"><b>'+c.nome+'</b><span>'+(ativa?'Ativa':'Encerrada')+'</span></div>'
+    return '<div class="campaign-row"><div style="flex:1"><b>'+escapeHtml(c.nome)+'</b><span>'+(ativa?'Ativa':'Encerrada')+'</span></div>'
       + '<button class="status-toggle" style="background:'+(ativa?'var(--red-light)':'var(--green-light)')+'; color:'+(ativa?'var(--red)':'var(--green)')+';" onclick="toggleCampanha('+i+')">'+(ativa?'Encerrar':'Liberar')+'</button></div>';
   }).join('');
   return '<div class="detail-title">Liberar campanhas</div>'

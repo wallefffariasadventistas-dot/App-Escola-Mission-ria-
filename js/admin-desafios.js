@@ -48,7 +48,7 @@ function saveDesafios(){
 function populateCadastroSelects(){
   var distSel = document.getElementById('cadDistrito');
   if(!distSel) return;
-  distSel.innerHTML = distritosList.map(function(d){ return '<option>'+d.nome+'</option>'; }).join('');
+  distSel.innerHTML = distritosList.map(function(d){ return '<option>'+escapeHtml(d.nome)+'</option>'; }).join('');
   updateCadIgrejaOptions();
 }
 function updateCadIgrejaOptions(){
@@ -56,7 +56,7 @@ function updateCadIgrejaOptions(){
   var igrejaSel = document.getElementById('cadIgreja');
   if(!distSel || !igrejaSel) return;
   var churches = churchesInDistrict(distSel.value);
-  igrejaSel.innerHTML = churches.map(function(g){ return '<option value="'+g.nome+'">'+g.nome+(g.tipo==='Grupo' ? ' (Grupo)' : '')+'</option>'; }).join('');
+  igrejaSel.innerHTML = churches.map(function(g){ return '<option value="'+escapeHtml(g.nome)+'">'+escapeHtml(g.nome)+(g.tipo==='Grupo' ? ' (Grupo)' : '')+'</option>'; }).join('');
 }
 
 // init

@@ -525,14 +525,14 @@ function applyDesafiosRoleRestrictions(){
   if(!picker || !select) return;
   if(currentUserRole==='pastor'){
     var churches = churchesInDistrict(userDistrict);
-    select.innerHTML = churches.map(function(g){ return '<option value="'+g.nome+'">'+g.nome+'</option>'; }).join('');
+    select.innerHTML = churches.map(function(g){ return '<option value="'+escapeHtml(g.nome)+'">'+escapeHtml(g.nome)+'</option>'; }).join('');
     if(!churches.some(function(g){ return g.nome===desafiosScopeChurch; })){
       desafiosScopeChurch = churches.length ? churches[0].nome : userChurch;
     }
     select.value = desafiosScopeChurch;
     picker.classList.remove('hidden');
   } else if(currentUserRole==='adm'){
-    select.innerHTML = igrejasList.map(function(g){ return '<option value="'+g.nome+'">'+g.nome+'</option>'; }).join('');
+    select.innerHTML = igrejasList.map(function(g){ return '<option value="'+escapeHtml(g.nome)+'">'+escapeHtml(g.nome)+'</option>'; }).join('');
     if(!getChurch(desafiosScopeChurch)) desafiosScopeChurch = igrejasList[0].nome;
     select.value = desafiosScopeChurch;
     picker.classList.remove('hidden');

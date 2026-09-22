@@ -17,7 +17,7 @@ function renderUsuarios(){
   var scopedActive = getScopedActiveUsers();
   var pend = scopedPending.map(function(r){
     return '<div class="pending-card">'
-      + '<div class="top"><div class="pav">'+initials(r.nome)+'</div><div><b>'+r.nome+'</b><div class="role-tag">Solicita acesso como '+r.perfil+' &middot; '+r.destino+'</div></div></div>'
+      + '<div class="top"><div class="pav">'+escapeHtml(initials(r.nome))+'</div><div><b>'+escapeHtml(r.nome)+'</b><div class="role-tag">Solicita acesso como '+escapeHtml(r.perfil)+' &middot; '+escapeHtml(r.destino)+'</div></div></div>'
       + '<div class="pending-actions">'
       + '<button class="btn-approve" onclick="approveUser('+r.id+')">Aprovar</button>'
       + '<button class="btn-reject" onclick="rejectUser('+r.id+')">Recusar</button>'
@@ -31,10 +31,10 @@ function renderUsuarios(){
     var isBlocked = u.status==='bloqueado';
     var rowStyle = isBlocked ? ' style="opacity:.7; background:var(--red-light);"' : '';
     var badge = isBlocked ? '<span class="status-pill status-pend" style="background:var(--red-light); color:var(--red); margin-left:6px;">🚫 Bloqueado</span>' : '';
-    var contactLine = [u.email, u.telefone].filter(Boolean).join(' · ');
+    var contactLine = escapeHtml([u.email, u.telefone].filter(Boolean).join(' · '));
     return '<div class="active-user-row"'+rowStyle+'>'
-      + '<div class="pav">'+initials(u.nome)+'</div>'
-      + '<div style="flex:1;"><b>'+u.nome+'</b>'+badge+'<span>'+u.perfil+' &middot; '+u.destino+'</span>'+(contactLine ? '<span style="display:block; font-size:10.5px; color:var(--muted); margin-top:2px;">'+contactLine+'</span>' : '')+(isBlocked && u.blockReason ? '<span style="display:block; font-size:10.5px; color:var(--red); margin-top:2px;">Motivo: '+u.blockReason+'</span>' : '')+'</div>'
+      + '<div class="pav">'+escapeHtml(initials(u.nome))+'</div>'
+      + '<div style="flex:1;"><b>'+escapeHtml(u.nome)+'</b>'+badge+'<span>'+escapeHtml(u.perfil)+' &middot; '+escapeHtml(u.destino)+'</span>'+(contactLine ? '<span style="display:block; font-size:10.5px; color:var(--muted); margin-top:2px;">'+contactLine+'</span>' : '')+(isBlocked && u.blockReason ? '<span style="display:block; font-size:10.5px; color:var(--red); margin-top:2px;">Motivo: '+escapeHtml(u.blockReason)+'</span>' : '')+'</div>'
       + '<div class="row-actions">'
       + '<button class="btn-approve" onclick="editUser('+u.id+')">Editar</button>'
       + (isBlocked
@@ -55,11 +55,11 @@ function renderUsuarios(){
 }
 function renderUserEditForm(u){
   return '<div class="mini-form">'
-    + '<div class="field"><label>Nome completo</label><input id="editNome_'+u.id+'" value="'+u.nome+'"></div>'
-    + '<div class="two-col"><div class="field"><label>Telefone</label><input id="editTelefone_'+u.id+'" value="'+(u.telefone||'')+'"></div><div class="field"><label>E-mail</label><input id="editEmail_'+u.id+'" value="'+(u.email||'')+'"></div></div>'
+    + '<div class="field"><label>Nome completo</label><input id="editNome_'+u.id+'" value="'+escapeHtml(u.nome)+'"></div>'
+    + '<div class="two-col"><div class="field"><label>Telefone</label><input id="editTelefone_'+u.id+'" value="'+escapeHtml(u.telefone||'')+'"></div><div class="field"><label>E-mail</label><input id="editEmail_'+u.id+'" value="'+escapeHtml(u.email||'')+'"></div></div>'
     + '<div class="two-col"><div class="field"><label>Perfil</label><select id="editPerfil_'+u.id+'"><option'+(u.perfil==='Líder'?' selected':'')+'>Líder</option><option'+(u.perfil==='Pastor'?' selected':'')+'>Pastor</option></select></div>'
-    + '<div class="field"><label>Igreja / Distrito</label><input id="editDestino_'+u.id+'" value="'+u.destino+'"></div></div>'
-    + '<div class="field"><label>Senha</label><div style="display:flex; gap:8px;"><input id="editSenha_'+u.id+'" type="password" value="'+(u.senha||'')+'" style="flex:1;"><button type="button" class="mini-btn" onclick="toggleSenhaVisibility('+u.id+')">👁</button></div></div>'
+    + '<div class="field"><label>Igreja / Distrito</label><input id="editDestino_'+u.id+'" value="'+escapeHtml(u.destino)+'"></div></div>'
+    + '<div class="field"><label>Senha</label><div style="display:flex; gap:8px;"><input id="editSenha_'+u.id+'" type="password" value="'+escapeHtml(u.senha||'')+'" style="flex:1;"><button type="button" class="mini-btn" onclick="toggleSenhaVisibility('+u.id+')">👁</button></div></div>'
     + '<div class="pending-actions"><button class="btn-approve" onclick="saveUserEdit('+u.id+')">Salvar</button><button class="btn-reject" onclick="cancelEditUser()">Cancelar</button></div>'
     + '</div>';
 }
