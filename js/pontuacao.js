@@ -2,7 +2,7 @@
 var currentQuarter = 2;
 var quarterlyScores = { 1: 0, 2: 0, 3: 0, 4: 0 };
 var quarterlyBonus = { 1: false, 2: false, 3: false, 4: false };
-var selectedQuarterView = currentQuarter;
+var selectedQuarterView = 'anual';
 function calculateQuarterScore(){
   var scoreChurches;
   if(currentUserRole==='pastor'){
