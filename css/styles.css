@@ -125,9 +125,10 @@
     box-shadow:0 6px 14px -8px rgba(27,39,51,.18);
     position:relative; z-index:1;
   }
-  .topbar-row{ display:flex; align-items:center; justify-content:center; }
+  .topbar-row{ display:flex; align-items:center; justify-content:center; gap:8px; }
   .app-title{ font-size:18px; font-weight:700; letter-spacing:.02em; color:var(--navy); }
   .topbar-logo-img{ height:42px; width:auto; display:block; max-width:100%; }
+  .topbar-mini-logo{ height:20px; width:auto; display:block; flex:none; }
   .app-title b{ font-weight:800; }
   .utility-bar{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -595,6 +596,8 @@
 
     /* App shell */
     .topbar{ border-radius:0; padding:14px 32px 14px; box-shadow:0 6px 14px -10px rgba(27,39,51,.18); }
+    .app-title{ display:none; }
+    .topbar-mini-logo{ height:44px; }
     .content{ max-width:820px; margin:0 auto; padding:28px 32px 60px; width:100%; }
 
     .bottomnav, .more-sheet{ display:none !important; }
