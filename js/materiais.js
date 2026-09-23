@@ -96,7 +96,7 @@ function switchRole(role){
   if(typeof applyDesafiosRoleRestrictions==='function') applyDesafiosRoleRestrictions();
   if(typeof applyRankingRoleRestrictions==='function') applyRankingRoleRestrictions();
   if(typeof applyAdminMenuRoleRestrictions==='function') applyAdminMenuRoleRestrictions();
-  selectedQuarterView = currentQuarter;
+  selectedQuarterView = 'anual';
   if(typeof calculateQuarterScore==='function') calculateQuarterScore();
   if(typeof calculateIndicSummary==='function') calculateIndicSummary();
 }
