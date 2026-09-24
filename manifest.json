@@ -1,0 +1,15 @@
+{
+  "name": "Escola Missionária MPi",
+  "short_name": "Escola MPi",
+  "description": "Missão Piauiense — desafios, indicadores e testemunho missionário da sua igreja.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B3A57",
+  "theme_color": "#1B3A57",
+  "icons": [
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
